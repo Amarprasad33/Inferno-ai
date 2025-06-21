@@ -1,7 +1,5 @@
-// app/components/KonvaCanvas.tsx
-"use client"; // This is a client component
 
-import React from 'react';
+// import React from 'react';
 import { Stage, Layer, Rect, Text } from 'react-konva';
 
 const KonvaCanvas = () => {
