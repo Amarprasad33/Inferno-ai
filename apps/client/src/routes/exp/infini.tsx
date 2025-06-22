@@ -7,8 +7,7 @@ export const Route = createFileRoute('/exp/infini')({
 
 function RouteComponent() {
   return (
-    <div className='border border-blue-500 p-4'>
-      <p>Inferno canvas is in building</p>
+    <div className='border border-green-500 mt-10 min-h-screen h-screen p-1'>
       <KonvaCanvas />
     </div>
   ) 
