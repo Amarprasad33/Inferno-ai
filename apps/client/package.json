@@ -16,7 +16,9 @@
     "konva": "^9.3.20",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-draggable": "^4.5.0",
     "react-konva": "^19.0.6",
+    "react-konva-utils": "^1.1.1",
     "tailwindcss": "^4.1.10"
   },
   "devDependencies": {
