@@ -46,7 +46,7 @@ const KonvaCanvas = () => {
     const pointer = stage.getPointerPosition();
 
     if (!pointer) {
-        return;
+      return;
     }
 
     const mousePointTo = {
@@ -68,12 +68,12 @@ const KonvaCanvas = () => {
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="border border-red-600 cursor-grab active:cursor-grabbing h-full w-full"
     >
-      <Stage 
-        width={dimensions.width} 
+      <Stage
+        width={dimensions.width}
         height={dimensions.height}
         onWheel={handleWheel}
         // Draggable lets us pan the stage
@@ -110,7 +110,7 @@ const KonvaCanvas = () => {
             fill="red"
             shadowBlur={5}
           />
-          
+
           {/* A welcome text object */}
           <Text
             text="Welcome to your AI Canvas!"
