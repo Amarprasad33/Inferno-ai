@@ -5,21 +5,29 @@ import ReactFlow, {
     applyNodeChanges,
     applyEdgeChanges,
     addEdge,
+    // Node,
+    // Edge,
     // NodeChange,
     // EdgeChange,
     // Connection,
-    // Edge,
+} from 'reactflow';
+import type {
+    Node,
+    Edge,
+    NodeChange,
+    EdgeChange,
+    Connection
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-
 import ChatNode from './ChatNode';
+
 
 // The options to hide the attribution watermark.
 const proOptions = {
     hideAttribution: true,
 };
 
-const initialNodes = [
+const initialNodes: Node<{ label: string }>[] = [
     {
         id: '1',
         type: 'chat',
@@ -35,7 +43,7 @@ const nodeTypes = {
 let nodeId = 2;
 
 const NodeCanvas = () => {
-    const [nodes, setNodes] = useState(initialNodes);
+    const [nodes, setNodes] = useState<Node<{ label: string }>[]>(initialNodes);
     const [edges, setEdges] = useState<Edge[]>([]);
 
     const onNodesChange = useCallback(
@@ -70,7 +78,7 @@ const NodeCanvas = () => {
     return (
         // --- FIX IS HERE ---
         // The height is now 200% of the viewport height, creating a large scrollable area.
-        <div style={{ height: '200vh', width: '100%' }}>
+        <div style={{ height: '100vh', width: '100%' }}>
             <button
                 onClick={addChatNode}
                 style={{
@@ -100,5 +108,6 @@ const NodeCanvas = () => {
         </div>
     );
 };
+
 
 export default NodeCanvas;
