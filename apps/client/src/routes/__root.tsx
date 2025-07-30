@@ -15,6 +15,9 @@ export const Route = createRootRoute({
             <Link to="/exp/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
                 Infini
             </Link>
+            <Link to="/infinir/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                Real Infini
+            </Link>
         </div>
         <Outlet />
         <TanStackRouterDevtools />

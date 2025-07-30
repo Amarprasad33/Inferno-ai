@@ -1,0 +1,104 @@
+import React, { useState, useCallback } from 'react';
+import ReactFlow, {
+    Controls,
+    Background,
+    applyNodeChanges,
+    applyEdgeChanges,
+    addEdge,
+    // NodeChange,
+    // EdgeChange,
+    // Connection,
+    // Edge,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+
+import ChatNode from './ChatNode';
+
+// The options to hide the attribution watermark.
+const proOptions = {
+    hideAttribution: true,
+};
+
+const initialNodes = [
+    {
+        id: '1',
+        type: 'chat',
+        position: { x: 100, y: 100 },
+        data: { label: 'Chat Node' },
+    },
+];
+
+const nodeTypes = {
+    chat: ChatNode,
+};
+
+let nodeId = 2;
+
+const NodeCanvas = () => {
+    const [nodes, setNodes] = useState(initialNodes);
+    const [edges, setEdges] = useState<Edge[]>([]);
+
+    const onNodesChange = useCallback(
+        (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+        []
+    );
+    
+    const onEdgesChange = useCallback(
+        (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+        []
+    );
+
+    const onConnect = useCallback(
+        (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
+        []
+    );
+
+    const addChatNode = () => {
+        const newNode = {
+            id: `${nodeId++}`,
+            type: 'chat',
+            position: {
+                // Spawns nodes over a larger area
+                x: Math.random() * 800,
+                y: Math.random() * 800,
+            },
+            data: { label: `Chat Node ${nodeId}` },
+        };
+        setNodes((nds) => [...nds, newNode]);
+    };
+
+    return (
+        // --- FIX IS HERE ---
+        // The height is now 200% of the viewport height, creating a large scrollable area.
+        <div style={{ height: '200vh', width: '100%' }}>
+            <button
+                onClick={addChatNode}
+                style={{
+                    position: 'absolute',
+                    top: '20px',
+                    left: '20px',
+                    zIndex: 10,
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                }}
+            >
+                Add Node
+            </button>
+            <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                nodeTypes={nodeTypes}
+                proOptions={proOptions}
+                // The `fitView` prop has been removed to give you a wider default view.
+            >
+                <Background />
+                <Controls />
+            </ReactFlow>
+        </div>
+    );
+};
+
+export default NodeCanvas;

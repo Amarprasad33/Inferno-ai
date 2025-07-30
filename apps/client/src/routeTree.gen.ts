@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InfinirInfiniRouteImport } from './routes/infinir/infini'
 import { Route as ExpInfiniRouteImport } from './routes/exp/infini'
 
 const AboutRoute = AboutRouteImport.update({
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InfinirInfiniRoute = InfinirInfiniRouteImport.update({
+  id: '/infinir/infini',
+  path: '/infinir/infini',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExpInfiniRoute = ExpInfiniRouteImport.update({
   id: '/exp/infini',
   path: '/exp/infini',
@@ -33,30 +39,34 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/exp/infini': typeof ExpInfiniRoute
+  '/infinir/infini': typeof InfinirInfiniRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/exp/infini': typeof ExpInfiniRoute
+  '/infinir/infini': typeof InfinirInfiniRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/exp/infini': typeof ExpInfiniRoute
+  '/infinir/infini': typeof InfinirInfiniRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/exp/infini'
+  fullPaths: '/' | '/about' | '/exp/infini' | '/infinir/infini'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/exp/infini'
-  id: '__root__' | '/' | '/about' | '/exp/infini'
+  to: '/' | '/about' | '/exp/infini' | '/infinir/infini'
+  id: '__root__' | '/' | '/about' | '/exp/infini' | '/infinir/infini'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ExpInfiniRoute: typeof ExpInfiniRoute
+  InfinirInfiniRoute: typeof InfinirInfiniRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/infinir/infini': {
+      id: '/infinir/infini'
+      path: '/infinir/infini'
+      fullPath: '/infinir/infini'
+      preLoaderRoute: typeof InfinirInfiniRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exp/infini': {
       id: '/exp/infini'
       path: '/exp/infini'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ExpInfiniRoute: ExpInfiniRoute,
+  InfinirInfiniRoute: InfinirInfiniRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
