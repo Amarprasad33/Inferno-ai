@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import ReactFlow, {
     Controls,
     Background,
@@ -27,15 +27,6 @@ const proOptions = {
     hideAttribution: true,
 };
 
-const initialNodes: Node<{ label: string }>[] = [
-    {
-        id: '1',
-        type: 'chat',
-        position: { x: 100, y: 100 },
-        data: { label: 'Chat Node' },
-    },
-];
-
 const nodeTypes = {
     chat: ChatNode,
 };
@@ -43,8 +34,23 @@ const nodeTypes = {
 let nodeId = 2;
 
 const NodeCanvas = () => {
-    const [nodes, setNodes] = useState<Node<{ label: string }>[]>(initialNodes);
     const [edges, setEdges] = useState<Edge[]>([]);
+    const [isPaneInteractive, setIsPaneInteractive] = useState(true);
+
+    const initialNodes: Node<{ label: string; setIsPaneInteractive: (interactive: boolean) => void; }>[] = [
+        {
+            id: '1',
+            type: 'chat',
+            position: { x: 100, y: 100 },
+            data: {
+                label: 'Chat Node',
+                setIsPaneInteractive: setIsPaneInteractive
+            },
+        },
+    ];
+    const [nodes, setNodes] = useState<Node<{ label: string }>[]>(initialNodes);
+
+
 
     const onNodesChange = useCallback(
         (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -70,27 +76,23 @@ const NodeCanvas = () => {
                 x: Math.random() * 800,
                 y: Math.random() * 800,
             },
-            data: { label: `Chat Node ${nodeId}` },
+            data: {
+                label: `Chat Node ${nodeId}`,
+                setIsPaneInteractive: setIsPaneInteractive
+            },
         };
         setNodes((nds) => [...nds, newNode]);
     };
+
+    // useEffect(() => {
+    //     console.log("i-->", isPaneInteractive);
+    // }, [isPaneInteractive])
 
     return (
         // --- FIX IS HERE ---
         // The height is now 200% of the viewport height, creating a large scrollable area.
         <div
             style={{ height: '100vh', width: '100%' }}
-            onWheel={(e) => {
-                console.log("--ev-home")
-                const target = e.target as HTMLElement;
-
-                // Find out if the wheel event started inside a node
-                if (target.closest('.chat-node')) {
-                    console.log("-stop-node-zoom");
-                    e.preventDefault(); // Block zoom
-                    e.stopPropagation();
-                }
-            }}
         >
             <button
                 onClick={addChatNode}
@@ -113,7 +115,10 @@ const NodeCanvas = () => {
                 onConnect={onConnect}
                 nodeTypes={nodeTypes}
                 proOptions={proOptions}
-            // The `fitView` prop has been removed to give you a wider default view.
+                // 3. CONTROL REACT FLOW'S PROPS with our state.
+                zoomOnScroll={isPaneInteractive}
+                panOnScroll={isPaneInteractive}
+                preventScrolling={isPaneInteractive} // Important for some trackpads
             >
                 <Background />
                 <Controls className='absolute top-[50%] left-1' />

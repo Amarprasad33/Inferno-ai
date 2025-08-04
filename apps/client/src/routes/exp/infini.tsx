@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import KonvaCanvas from '../../components/KonvaCanvas'
+// import KonvaCanvas from '../../components/KonvaCanvas'
 import KonvaCanvasChat from '../../components/CanvasWithChat'
 
 export const Route = createFileRoute('/exp/infini')({
