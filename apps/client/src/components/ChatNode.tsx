@@ -1,4 +1,5 @@
 // import React from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 
 // Update the type for our node data to include the new function
@@ -7,7 +8,58 @@ type ChatNodeData = {
     setIsPaneInteractive: (interactive: boolean) => void;
 };
 
+type Message = {
+    text: string;
+    userType: 'user' | 'bot';
+}
+
 const ChatNode = ({ data }: { data: ChatNodeData }) => {
+    const [messages, setMessages] = useState<Message[]>(
+        [
+            { text: "Hello! How can I help you today?", userType: "bot" }
+        ]
+    );
+    const [input, setInput] = useState("");
+    const [loading, setLoading] = useState(false); // <-- loading state
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const handleSend = () => {
+        if (input.trim() === '' || loading) return;
+        setMessages(prev => [
+            ...prev,
+            { text: input, userType: 'user' }
+        ]);
+        setInput("");
+        setLoading(true); // Start loading
+        // Show "thinking" message
+        setMessages(prev => [
+            ...prev,
+            { text: "Bot is thinking...", userType: 'bot' }
+        ]);
+        setTimeout(() => {
+            setMessages(prev => {
+                // Remove the last "thinking" message and add the real reply
+                const msgs = prev.slice(0, -1);
+                return [
+                    ...msgs,
+                    { text: "This is a bot reply :)", userType: 'bot' }
+                ];
+            });
+            setLoading(false); // Stop loading
+        }, 1000);
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+        }
+    }
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages])
+
     return (
         <div className='chat-node flex flex-col bg-zinc-900 border border-zinc-700 rounded-xl min-w-[35rem] min-h-[50vh]'>
             <Handle type="target" position={Position.Left} className='!w-3 !h-3 !bg-zinc-700 !border !border-zinc-600 !-left-[6px]' />
@@ -17,25 +69,28 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
                 <div className='ml-auto w-5 h-5 bg-inherit rounded-full border border-zinc-600 cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear' />
             </div>
             {/* Chat Space (Main Content) */}
-            {/* This container will grow to fill available space */}
-            <div className='p-2 grow border flex flex-col border-amber-200'>
-                {/* A div for past messages. It grows and is scrollable. */}
+            <div className='p-2 grow flex flex-col'>
+                {/* Messages */}
                 <div
-                    className='flex-grow overflow-y-auto'
-                    // When mouse enters, disable pane zooming/panning
+                    className='flex-grow overflow-y-auto space-y-2 w-full flex flex-col pb-14 max-h-[130vh]'
                     onMouseEnter={() => data.setIsPaneInteractive(false)}
-                    // When mouse leaves, re-enable it
                     onMouseLeave={() => data.setIsPaneInteractive(true)}
                 >
-                    {/* Previous chat messages would go here. Add some content to test scrolling. */}
-                    <div className='text-zinc-400 p-2'>Message 1</div>
-                    <div className='text-zinc-400 p-2'>Message 2</div>
-                    <div className='text-zinc-400 p-2'>Message 3</div>
-                    <div className='text-zinc-400 p-2'>Message 4</div>
-                    <div className='text-zinc-400 p-2'>Message 5</div>
-                    <div className='text-zinc-400 p-2'>Message 6</div>
+                    {messages.map((msg, idx) => (
+                        <div
+                            key={idx}
+                            className={`p-2 rounded-lg max-w-[80%] break-words
+                                ${msg.userType === 'user'
+                                    ? 'bg-zinc-800 text-zinc-100 self-end'
+                                    : 'bg-zinc-700 text-zinc-300 self-start'
+                                }`}
+                        >
+                            {msg.text}
+                        </div>
+                    ))}
+                    <div ref={messagesEndRef} />
                 </div>
-
+                {/* Input */}
                 <textarea
                     className='nodrag flex-shrink-0 text-zinc-300 outline-none border-t border-zinc-600 px-3 py-3 rounded-b-xl'
                     placeholder="Ask a question.."
@@ -46,7 +101,10 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
                         overflowY: 'auto',
                         resize: 'none'
                     }}
-                    // Same logic as the message history div
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={loading} // Disable input while loading
                     onMouseEnter={() => data.setIsPaneInteractive(false)}
                     onMouseLeave={() => data.setIsPaneInteractive(true)}
                 />
