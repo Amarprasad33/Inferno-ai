@@ -1,0 +1,110 @@
+---
+description: Inferno AI Product Requirement Document
+globs:
+alwaysApply: false
+---
+
+# Product Requirements Document (PRD): Inferno AI
+
+## 1. Product Overview
+
+**Inferno AI** is a SaaS platform that enables users to create, manage, and interact with multiple AI chat windows on an infinite, collaborative canvas. Each chat window can be connected to different AI models, with users providing their own API keys. The platform is designed for extensibility, supporting future features such as real-time collaboration, advanced model management, and team workflows.
+
+---
+
+## 2. Goals & Unique Selling Proposition (USP)
+
+- **Infinite Canvas:** Users can spawn and arrange multiple chat nodes anywhere on a limitless canvas, enabling complex workflows and visual organization.
+- **Multi-Model Support:** Each chat node can connect to a different AI model (e.g., OpenAI, Anthropic, etc.), with users supplying their own API keys.
+- **MVP Focus:** Fast, intuitive chat experience with a modern, dark zinc-grey UI, and basic node linking.
+- **Future Collaboration:** Foundation for real-time, multi-user collaboration on the same canvas.
+
+---
+
+## 3. Core Features (MVP)
+
+### 3.1. Infinite Canvas with Node System
+- Users can add, move, and connect chat nodes on a scrollable, zoomable canvas.
+- Each node represents a separate chat session.
+
+### 3.2. Chat Node UI
+- Chat window styled like ChatGPT, using zinc-grey themes.
+- Messages are visually separated by user type (`user` vs. `bot`).
+- Loading/“thinking” state for bot responses.
+- Scrollable message history and input area.
+- Each node displays a label/title.
+
+### 3.3. Multi-Model Integration (Backend)
+- Users can select from supported AI models for each node.
+- Users must provide their own API key for each model.
+- Backend routes requests to the appropriate model using the user’s key.
+
+### 3.4. SaaS User Management
+- User authentication (email/password, OAuth for future).
+- Each user’s API keys and chat history are securely stored and isolated.
+
+---
+
+## 4. Future Scope
+
+- **Real-Time Collaboration:** Multiple users can edit and chat on the same canvas simultaneously.
+- **Team Workspaces:** Shared canvases, permissions, and team management.
+- **Advanced Node Types:** Support for tools, code execution, or custom plugins.
+- **Rich Media:** Support for images, files, and code blocks in chat.
+- **Analytics & Usage Tracking:** Per-user and per-model usage stats.
+
+---
+
+## 5. Technical Requirements
+
+### 5.1. Frontend
+- React + TypeScript
+- Infinite canvas: [reactflow](https://reactflow.dev/)
+- Modern, responsive UI (zinc-grey/dark theme)
+- State management for chat history per node
+
+### 5.2. Backend (MVP)
+- Node.js/Express or similar
+- API proxying to multiple AI providers (OpenAI, Anthropic, etc.)
+- User authentication and API key management
+- Secure storage of user data
+
+### 5.3. Deployment
+- SaaS-ready: multi-tenant, secure, scalable
+- Cloud deployment (Vercel, AWS, etc.)
+
+---
+
+## 6. Non-Goals (MVP)
+
+- No built-in API keys for users (bring your own key only)
+- No advanced collaboration or team features at launch
+- No billing/subscription management in MVP
+
+---
+
+## 7. Success Metrics
+
+- Users can create, move, and chat in multiple nodes on the canvas
+- Each node can connect to a different AI model using user-supplied keys
+- Fast, reliable chat experience with clear loading states
+- Positive user feedback on usability and UI
+
+---
+
+## 8. Risks & Mitigations
+
+- **API Abuse:** Mitigate by rate-limiting and requiring user-supplied keys.
+- **Security:** Encrypt API keys and user data at rest and in transit.
+- **Scalability:** Design backend for statelessness and horizontal scaling.
+
+---
+
+## 9. Appendix
+
+- **Inspiration:** ChatGPT, tldraw, Excalidraw, Figma multiplayer
+- **Tech Stack:** React, ReactFlow, Node.js, Express, TypeScript, TailwindCSS
+
+---
+
+_Last updated: 2024-06-09_
