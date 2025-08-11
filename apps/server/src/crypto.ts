@@ -1,6 +1,6 @@
 import { randomBytes, createCipheriv, createDecipheriv } from 'node:crypto';
 
-const key = Buffer.from(process.env.ENCRYPTION_KEY!, 'utf8'); // 32 bytes
+const key = Buffer.from(process.env.ENCRYPTION_KEY!, 'base64'); // 32 bytes
 
 export function encryptSecret(secret: string) {
   const iv = randomBytes(12);

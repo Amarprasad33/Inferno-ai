@@ -8,14 +8,14 @@ export function signJwt(payload: object) {
 }
 
 export async function authMiddleware(c: Context, next: Next) {
-  const token = c.req.header('authorization')?.replace('Bearer ', '') 
-    ?? c.req.cookie('auth');
-  if (!token) return c.json({ error: 'unauthorized' }, 401);
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-    c.set('userId', decoded.userId);
-    await next();
-  } catch {
-    return c.json({ error: 'unauthorized' }, 401);
-  }
+//   const token = c.req.header('authorization')?.replace('Bearer ', '') 
+//     ?? c.req.cookie('auth');
+//   if (!token) return c.json({ error: 'unauthorized' }, 401);
+//   try {
+//     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+//     c.set('userId', decoded.userId);
+//     await next();
+//   } catch {
+//     return c.json({ error: 'unauthorized' }, 401);
+//   }
 }
