@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String?
+  createdAt    DateTime @default(now())
+  canvases     Canvas[]
+  apiKeys      ApiKey[]
+}
+
+model Canvas {
+  id        String   @id @default(uuid())
+  ownerId   String
+  title     String   @default("Untitled Canvas")
+  createdAt DateTime @default(now())
+  owner     User     @relation(fields: [ownerId], references: [id])
+  nodes     Node[]
+}
+
+model Node {
+  id        String   @id @default(uuid())
+  canvasId  String
+  label     String   @default("Chat")
+  provider  String
+  model     String
+  createdAt DateTime @default(now())
+  canvas    Canvas   @relation(fields: [canvasId], references: [id])
+  messages  Message[]
+}
+
+model ApiKey {
+  id              String   @id @default(uuid())
+  userId          String
+  provider        String
+  encryptedSecret String
+  iv              String
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, provider], map: "user_provider_unique")
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  nodeId    String
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+  node      Node     @relation(fields: [nodeId], references: [id])
+}
