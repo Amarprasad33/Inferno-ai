@@ -1,21 +1,58 @@
 import type { Context, Next } from 'hono';
 import jwt from 'jsonwebtoken';
+import { PrismaClient } from '../generated/prisma'
+import { betterAuth } from 'better-auth';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+
 
 const JWT_SECRET = process.env.JWT_SECRET!;
+const prisma = new PrismaClient();
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "postgresql"
+  }),
+  emailAndPassword: {
+    enabled: true
+  },
+  // socialProviders: {
+  //   google: {
+  //     clientId: process.env.GOOGLE_CLIENT_ID as string,
+  //     clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
+  //   }
+  // }
+  session: {
+    expiresIn: 60 * 60 * 24 * 7 // 7 days
+  },
+  // To enable cross-subdomain cookies, simply turn on crossSubDomainCookies
+  advanced: {
+    // uncomment this if you deploy both under same domain but diff. sub-domain
+    // crossSubDomainCookies: {
+    //   enabled: true
+    // }
+
+    // If the above config not used (separate domains or local dev)
+    defaultCookieAttributes: {
+      sameSite: process.env.NODE_ENV === "production" ? "lax" : "none",
+      secure: process.env.NODE_ENV === "production", // true only in prod
+      partitioned: true
+    }
+  }
+});
+
 
 export function signJwt(payload: object) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 }
 
 export async function authMiddleware(c: Context, next: Next) {
-//   const token = c.req.header('authorization')?.replace('Bearer ', '') 
-//     ?? c.req.cookie('auth');
-//   if (!token) return c.json({ error: 'unauthorized' }, 401);
-//   try {
-//     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-//     c.set('userId', decoded.userId);
-//     await next();
-//   } catch {
-//     return c.json({ error: 'unauthorized' }, 401);
-//   }
+  //   const token = c.req.header('authorization')?.replace('Bearer ', '') 
+  //     ?? c.req.cookie('auth');
+  //   if (!token) return c.json({ error: 'unauthorized' }, 401);
+  //   try {
+  //     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+  //     c.set('userId', decoded.userId);
+  //     await next();
+  //   } catch {
+  //     return c.json({ error: 'unauthorized' }, 401);
+  //   }
 }
