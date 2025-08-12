@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.1.10",
     "@tanstack/react-router": "^1.121.27",
     "@tanstack/react-router-devtools": "^1.121.27",
+    "better-auth": "^1.3.5",
     "konva": "^9.3.20",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
