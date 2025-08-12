@@ -12,7 +12,15 @@ export const auth = betterAuth({
     provider: "postgresql"
   }),
   emailAndPassword: {
-    enabled: true
+    enabled: true,
+    sendResetPassword: async ({ user, url }, request) => {
+      // await sendEmail({ to: user.email, subject: "Reset your password", text: `Reset: ${url}` });
+      console.log("--------- send-reset-password -------");
+    },
+    onPasswordReset: async ({ user }, request) => {
+      console.log("--------- on-password-reset -------");
+      // e.g., log or notify
+    },
   },
   // socialProviders: {
   //   google: {
@@ -20,6 +28,14 @@ export const auth = betterAuth({
   //     clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
   //   }
   // }
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }, request) => {
+      // implement email function
+      console.log("---------send-verification----");
+      console.log("user---", user, "url--", url);
+      console.log("request--", request);
+    }
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 7 // 7 days
   },
