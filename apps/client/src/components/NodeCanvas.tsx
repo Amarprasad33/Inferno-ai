@@ -94,19 +94,6 @@ const NodeCanvas = () => {
         <div
             style={{ height: '100vh', width: '100%' }}
         >
-            <button
-                onClick={addChatNode}
-                style={{
-                    position: 'absolute',
-                    top: '20px',
-                    left: '20px',
-                    zIndex: 10,
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                }}
-            >
-                Add Node
-            </button>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -120,6 +107,19 @@ const NodeCanvas = () => {
                 panOnScroll={isPaneInteractive}
                 preventScrolling={isPaneInteractive} // Important for some trackpads
             >
+                <button
+                    onClick={addChatNode}
+                    style={{
+                        position: 'absolute',
+                        top: '20px',
+                        left: '20px',
+                        zIndex: 10,
+                        padding: '8px 12px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    Add Node
+                </button>
                 <Background />
                 <Controls className='absolute top-[50%] left-1' />
             </ReactFlow>
