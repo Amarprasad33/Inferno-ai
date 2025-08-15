@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SignupIndexRouteImport } from './routes/signup/index'
+import { Route as SigninIndexRouteImport } from './routes/signin/index'
+import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as ExpInfiniRouteImport } from './routes/exp/infini'
-import { Route as ChatPageRouteImport } from './routes/chat/page'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -24,49 +26,74 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignupIndexRoute = SignupIndexRouteImport.update({
+  id: '/signup/',
+  path: '/signup/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SigninIndexRoute = SigninIndexRouteImport.update({
+  id: '/signin/',
+  path: '/signin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExpInfiniRoute = ExpInfiniRouteImport.update({
   id: '/exp/infini',
   path: '/exp/infini',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatPageRoute = ChatPageRouteImport.update({
-  id: '/chat/page',
-  path: '/chat/page',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/chat/page': typeof ChatPageRoute
   '/exp/infini': typeof ExpInfiniRoute
+  '/chat': typeof ChatIndexRoute
+  '/signin': typeof SigninIndexRoute
+  '/signup': typeof SignupIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/chat/page': typeof ChatPageRoute
   '/exp/infini': typeof ExpInfiniRoute
+  '/chat': typeof ChatIndexRoute
+  '/signin': typeof SigninIndexRoute
+  '/signup': typeof SignupIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/chat/page': typeof ChatPageRoute
   '/exp/infini': typeof ExpInfiniRoute
+  '/chat/': typeof ChatIndexRoute
+  '/signin/': typeof SigninIndexRoute
+  '/signup/': typeof SignupIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/chat/page' | '/exp/infini'
+  fullPaths: '/' | '/about' | '/exp/infini' | '/chat' | '/signin' | '/signup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/chat/page' | '/exp/infini'
-  id: '__root__' | '/' | '/about' | '/chat/page' | '/exp/infini'
+  to: '/' | '/about' | '/exp/infini' | '/chat' | '/signin' | '/signup'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/exp/infini'
+    | '/chat/'
+    | '/signin/'
+    | '/signup/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  ChatPageRoute: typeof ChatPageRoute
   ExpInfiniRoute: typeof ExpInfiniRoute
+  ChatIndexRoute: typeof ChatIndexRoute
+  SigninIndexRoute: typeof SigninIndexRoute
+  SignupIndexRoute: typeof SignupIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -85,18 +112,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signup/': {
+      id: '/signup/'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signin/': {
+      id: '/signin/'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof SigninIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exp/infini': {
       id: '/exp/infini'
       path: '/exp/infini'
       fullPath: '/exp/infini'
       preLoaderRoute: typeof ExpInfiniRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chat/page': {
-      id: '/chat/page'
-      path: '/chat/page'
-      fullPath: '/chat/page'
-      preLoaderRoute: typeof ChatPageRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -105,8 +146,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  ChatPageRoute: ChatPageRoute,
   ExpInfiniRoute: ExpInfiniRoute,
+  ChatIndexRoute: ChatIndexRoute,
+  SigninIndexRoute: SigninIndexRoute,
+  SignupIndexRoute: SignupIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

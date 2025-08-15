@@ -1,4 +1,5 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import { Toaster } from "sonner";
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 export const Route = createRootRoute({
@@ -18,16 +19,17 @@ export const Route = createRootRoute({
             <Link to="/exp/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
               Infini
             </Link>
-            <Link to="/chat/page" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+            <Link to="/chat" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
               Chat
             </Link>
           </div>
 
-          <div className=''>
+          <Link to="/signin" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
             <button>Sign in</button>
-          </div>
+          </Link>
         </div>
         <Outlet />
+        <Toaster />
         {/* <TanStackRouterDevtools /> */}
       </div>
     </>

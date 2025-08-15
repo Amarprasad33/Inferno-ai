@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import NodeCanvas from '../../components/NodeCanvas'
 
-export const Route = createFileRoute('/chat/page')({
+export const Route = createFileRoute('/chat/')({
     component: RouteComponent,
 })
 
