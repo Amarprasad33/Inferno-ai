@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { signUp } from '@/lib/auth-client';
 // import axios from 'axios';  
 // import { useRouter } from 'next/navigation';
 // import { MultiSelect } from '../ui/multi-select';
@@ -42,12 +43,8 @@ export default function SignupForm() {
     async function onSubmit(data: SignupSchemaType) {
         try {
             console.log("submit-data", data);
-            // const formData = new FormData();
-            // formData.append('name', data.name);
-            // formData.append('email', data.email);
-            // formData.append('password', data.password);
-            // const response = await signup(formData);
-            // console.log('response', response);
+            const res = await signUp.email(data);
+            console.log('res', res);
             //   if (response.status === 200) {
             //     toast("Signup successful. Welcome!")
             //     router.push('/');
@@ -114,7 +111,7 @@ export default function SignupForm() {
                             <button
                                 type="button"
                                 onClick={togglePassword}
-                                className="absolute right-3 top-8 text-sm text-muted-foreground"
+                                className="absolute right-0 top-5 text-sm text-muted-foreground"
                             >
                                 {passwordVisible ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
                             </button>
@@ -147,7 +144,7 @@ export default function SignupForm() {
             )}
         /> */}
 
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full text-zinc-300">
                     Sign Up
                 </Button>
             </form>

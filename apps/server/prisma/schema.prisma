@@ -19,6 +19,8 @@ model User {
   email String @unique
 
   name          String?
+  password      String?
+  passwordHash   String? // used when providerId = "credential"
   image         String?
   emailVerified Boolean @default(false)
 
@@ -51,10 +53,12 @@ model Session {
 // New: accounts (providers + credentials)
 model Account {
   id             String  @id @default(uuid())
+  accountId      String   @unique
   userId         String
   providerId     String // "credential", "google"
   providerUserId String? // id from provider (null for "credential")
   passwordHash   String? // used when providerId = "credential"
+  password      String?
 
   accessToken  String?
   refreshToken String?

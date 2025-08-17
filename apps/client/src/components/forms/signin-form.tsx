@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { signIn } from '@/lib/auth-client';
 // import axios from 'axios';
 // import { useRouter } from 'next/navigation';
 // import { MultiSelect } from '../ui/multi-select';
@@ -37,11 +38,8 @@ export default function SigninForm() {
         try {
             console.log("submit-data", data);
 
-            const formData = new FormData();
-            // formData.append('email', data.email);
-            // formData.append('password', data.password);
-            // const response = await login(formData);
-            // console.log('response', response);
+            const res = await signIn.email(data);
+            console.log('res', res);
             // if (response.status === 200) {
             //     toast("Signin successful. Welcome!")
             //     router.push('/');

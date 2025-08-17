@@ -8,6 +8,10 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 const JWT_SECRET = process.env.JWT_SECRET!;
 const prisma = new PrismaClient();
 export const auth = betterAuth({
+  trustedOrigins: [
+    "http://localhost:5173",
+    "https://xyz-frontend.com" // example Prod frontend
+  ],
   database: prismaAdapter(prisma, {
     provider: "postgresql"
   }),
