@@ -1,12 +1,11 @@
 import type { Context, Next } from 'hono';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '../generated/prisma'
+import { prisma } from './lib/prisma';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 
 
 const JWT_SECRET = process.env.JWT_SECRET!;
-const prisma = new PrismaClient();
 export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:5173",

@@ -1,35 +1,75 @@
-// import { Hono } from 'hono';
-// import { z } from 'zod';
-// import { zValidator } from '@hono/zod-validator';
-// import { prisma } from '../db/client';
-// import { getStream } from '../ai/providers';
+import { Hono } from 'hono';
+import type { MiddlewareHandler } from 'hono';
+import { prisma } from '../lib/prisma';
+import { decryptSecret } from '../lib/crypto';
+import { auth } from '../auth';
 
-// export const chat = new Hono();
+// AI SDK
+import { streamText } from 'ai';
+import { createOpenAI } from '@ai-sdk/openai';
 
-// chat.post('/stream',
-//   zValidator('json', z.object({
-//     nodeId: z.string().uuid(),
-//     messages: z.array(z.object({ role: z.enum(['user', 'assistant', 'system']), content: z.string() })).min(1)
-//   })),
-//   async c => {
-//     const userId = c.get('userId') as string;
-//     const { nodeId, messages } = c.req.valid('json');
+type AppVars = {
+	Variables: {
+		user: typeof auth.$Infer.Session.user | null,
+		session: typeof auth.$Infer.Session.session | null
+	}
+};
 
-//     const node = await prisma.node.findUnique({ where: { id: nodeId } });
-//     if (!node) return c.json({ error: 'node_not_found' }, 404);
+const requireAuth: MiddlewareHandler<AppVars> = async (c, next) => {
+	const user = c.get('user');
+	if (!user) return c.body(null, 401);
+	return next();
+};
 
-//     const key = await prisma.apiKey.findUnique({
-//       where: { userId_provider: { userId, provider: node.provider } }
-//     });
-//     if (!key) return c.json({ error: 'missing_api_key' }, 400);
+export const chat = new Hono<AppVars>();
 
-//     // If you need to read secrets, add decryptSecret here like before.
-//     // const secret = decryptSecret(key.encryptedSecret, key.iv);
+type ChatMessage = {
+	role: 'system' | 'user' | 'assistant';
+	content: string;
+};
 
-//     const stream = await getStream(node.provider, node.model, /* secret */ '', messages);
+type ChatBody = {
+	provider?: 'openai'; // extend as you add more providers
+	model: string;
+	messages: ChatMessage[];
+	// optional: temperature, maxTokens, etc.
+	temperature?: number;
+	maxTokens?: number;
+};
 
-//     void prisma.message.create({ data: { nodeId, role: 'user', content: messages.at(-1)!.content } });
+chat.post('/', requireAuth, async (c) => {
+	const user = c.get('user')!;
+	const body = await c.req.json().catch(() => null) as ChatBody | null;
+	if (!body?.model || !Array.isArray(body.messages)) {
+		return c.json({ error: 'model and messages required' }, 400);
+	}
+	const provider = body.provider ?? 'openai';
 
-//     return stream.toDataStreamResponse();
-//   }
-// );
+	// Load user's API key for provider
+	const keyRow = await prisma.apiKey.findUnique({
+		where: { userId_provider: { userId: user.id, provider } }
+	});
+	if (!keyRow) return c.json({ error: `No API key stored for provider "${provider}"` }, 400);
+
+	const apiKey = decryptSecret(keyRow.encryptedSecret, keyRow.iv);
+
+	// Build provider client
+	let modelFactory: ReturnType<typeof createOpenAI> | null = null;
+	switch (provider) {
+		case 'openai':
+			modelFactory = createOpenAI({ apiKey });
+			break;
+		default:
+			return c.json({ error: `Unsupported provider "${provider}"` }, 400);
+	}
+
+	const result = streamText({
+		model: modelFactory(body.model),
+		messages: body.messages,
+		temperature: body.temperature,
+		// maxTokens: body.maxTokens   // not supported in this version
+	});
+
+	// Stream as SSE (works with Hono)
+	return result.toTextStreamResponse();
+});
