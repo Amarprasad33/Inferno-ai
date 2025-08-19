@@ -7,6 +7,7 @@ import { auth } from '../auth';
 // AI SDK
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
+import { createGroq } from '@ai-sdk/groq';
 
 type AppVars = {
 	Variables: {
@@ -29,12 +30,13 @@ type ChatMessage = {
 };
 
 type ChatBody = {
-	provider?: 'openai'; // extend as you add more providers
+	provider?: 'openai' | 'groq'; // extend as you add more providers
 	model: string;
 	messages: ChatMessage[];
 	// optional: temperature, maxTokens, etc.
 	temperature?: number;
 	maxTokens?: number;
+	providerOptions?: Record<string, any>;
 };
 
 chat.post('/', requireAuth, async (c) => {
@@ -54,10 +56,13 @@ chat.post('/', requireAuth, async (c) => {
 	const apiKey = decryptSecret(keyRow.encryptedSecret, keyRow.iv);
 
 	// Build provider client
-	let modelFactory: ReturnType<typeof createOpenAI> | null = null;
+	let modelFactory: (id: string) => any;
 	switch (provider) {
 		case 'openai':
 			modelFactory = createOpenAI({ apiKey });
+			break;
+		case 'groq':
+			modelFactory = createGroq({ apiKey });
 			break;
 		default:
 			return c.json({ error: `Unsupported provider "${provider}"` }, 400);
@@ -68,6 +73,8 @@ chat.post('/', requireAuth, async (c) => {
 		messages: body.messages,
 		temperature: body.temperature,
 		// maxTokens: body.maxTokens   // not supported in this version
+		// maxTokens: body.maxTokens
+		providerOptions: body.providerOptions
 	});
 
 	// Stream as SSE (works with Hono)
