@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { MiddlewareHandler } from "hono"; 
+import type { MiddlewareHandler } from "hono";
 import { prisma } from "../lib/prisma";
 import { encryptSecret } from "../lib/crypto";
 import { auth } from "../auth";
@@ -12,9 +12,11 @@ type AppVars = {
     }
 };
 
+const allowedProviders = new Set(['openai', 'groq']);
+
 const requireAuth: MiddlewareHandler<AppVars> = async (c, next) => {
     const user = c.get("user");
-    if(!user) return c.body(null, 401);
+    if (!user) return c.body(null, 401);
     return next();
 };
 
@@ -23,8 +25,12 @@ export const keys = new Hono<AppVars>();
 // Upserting an API key for a provider
 keys.post('/', requireAuth, async (c) => {
     const body = await c.req.json().catch(() => null) as { provider?: string; apiKey?: string } | null;
-    if(!body?.provider || !body?.apiKey)
+    if (!body?.provider || !body?.apiKey)
         return c.json({ error: 'provider and apiKey required' }, 400);
+
+    if (!allowedProviders.has(body.provider)) {
+        return c.json({ error: 'invalid provider' }, 400);
+    }
 
     const user = c.get('user')!;
     const { encrypted, iv } = encryptSecret(body.apiKey);
@@ -47,8 +53,12 @@ keys.post('/', requireAuth, async (c) => {
 // Deleting API key for a provider
 keys.delete("/:provider", requireAuth, async (c) => {
     const provider = c.req.param('provider');
+    if (!allowedProviders.has(provider)) {
+        return c.json({ error: 'invalid provider' }, 400);
+    }
     const user = c.get('user')!;
     await prisma.apiKey.deleteMany({ where: { userId: user.id, provider } });
+
 
     console.log("Api-key deleted from db --<--D>");
     return c.body(null, 204);
