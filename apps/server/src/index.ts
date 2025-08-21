@@ -4,6 +4,7 @@ import { authMiddleware, auth } from './auth';
 // import { auth } from './routes/auth';
 // import { chat } from './routes/chat';
 import { cors } from "hono/cors";
+import { keys } from './routes/keys';
 
 const app = new Hono<{
     Variables: {
@@ -45,7 +46,7 @@ app.use("*", async (c, next) => {
 
     c.set("user", session.user);
     c.set("session", session.session);
-    console.log("session--", c, "------sss---", session)
+    // console.log("session--", c, "------sss---", session)
     return next();
 });
 
@@ -68,6 +69,7 @@ app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
 app.get('/test', async c => {
     return c.json({ success: true, message: "Test response" })
 });
+app.route("/keys", keys)
 
 // app.route('/auth', auth);
 // app.route('/chat', chat);
