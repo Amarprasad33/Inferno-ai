@@ -111,7 +111,7 @@ export default function SignupForm() {
                             <button
                                 type="button"
                                 onClick={togglePassword}
-                                className="absolute right-0 top-5 text-sm text-muted-foreground"
+                                className="absolute right-3 top-[30px] text-sm text-muted-foreground"
                             >
                                 {passwordVisible ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
                             </button>
@@ -144,7 +144,7 @@ export default function SignupForm() {
             )}
         /> */}
 
-                <Button type="submit" className="w-full text-zinc-300">
+                <Button type="submit" className="w-full text-zinc-950">
                     Sign Up
                 </Button>
             </form>

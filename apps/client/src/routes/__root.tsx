@@ -1,12 +1,23 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { Toaster } from "sonner";
-// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import { authClient, useSession } from '@/lib/auth-client';
+import { useEffect } from 'react';
 
-export const Route = createRootRoute({
-  component: () => (
+
+function RootComponent() {
+  // const { data, isLoading } = useSession();
+  // console.log("data", data);
+  // console.log("data--load", isLoading);
+  useEffect(() => {
+    const res = authClient.getSession();
+    console.log("res", res);
+  }, []);
+
+  return (
     <>
       <div className="min-h-screen w-full">
-        <div className="p-2 flex gap-2 justify-between items-center border-b border-[#3f3f3f]">
+        <div className="app-bar p-2 flex gap-2 justify-between items-center border-b border-[#3f3f3f]">
           <div>Inferno</div>
 
           <div className='flex gap-3'>
@@ -33,5 +44,10 @@ export const Route = createRootRoute({
         {/* <TanStackRouterDevtools /> */}
       </div>
     </>
-  ),
+  )
+}
+
+
+export const Route = createRootRoute({
+  component: RootComponent,
 })
