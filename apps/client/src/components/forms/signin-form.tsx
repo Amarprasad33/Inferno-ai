@@ -40,6 +40,24 @@ export default function SigninForm() {
 
             const res = await signIn.email(data);
             console.log('res', res);
+            if (!res.data) {
+                toast("Signin failed", {
+                    description: res.error?.message || 'Something went wrong!',
+                    action: {
+                        label: "OK!",
+                        onClick: () => console.log("ok"),
+                    },
+                });
+            }
+            if (res.data) {
+                toast("Signin Successful", {
+                    description: 'Experience the truly infinite chat!!',
+                    action: {
+                        label: "OK!",
+                        onClick: () => console.log("ok"),
+                    },
+                });
+            }
             // if (response.status === 200) {
             //     toast("Signin successful. Welcome!")
             //     router.push('/');
@@ -94,7 +112,7 @@ export default function SigninForm() {
                             <button
                                 type="button"
                                 onClick={togglePassword}
-                                className="absolute right-0 top-5 text-sm text-muted-foreground"
+                                className="absolute right-3 top-[30px] text-sm text-muted-foreground"
                             >
                                 {passwordVisible ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
                             </button>
@@ -106,7 +124,7 @@ export default function SigninForm() {
                     )}
                 />
 
-                <Button type="submit" className="w-full text-zinc-300">
+                <Button type="submit" className="w-full text-zinc-950">
                     Sign In
                 </Button>
 

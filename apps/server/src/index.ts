@@ -28,7 +28,7 @@ app.use(
             "Content-Type", "Authorization",
             "X-Requested-With" // Often needed for AJAX
         ],
-        allowMethods: ["POST", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         exposeHeaders: ["Content-Length"],
         credentials: true,
         maxAge: 600,
@@ -36,8 +36,9 @@ app.use(
 )
 // auth-session middlware
 app.use("*", async (c, next) => {
+    console.log("auth-session--middleware", c.req.raw.headers);
     const session = await auth.api.getSession({ headers: c.req.raw.headers });
-
+    console.log("session--init", session);
     if (!session) {
         c.set("user", null);
         c.set("session", null);
@@ -46,7 +47,7 @@ app.use("*", async (c, next) => {
 
     c.set("user", session.user);
     c.set("session", session.session);
-    // console.log("session--", c, "------sss---", session)
+    console.log("session--", c, "------sss---", session)
     return next();
 });
 
