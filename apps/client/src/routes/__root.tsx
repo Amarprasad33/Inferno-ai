@@ -1,7 +1,7 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { Toaster } from "sonner";
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import { authClient, useSession } from '@/lib/auth-client';
+import { useSession } from '@/lib/auth-client';
 import { useEffect } from 'react';
 
 
@@ -9,10 +9,8 @@ function RootComponent() {
   // const { data, isLoading } = useSession();
   // console.log("data", data);
   // console.log("data--load", isLoading);
-  useEffect(() => {
-    const res = authClient.getSession();
-    console.log("res", res);
-  }, []);
+  const res = useSession();
+  console.log("res", res);
 
   return (
     <>

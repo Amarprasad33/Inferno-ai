@@ -51,7 +51,8 @@ export const auth = betterAuth({
 
     // If the above config not used (separate domains or local dev)
     defaultCookieAttributes: {
-      sameSite: process.env.NODE_ENV === "production" ? "lax" : "none",
+      // sameSite: process.env.NODE_ENV === "production" ? "lax" : "none",
+      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
       secure: process.env.NODE_ENV === "production", // true only in prod
       partitioned: process.env.NODE_ENV === "production"
     }
