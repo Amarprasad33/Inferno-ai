@@ -3,8 +3,9 @@ import { serve } from '@hono/node-server';
 import { authMiddleware, auth } from './auth';
 // import { auth } from './routes/auth';
 // import { chat } from './routes/chat';
-import { cors } from "hono/cors";
 import { keys } from './routes/keys';
+import { chat } from './routes/chat';
+import { cors } from "hono/cors";
 
 const app = new Hono<{
     Variables: {
@@ -28,7 +29,7 @@ app.use(
             "Content-Type", "Authorization",
             "X-Requested-With" // Often needed for AJAX
         ],
-        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowMethods: ["POST", "POST", "PUT", "DELETE", "OPTIONS"],
         exposeHeaders: ["Content-Length"],
         credentials: true,
         maxAge: 600,
@@ -36,9 +37,8 @@ app.use(
 )
 // auth-session middlware
 app.use("*", async (c, next) => {
-    console.log("auth-session--middleware", c.req.raw.headers);
     const session = await auth.api.getSession({ headers: c.req.raw.headers });
-    console.log("session--init", session);
+
     if (!session) {
         c.set("user", null);
         c.set("session", null);
@@ -47,7 +47,7 @@ app.use("*", async (c, next) => {
 
     c.set("user", session.user);
     c.set("session", session.session);
-    console.log("session--", c, "------sss---", session)
+    console.log("session--", session)
     return next();
 });
 
@@ -66,11 +66,13 @@ app.get("/session", (c) => {
     })
 });
 app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
+app.route('/api/keys', keys);
+app.route('/chat', chat);
+
 
 app.get('/test', async c => {
     return c.json({ success: true, message: "Test response" })
 });
-app.route("/keys", keys)
 
 // app.route('/auth', auth);
 // app.route('/chat', chat);
