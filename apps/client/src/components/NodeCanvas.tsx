@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
     Controls,
     Background,
@@ -20,6 +20,7 @@ import type {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import ChatNode from './ChatNode';
+import { toast } from 'sonner';
 
 
 // The options to hide the attribution watermark.
@@ -31,17 +32,25 @@ const nodeTypes = {
     chat: ChatNode,
 };
 
-let nodeId = 2;
+let nodeId = 1;
 
 const NodeCanvas = () => {
     const [edges, setEdges] = useState<Edge[]>([]);
     const [isPaneInteractive, setIsPaneInteractive] = useState(true);
+    const [windowDimensions, setWindowDimensions] = useState({ width: 0, height: 0 });
+
+    // Calculate center position based on window dimensions
+    const getCenterPosition = () => {
+        const centerX = (windowDimensions.width - 280) / 2 - 140; // 100px offset to the left
+        const centerY = (windowDimensions.height - 400) / 2 - 10; // 50px offset to the top
+        return { x: Math.max(0, centerX), y: Math.max(0, centerY) };
+    };
 
     const initialNodes: Node<{ label: string; setIsPaneInteractive: (interactive: boolean) => void; }>[] = [
         {
-            id: '1',
+            id: '0',
             type: 'chat',
-            position: { x: 100, y: 100 },
+            position: getCenterPosition(),
             data: {
                 label: 'Chat Node',
                 setIsPaneInteractive: setIsPaneInteractive
@@ -50,6 +59,33 @@ const NodeCanvas = () => {
     ];
     const [nodes, setNodes] = useState<Node<{ label: string }>[]>(initialNodes);
 
+    // Update window dimensions and recalculate node positions
+    useEffect(() => {
+        const updateDimensions = () => {
+            setWindowDimensions({
+                width: window.innerWidth,
+                height: window.innerHeight
+            });
+        };
+        updateDimensions();
+        window.addEventListener('resize', updateDimensions);
+
+        // Cleanup
+        return () => window.removeEventListener('resize', updateDimensions);
+    }, []);
+
+    // Update initial node position when window dimensions change
+    useEffect(() => {
+        if (windowDimensions.width > 0 && windowDimensions.height > 0) {
+            setNodes(prevNodes => 
+                prevNodes.map(node => 
+                    node.id === '0' 
+                        ? { ...node, position: getCenterPosition() }
+                        : node
+                )
+            );
+        }
+    }, [windowDimensions]);
 
 
     const onNodesChange = useCallback(
@@ -68,8 +104,18 @@ const NodeCanvas = () => {
     );
 
     const addChatNode = () => {
+        if(nodes.length > 5){
+            toast("Cannot create more nodes", {
+                description: 'Max node limit reached!!',
+                action: {
+                    label: "OK!",
+                    onClick: () => {},
+                },
+            });
+            return;
+        }
         const newNode = {
-            id: `${nodeId++}`,
+            id: `${nodeId}`,
             type: 'chat',
             position: {
                 // Spawns nodes over a larger area
@@ -82,6 +128,7 @@ const NodeCanvas = () => {
             },
         };
         setNodes((nds) => [...nds, newNode]);
+        nodeId++; // Increment after creating the node
     };
 
     // useEffect(() => {
@@ -109,6 +156,7 @@ const NodeCanvas = () => {
             >
                 <button
                     onClick={addChatNode}
+                    className='bg-[rgb(99 99 99 / 5%)] hover:bg-zinc-700/30 rounded-lg border border-zinc-800 backdrop-blur-[1px]'
                     style={{
                         position: 'absolute',
                         top: '20px',

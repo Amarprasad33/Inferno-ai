@@ -47,7 +47,7 @@ app.use("*", async (c, next) => {
 
     c.set("user", session.user);
     c.set("session", session.session);
-    console.log("session--", session)
+    // console.log("session--", session);
     return next();
 });
 

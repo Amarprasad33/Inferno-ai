@@ -72,14 +72,14 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
             <div className='p-2 grow flex flex-col'>
                 {/* Messages */}
                 <div
-                    className='flex-grow overflow-y-auto space-y-2 w-full flex flex-col pb-14 max-h-[130vh]'
+                    className='nodrag flex-grow overflow-y-auto space-y-2 w-full flex flex-col pb-14 max-h-[130vh]'
                     onMouseEnter={() => data.setIsPaneInteractive(false)}
                     onMouseLeave={() => data.setIsPaneInteractive(true)}
                 >
                     {messages.map((msg, idx) => (
                         <div
                             key={idx}
-                            className={`p-2 rounded-lg max-w-[80%] break-words
+                            className={`p-2 rounded-lg max-w-[80%] break-words select-text cursor-text selection:bg-white selection:text-black
                                 ${msg.userType === 'user'
                                     ? 'bg-zinc-800 text-zinc-100 self-end'
                                     : 'bg-zinc-700 text-zinc-300 self-start'
