@@ -7,7 +7,11 @@ export function useProvidersQuery() {
     return useQuery({
         queryKey: keysQueryKey,
         queryFn: listProviders,
-        select: (d) => d.providers,
+        select: (d) => {
+            console.log("Raw response data:", d);
+            console.log("Extracted providers:", d.providers);
+            return d.providers;
+        },
     })
 }
 

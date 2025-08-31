@@ -1,10 +1,10 @@
 export const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:3000'
-export const KEYS_BASE = `${API_BASE}/keys` // or `${API_BASE}/api/keys`
+export const KEYS_BASE = `${API_BASE}/api/keys` // or `${API_BASE}/api/keys`
 
 type ProvidersResponse = { providers: string[] }
 
 export async function listProviders() {
-    const res = await fetch(`${KEYS_BASE}/`, {
+    const res = await fetch(`${KEYS_BASE}`, {
         method: 'GET',
         credentials: 'include',
     })
@@ -13,7 +13,7 @@ export async function listProviders() {
 }
 
 export async function upsertKey(input: { provider: string; apiKey: string }) {
-    const res = await fetch(`${KEYS_BASE}/`, {
+    const res = await fetch(`${KEYS_BASE}`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

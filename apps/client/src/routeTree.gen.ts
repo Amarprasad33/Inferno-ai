@@ -15,6 +15,7 @@ import { Route as SignupIndexRouteImport } from './routes/signup/index'
 import { Route as SigninIndexRouteImport } from './routes/signin/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as ExpInfiniRouteImport } from './routes/exp/infini'
+import { Route as AccountYour_keysIndexRouteImport } from './routes/account/your_keys/index'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -46,6 +47,11 @@ const ExpInfiniRoute = ExpInfiniRouteImport.update({
   path: '/exp/infini',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountYour_keysIndexRoute = AccountYour_keysIndexRouteImport.update({
+  id: '/account/your_keys/',
+  path: '/account/your_keys/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatIndexRoute
   '/signin': typeof SigninIndexRoute
   '/signup': typeof SignupIndexRoute
+  '/account/your_keys': typeof AccountYour_keysIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatIndexRoute
   '/signin': typeof SigninIndexRoute
   '/signup': typeof SignupIndexRoute
+  '/account/your_keys': typeof AccountYour_keysIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,12 +79,27 @@ export interface FileRoutesById {
   '/chat/': typeof ChatIndexRoute
   '/signin/': typeof SigninIndexRoute
   '/signup/': typeof SignupIndexRoute
+  '/account/your_keys/': typeof AccountYour_keysIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/exp/infini' | '/chat' | '/signin' | '/signup'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/exp/infini'
+    | '/chat'
+    | '/signin'
+    | '/signup'
+    | '/account/your_keys'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/exp/infini' | '/chat' | '/signin' | '/signup'
+  to:
+    | '/'
+    | '/about'
+    | '/exp/infini'
+    | '/chat'
+    | '/signin'
+    | '/signup'
+    | '/account/your_keys'
   id:
     | '__root__'
     | '/'
@@ -85,6 +108,7 @@ export interface FileRouteTypes {
     | '/chat/'
     | '/signin/'
     | '/signup/'
+    | '/account/your_keys/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +118,7 @@ export interface RootRouteChildren {
   ChatIndexRoute: typeof ChatIndexRoute
   SigninIndexRoute: typeof SigninIndexRoute
   SignupIndexRoute: typeof SignupIndexRoute
+  AccountYour_keysIndexRoute: typeof AccountYour_keysIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -140,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExpInfiniRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/your_keys/': {
+      id: '/account/your_keys/'
+      path: '/account/your_keys'
+      fullPath: '/account/your_keys'
+      preLoaderRoute: typeof AccountYour_keysIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -150,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatIndexRoute: ChatIndexRoute,
   SigninIndexRoute: SigninIndexRoute,
   SignupIndexRoute: SignupIndexRoute,
+  AccountYour_keysIndexRoute: AccountYour_keysIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
