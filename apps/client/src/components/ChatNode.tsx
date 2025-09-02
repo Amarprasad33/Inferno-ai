@@ -10,13 +10,13 @@ type ChatNodeData = {
 
 type Message = {
     text: string;
-    userType: 'user' | 'bot';
+    userType: 'user' | 'assistant';
 }
 
 const ChatNode = ({ data }: { data: ChatNodeData }) => {
     const [messages, setMessages] = useState<Message[]>(
         [
-            { text: "Hello! How can I help you today?", userType: "bot" }
+            { text: "Hello! How can I help you today?", userType: "assistant" }
         ]
     );
     const [input, setInput] = useState("");
@@ -30,11 +30,11 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
             { text: input, userType: 'user' }
         ]);
         setInput("");
-        setLoading(true); // Start loading
+        setLoading(true);
         // Show "thinking" message
         setMessages(prev => [
             ...prev,
-            { text: "Bot is thinking...", userType: 'bot' }
+            { text: "Bot is thinking...", userType: 'assistant' }
         ]);
         setTimeout(() => {
             setMessages(prev => {
@@ -42,7 +42,7 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
                 const msgs = prev.slice(0, -1);
                 return [
                     ...msgs,
-                    { text: "This is a bot reply :)", userType: 'bot' }
+                    { text: "This is a bot reply :)", userType: 'assistant' }
                 ];
             });
             setLoading(false); // Stop loading

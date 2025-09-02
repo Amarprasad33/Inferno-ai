@@ -3,14 +3,15 @@ import { Toaster } from "sonner";
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { useSession } from '@/lib/auth-client';
 import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 
 
 function RootComponent() {
   // const { data, isLoading } = useSession();
   // console.log("data", data);
   // console.log("data--load", isLoading);
-  const res = useSession();
-  console.log("res", res);
+  const session = useSession();
+  console.log("session", session);
 
   return (
     <>
@@ -32,10 +33,14 @@ function RootComponent() {
               Chat
             </Link>
           </div>
-
-          <Link to="/signin" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
-            <button className='px-4! py-[4px]!'>Sign in</button>
-          </Link>
+          <div className='flex gap-1 items-center'>
+            {(session && session?.data) && <div className='w-6 h-6 flex items-center justify-center rounded-full bg-zinc-500'>
+              {session.data?.user.name.substring(0, 1)}
+            </div>}
+            <Link to="/signin" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+              <Button variant='ghost' className='px-4 py-[4px]'>Sign in</Button>
+            </Link>
+          </div>
         </div>
         <Outlet />
         <Toaster />
