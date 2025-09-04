@@ -36,7 +36,7 @@ export default function SigninForm() {
 
     async function onSubmit(data: SigninSchemaType) {
         try {
-            console.log("submit-data", data);
+            // console.log("submit-data", data);
 
             const res = await signIn.email(data);
             console.log('res', res);

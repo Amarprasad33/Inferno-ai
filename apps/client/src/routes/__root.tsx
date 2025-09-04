@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import { useSession } from '@/lib/auth-client';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { useSessionStore } from '@/stores/session-store';
 
 
 function RootComponent() {
@@ -11,7 +12,25 @@ function RootComponent() {
   // console.log("data", data);
   // console.log("data--load", isLoading);
   const session = useSession();
+  const setSession = useSessionStore((s) => s.setSession);
+  const clear = useSessionStore((s) => s.clear);
   console.log("session", session);
+
+  useEffect(() => {
+    const user = session?.data?.user;
+    if (user) {
+      setSession({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image
+        }
+      })
+    } else {
+      clear();
+    }
+  }, [session?.data?.user, session?.data?.user?.id, session?.data?.user?.email, session?.data?.user?.name, session?.data?.user?.image, setSession, clear])
 
   return (
     <>
