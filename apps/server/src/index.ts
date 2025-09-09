@@ -20,7 +20,6 @@ const allowedOrigins = [
 ]
 
 // *** Middlewares ***
-app.use('/chat/*', authMiddleware);
 app.use(
     '*',
     cors({
@@ -35,6 +34,7 @@ app.use(
         maxAge: 600,
     })
 )
+app.use('/chat/*', authMiddleware);
 // auth-session middlware
 app.use("*", async (c, next) => {
     const session = await auth.api.getSession({ headers: c.req.raw.headers });

@@ -75,4 +75,5 @@ export async function authMiddleware(c: Context, next: Next) {
   //   } catch {
   //     return c.json({ error: 'unauthorized' }, 401);
   //   }
+  await next();
 }

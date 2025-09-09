@@ -42,6 +42,7 @@ type ChatBody = {
 chat.post('/', requireAuth, async (c) => {
 	const user = c.get('user')!;
 	const body = await c.req.json().catch(() => null) as ChatBody | null;
+	// console.log("body--", body);
 	if (!body?.model || !Array.isArray(body.messages)) {
 		return c.json({ error: 'model and messages required' }, 400);
 	}
@@ -53,7 +54,12 @@ chat.post('/', requireAuth, async (c) => {
 	});
 	if (!keyRow) return c.json({ error: `No API key stored for provider "${provider}"` }, 400);
 
-	const apiKey = decryptSecret(keyRow.encryptedSecret, keyRow.iv);
+	let apiKey: string;
+	try {
+		apiKey = decryptSecret(keyRow.encryptedSecret, keyRow.iv);
+	} catch {
+		return c.json({ error: 'Stored API key cannot be decrypted. Please re-add your key.' }, 500);
+	}
 
 	// Build provider client
 	let modelFactory: (id: string) => any;
