@@ -1,4 +1,5 @@
 // import React from 'react';
+import { API_BASE } from '@/lib/keys-api';
 import { useEffect, useRef, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 
@@ -23,12 +24,67 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
     const [loading, setLoading] = useState(false); // <-- loading state
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (input.trim() === '' || loading) return;
+        const userMsg: Message = { text: input, userType: 'user' };
         setMessages(prev => [
             ...prev,
-            { text: input, userType: 'user' }
+            userMsg
         ]);
+        // Make the API request to /chat
+        try {
+            // Transforming existing messages to the ChatBody format
+            const chatMessages = [...messages, userMsg].map(m => ({
+                role: m.userType === 'user' ? 'user' : 'assistant' as const,
+                content: m.text
+            }))
+
+            const res = await fetch(`${API_BASE}/chat`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-type': 'application/json' },
+                body: JSON.stringify({
+                    provider: 'groq',
+                    model: 'groq/compound',
+                    messages: chatMessages,
+                }),
+            });
+
+            if (!res.ok || !res.body) {
+                throw new Error(await res.text().catch(() => `HTTP ${res.status}`));
+            }
+
+            // Stream text response
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let assistantText = '';
+            let assistantIndex = -1;
+
+            setMessages(prev => {
+                assistantIndex = prev.length;
+                return [...prev, { text: '', userType: 'assistant' as const }];
+            });
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value, { stream: true });
+                if (!chunk) continue;
+                assistantText += chunk;
+                console.log("t-->", assistantText);
+                setMessages(prev => {
+                    const next = [...prev];
+                    next[assistantIndex] = { ...next[assistantIndex], text: assistantText };
+                    return next;
+                });
+            }
+
+        } catch (er) {
+            console.log("err", er);
+        } finally {
+            console.log('finally block')
+        }
+
         setInput("");
         setLoading(true);
         // Show "thinking" message
