@@ -42,7 +42,7 @@ type ChatBody = {
 chat.post('/', requireAuth, async (c) => {
 	const user = c.get('user')!;
 	const body = await c.req.json().catch(() => null) as ChatBody | null;
-	// console.log("body--", body);
+	console.log("body--", body);
 	if (!body?.model || !Array.isArray(body.messages)) {
 		return c.json({ error: 'model and messages required' }, 400);
 	}

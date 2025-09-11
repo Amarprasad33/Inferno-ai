@@ -77,9 +77,9 @@ const NodeCanvas = () => {
     // Update initial node position when window dimensions change
     useEffect(() => {
         if (windowDimensions.width > 0 && windowDimensions.height > 0) {
-            setNodes(prevNodes => 
-                prevNodes.map(node => 
-                    node.id === '0' 
+            setNodes(prevNodes =>
+                prevNodes.map(node =>
+                    node.id === '0'
                         ? { ...node, position: getCenterPosition() }
                         : node
                 )
@@ -104,12 +104,12 @@ const NodeCanvas = () => {
     );
 
     const addChatNode = () => {
-        if(nodes.length > 5){
+        if (nodes.length > 5) {
             toast("Cannot create more nodes", {
                 description: 'Max node limit reached!!',
                 action: {
                     label: "OK!",
-                    onClick: () => {},
+                    onClick: () => { },
                 },
             });
             return;
@@ -139,8 +139,22 @@ const NodeCanvas = () => {
         // --- FIX IS HERE ---
         // The height is now 200% of the viewport height, creating a large scrollable area.
         <div
-            style={{ height: '100vh', width: '100%' }}
+            style={{ height: '100vh', width: '100%', position: 'relative' }}
         >
+            <button
+                onClick={addChatNode}
+                className='bg-[rgb(99 99 99 / 5%)] hover:bg-zinc-700/30 rounded-lg border border-zinc-800 backdrop-blur-[1px]'
+                style={{
+                    position: 'absolute',
+                    top: '20px',
+                    left: '20px',
+                    zIndex: 10,
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                }}
+            >
+                Add Node
+            </button>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -154,20 +168,6 @@ const NodeCanvas = () => {
                 panOnScroll={isPaneInteractive}
                 preventScrolling={isPaneInteractive} // Important for some trackpads
             >
-                <button
-                    onClick={addChatNode}
-                    className='bg-[rgb(99 99 99 / 5%)] hover:bg-zinc-700/30 rounded-lg border border-zinc-800 backdrop-blur-[1px]'
-                    style={{
-                        position: 'absolute',
-                        top: '20px',
-                        left: '20px',
-                        zIndex: 10,
-                        padding: '8px 12px',
-                        cursor: 'pointer',
-                    }}
-                >
-                    Add Node
-                </button>
                 <Background />
                 <Controls className='absolute top-[50%] left-1' />
             </ReactFlow>

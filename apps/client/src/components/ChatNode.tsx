@@ -71,13 +71,13 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
                 const chunk = decoder.decode(value, { stream: true });
                 if (!chunk) continue;
                 assistantText += chunk;
-                console.log("t-->", assistantText);
                 setMessages(prev => {
                     const next = [...prev];
                     next[assistantIndex] = { ...next[assistantIndex], text: assistantText };
                     return next;
                 });
             }
+            console.log("assistant-text--", assistantText)
 
         } catch (er) {
             console.log("err", er);
@@ -117,7 +117,7 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
     }, [messages])
 
     return (
-        <div className='chat-node flex flex-col bg-zinc-900 border border-zinc-700 rounded-xl min-w-[35rem] min-h-[50vh]'>
+        <div className='chat-node flex flex-col bg-zinc-900 border border-zinc-700 rounded-xl min-w-[35rem] min-h-[50vh] max-w-[800px]'>
             <Handle type="target" position={Position.Left} className='!w-3 !h-3 !bg-zinc-700 !border !border-zinc-600 !-left-[6px]' />
             <div className='flex gap-2 items-center text-zinc-600 w-full border-b border-zinc-700 rounded-t-xl px-2 py-2'>
                 <div className='w-5 h-5 bg-inherit rounded-full border border-zinc-600 cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear' />
@@ -135,13 +135,18 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
                     {messages.map((msg, idx) => (
                         <div
                             key={idx}
-                            className={`p-2 rounded-lg max-w-[80%] break-words select-text cursor-text selection:bg-white selection:text-black
+                            className={`p-2 rounded-lg break-words select-text cursor-text selection:bg-white selection:text-black
                                 ${msg.userType === 'user'
-                                    ? 'bg-zinc-800 text-zinc-100 self-end'
-                                    : 'bg-zinc-700 text-zinc-300 self-start'
+                                    ? 'bg-zinc-800 text-zinc-100 self-end max-w-[70%]'
+                                    : 'bg-zinc-700 text-zinc-300 self-start max-w-[65%]'
                                 }`}
                         >
-                            {msg.text}
+                            <div
+                                className={msg.userType === 'assistant' ? 'assistant' : 'user'}
+                                style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+                            >
+                                {msg.text}
+                            </div>
                         </div>
                     ))}
                     <div ref={messagesEndRef} />
