@@ -20,7 +20,7 @@ model User {
 
   name          String?
   password      String?
-  passwordHash   String? // used when providerId = "credential"
+  passwordHash  String? // used when providerId = "credential"
   image         String?
   emailVerified Boolean @default(false)
 
@@ -33,6 +33,7 @@ model User {
   accounts           Account[]
   sessions           Session[]
   verificationTokens VerificationToken[]
+  conversations      Conversation[]
 }
 
 // New: sessions
@@ -53,12 +54,12 @@ model Session {
 // New: accounts (providers + credentials)
 model Account {
   id             String  @id @default(uuid())
-  accountId      String   @unique
+  accountId      String  @unique
   userId         String
   providerId     String // "credential", "google"
   providerUserId String? // id from provider (null for "credential")
   passwordHash   String? // used when providerId = "credential"
-  password      String?
+  password       String?
 
   accessToken  String?
   refreshToken String?
@@ -74,12 +75,13 @@ model Account {
 }
 
 model Canvas {
-  id        String   @id @default(uuid())
-  ownerId   String
-  title     String   @default("Untitled Canvas")
-  createdAt DateTime @default(now())
-  owner     User     @relation(fields: [ownerId], references: [id])
-  nodes     Node[]
+  id            String         @id @default(uuid())
+  ownerId       String
+  title         String         @default("Untitled Canvas")
+  createdAt     DateTime       @default(now())
+  owner         User           @relation(fields: [ownerId], references: [id])
+  nodes         Node[]
+  conversations Conversation[]
 }
 
 model Node {
@@ -105,13 +107,34 @@ model ApiKey {
   @@unique([userId, provider], map: "user_provider_unique")
 }
 
+model Conversation {
+  id        String    @id @default(uuid())
+  userId    String
+  canvasId  String?
+  title     String    @default("Untitled")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user     User      @relation(fields: [userId], references: [id])
+  canvas   Canvas?   @relation(fields: [canvasId], references: [id])
+  messages Message[]
+
+  @@index([userId])
+  @@index([canvasId])
+}
+
 model Message {
-  id        String   @id @default(uuid())
-  nodeId    String
-  role      String
-  content   String
-  createdAt DateTime @default(now())
-  node      Node     @relation(fields: [nodeId], references: [id])
+  id             String   @id @default(uuid())
+  conversationId String
+  nodeId         String
+  role           String
+  contentEnc     String
+  iv             String
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  node         Node         @relation(fields: [nodeId], references: [id])
 }
 
 // New: verification tokens (email verify + password reset)
