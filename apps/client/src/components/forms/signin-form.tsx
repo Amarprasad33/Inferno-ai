@@ -128,6 +128,14 @@ export default function SigninForm() {
                     Sign In
                 </Button>
 
+                <Button
+                    type="button"
+                    className="w-full text-zinc-950"
+                    onClick={() => signIn.social({ provider: 'google' })}
+                >
+                    Continue with Google
+                </Button>
+
             </form>
         </Form>
     );

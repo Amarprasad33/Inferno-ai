@@ -25,12 +25,15 @@ export const auth = betterAuth({
       // e.g., log or notify
     },
   },
-  // socialProviders: {
-  //   google: {
-  //     clientId: process.env.GOOGLE_CLIENT_ID as string,
-  //     clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
-  //   }
-  // }
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      // optional:
+      // accessType: "offline",
+      // prompt: "select_account consent",
+    }
+  },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }, request) => {
       // implement email function
