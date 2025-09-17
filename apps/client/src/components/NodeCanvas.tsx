@@ -22,6 +22,9 @@ import 'reactflow/dist/style.css';
 import ChatNode from './ChatNode';
 import { toast } from 'sonner';
 
+import { createCanvas, createNode } from '@/lib/canvas-api';
+import { createConversation } from '@/lib/conversations-api';
+
 
 // The options to hide the attribution watermark.
 const proOptions = {
@@ -38,6 +41,11 @@ const NodeCanvas = () => {
     const [edges, setEdges] = useState<Edge[]>([]);
     const [isPaneInteractive, setIsPaneInteractive] = useState(true);
     const [windowDimensions, setWindowDimensions] = useState({ width: 0, height: 0 });
+
+    // server ids
+    const [canvasId, setCanvasId] = useState<string | null>(null);
+    const [conversationId, setConversationId] = useState<string | null>(null);
+
 
     // Calculate center position based on window dimensions
     const getCenterPosition = () => {
@@ -58,6 +66,30 @@ const NodeCanvas = () => {
         },
     ];
     const [nodes, setNodes] = useState<Node<{ label: string }>[]>(initialNodes);
+
+    // create canvas + conversation on mount
+    useEffect(() => {
+        let cancelled = false;
+        async function createConversationInDb() {
+            try {
+                const ownCanvas = await createCanvas({});
+                if (cancelled) return;
+                setCanvasId(ownCanvas.id);
+                const convo = await createConversation({ canvasId: ownCanvas.id, title: 'Untitled' });
+                if (cancelled) return;
+                setConversationId(convo.id);
+                // Inject conversationId into existing nodes data
+                setNodes(prev => prev.map(n => ({
+                    ...n,
+                    data: { ...(n.data as any), conversationId: convo.id }
+                })));
+            } catch (err) {
+                console.log("err", err);
+            }
+        }
+        createConversationInDb();
+        return () => { cancelled = true };
+    }, []);
 
     // Update window dimensions and recalculate node positions
     useEffect(() => {
@@ -103,7 +135,7 @@ const NodeCanvas = () => {
         []
     );
 
-    const addChatNode = () => {
+    const addChatNode = async () => {
         if (nodes.length > 5) {
             toast("Cannot create more nodes", {
                 description: 'Max node limit reached!!',
@@ -114,21 +146,52 @@ const NodeCanvas = () => {
             });
             return;
         }
-        const newNode = {
-            id: `${nodeId}`,
-            type: 'chat',
-            position: {
-                // Spawns nodes over a larger area
-                x: Math.random() * 800,
-                y: Math.random() * 800,
-            },
-            data: {
-                label: `Chat Node ${nodeId}`,
-                setIsPaneInteractive: setIsPaneInteractive
-            },
-        };
-        setNodes((nds) => [...nds, newNode]);
-        nodeId++; // Increment after creating the node
+        if (!canvasId || !conversationId) {
+            toast('Please wait while conversation initializes');
+            return;
+        }
+
+        try {
+            const label = `Chat Node ${nodeId}`;
+            // Provider/model currently mirrored from chatNode usage
+            const nodeRec = await createNode(canvasId, { label, provider: 'groq', model: 'groq/compound' });
+
+            const newNode = {
+                id: `${nodeId}`,
+                type: 'chat',
+                position: {
+                    // Spawns nodes over a large area
+                    x: Math.random() * 800,
+                    y: Math.random() * 800,
+                },
+                data: {
+                    label,
+                    setIsPaneInteractive: setIsPaneInteractive,
+                    conversationId,
+                    dbNodeId: nodeRec.id
+                },
+            };
+            setNodes((nds) => [...nds, newNode]);
+            nodeId++;
+        } catch (e) {
+            console.log("err", e);
+            toast('Failded to create node');
+        }
+        // const newNode = {
+        //     id: `${nodeId}`,
+        //     type: 'chat',
+        //     position: {
+        //         // Spawns nodes over a larger area
+        //         x: Math.random() * 800,
+        //         y: Math.random() * 800,
+        //     },
+        //     data: {
+        //         label: `Chat Node ${nodeId}`,
+        //         setIsPaneInteractive: setIsPaneInteractive
+        //     },
+        // };
+        // setNodes((nds) => [...nds, newNode]);
+        // nodeId++; // Increment after creating the node
     };
 
     // useEffect(() => {

@@ -3,10 +3,14 @@ import { API_BASE } from '@/lib/keys-api';
 import { useEffect, useRef, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 
+import { appendMessage } from '@/lib/conversations-api';
+
 // Update the type for our node data to include the new function
 type ChatNodeData = {
     label: string;
     setIsPaneInteractive: (interactive: boolean) => void;
+    conversationId?: string;
+    dbNodeId?: string;
 };
 
 type Message = {
@@ -26,6 +30,10 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
 
     const handleSend = async () => {
         if (input.trim() === '' || loading) return;
+        if (!data.conversationId || !data.dbNodeId) {
+            console.warn('Conversation or node not ready yet.');
+            return;
+        }
         const userMsg: Message = { text: input, userType: 'user' };
         setMessages(prev => [
             ...prev,
@@ -33,7 +41,10 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
         ]);
         // Make the API request to /chat
         try {
-            // Transforming existing messages to the ChatBody format
+            // Append user message to conversation
+            await appendMessage(data.conversationId, { nodeId: data.dbNodeId, role: 'user', content: userMsg.text });
+
+            // Transforming existing messages to the ChatBody format - send to inference ai and stream back
             const chatMessages = [...messages, userMsg].map(m => ({
                 role: m.userType === 'user' ? 'user' : 'assistant' as const,
                 content: m.text
@@ -79,6 +90,11 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
             }
             console.log("assistant-text--", assistantText)
 
+            // Append assistant message after stream completes
+            if (assistantText) {
+                await appendMessage(data.conversationId, { nodeId: data.dbNodeId, role: 'assistant', content: assistantText });
+            }
+
         } catch (er) {
             console.log("err", er);
         } finally {
@@ -87,22 +103,23 @@ const ChatNode = ({ data }: { data: ChatNodeData }) => {
 
         setInput("");
         setLoading(true);
+        setLoading(false);
         // Show "thinking" message
-        setMessages(prev => [
-            ...prev,
-            { text: "Bot is thinking...", userType: 'assistant' }
-        ]);
-        setTimeout(() => {
-            setMessages(prev => {
-                // Remove the last "thinking" message and add the real reply
-                const msgs = prev.slice(0, -1);
-                return [
-                    ...msgs,
-                    { text: "This is a bot reply :)", userType: 'assistant' }
-                ];
-            });
-            setLoading(false); // Stop loading
-        }, 1000);
+        // setMessages(prev => [
+        //     ...prev,
+        //     { text: "Bot is thinking...", userType: 'assistant' }
+        // ]);
+        // setTimeout(() => {
+        //     setMessages(prev => {
+        //         // Remove the last "thinking" message and add the real reply
+        //         const msgs = prev.slice(0, -1);
+        //         return [
+        //             ...msgs,
+        //             { text: "This is a bot reply :)", userType: 'assistant' }
+        //         ];
+        //     });
+        //     setLoading(false); // Stop loading
+        // }, 1000);
     }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
