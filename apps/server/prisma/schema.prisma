@@ -129,8 +129,7 @@ model Message {
   conversationId String
   nodeId         String
   role           String
-  contentEnc     String
-  iv             String
+  content        String
   createdAt      DateTime @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id])
