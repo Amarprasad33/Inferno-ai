@@ -77,7 +77,7 @@ const NodeCanvas = () => {
     }
 
     initStarted.current = true;
-    let cancelled = false;
+    const cancelled = false;
 
     async function createConversationInDb() {
       try {
@@ -111,7 +111,7 @@ const NodeCanvas = () => {
     }
     createConversationInDb();
     return () => {
-      cancelled = true;
+      // cancelled = true;
     };
   }, []);
 

@@ -22,6 +22,9 @@ export const conversations = new Hono<AppVars>();
 conversations.post("/", requireAuth, async (c) => {
   const user = c.get("user")!;
   const { title, canvasId } = await c.req.json().catch(() => ({}) as any);
+  console.log("title", title);
+  console.log("canvasId", canvasId);
+
   // Optional: verify canvas belongs to user if provided
   if (canvasId) {
     const canvas = await prisma.canvas.findFirst({

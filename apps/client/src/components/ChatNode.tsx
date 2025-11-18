@@ -147,7 +147,7 @@ const ChatNode = memo(({ data }: { data: ChatNodeData }) => {
       <div className="p-2 grow flex flex-col">
         {/* Messages */}
         <div
-          className="nodrag flex-grow overflow-y-auto space-y-2 w-full flex flex-col pb-14 max-h-[130vh]"
+          className="nodrag flex-grow overflow-y-auto space-y-2 w-full flex flex-col pb-14 max-h-[80vh]"
           onMouseEnter={() => data.setIsPaneInteractive(false)}
           onMouseLeave={() => data.setIsPaneInteractive(true)}
         >
