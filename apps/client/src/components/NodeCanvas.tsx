@@ -77,18 +77,18 @@ const NodeCanvas = () => {
     }
 
     initStarted.current = true;
-    const cancelled = false;
+    // const cancelled = false;
 
     async function createConversationInDb() {
       try {
         const ownCanvas = await createCanvas({});
         console.log("oCanvas--", ownCanvas);
-        if (cancelled) return;
+        // if (cancelled) return;
         setCanvasId(ownCanvas.id);
 
         const convo = await createConversation({ canvasId: ownCanvas.id, title: "Untitled" });
         console.log("convo--", convo);
-        if (cancelled) return;
+        // if (cancelled) return;
         setConversationId(convo.id);
 
         const nodeData = await createNode(ownCanvas.id, {
@@ -111,6 +111,7 @@ const NodeCanvas = () => {
     }
     createConversationInDb();
     return () => {
+      console.log('Cleanup--NodeCanvas-useEffect -00 ');
       // cancelled = true;
     };
   }, []);
@@ -151,7 +152,7 @@ const NodeCanvas = () => {
         description: "Max node limit reached!!",
         action: {
           label: "OK!",
-          onClick: () => {},
+          onClick: () => { },
         },
       });
       return;

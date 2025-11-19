@@ -70,7 +70,7 @@ conversations.get("/", requireAuth, async (c) => {
 conversations.get("/:id", requireAuth, async (c) => {
   const user = c.get("user")!;
   const id = c.req.param("id");
-  const nodeId = c.req.query("nodeId");
+  // const nodeId = c.req.query("nodeId");
 
   const conv = await prisma.conversation.findFirst({
     where: { id, userId: user.id, deletedAt: null },
@@ -84,10 +84,18 @@ conversations.get("/:id", requireAuth, async (c) => {
   });
   if (!conv) return c.body(null, 404);
 
+  const canvas = conv.canvasId
+    ? await prisma.canvas.findFirst({
+      where: { id: conv.canvasId, ownerId: user.id },
+      select: { id: true, title: true, createdAt: true },
+    })
+    : null;
+  if (conv.canvasId && !canvas) return c.body(null, 404);
+
   const messages = await prisma.message.findMany({
     where: {
       conversationId: id,
-      ...(nodeId ? { nodeId } : {}),
+      // ...(nodeId ? { nodeId } : {}),
     },
     orderBy: { createdAt: "asc" },
     select: {
@@ -99,7 +107,27 @@ conversations.get("/:id", requireAuth, async (c) => {
     },
   });
 
-  const out = messages.map((m) => {
+  // fetching nodes to send node-wise-messages
+  const nodes = conv.canvasId
+    ? await prisma.node.findMany({
+      where: { canvasId: conv.canvasId },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        label: true,
+        provider: true,
+        model: true,
+        createdAt: true,
+      },
+    })
+    : [];
+
+  const nodesWithMessages = nodes.map((node) => ({
+    ...node,
+    messages: messages.filter((m) => m.nodeId === node.id),
+  }))
+
+  const outMessages = messages.map((m) => {
     return {
       id: m.id,
       nodeId: m.nodeId,
@@ -109,7 +137,12 @@ conversations.get("/:id", requireAuth, async (c) => {
     };
   });
 
-  return c.json({ conversation: conv, messages: out });
+  return c.json({
+    conversation: conv,
+    canvas,
+    nodes: nodesWithMessages,
+    messages: outMessages
+  });
 });
 
 // Append a message to a conversation (node-specific)
@@ -135,10 +168,10 @@ conversations.post("/:id/messages", requireAuth, async (c) => {
   const node = await prisma.node.findFirst({
     where: conv.canvasId
       ? {
-          id: body.nodeId,
-          canvasId: conv.canvasId,
-          canvas: { ownerId: user.id },
-        }
+        id: body.nodeId,
+        canvasId: conv.canvasId,
+        canvas: { ownerId: user.id },
+      }
       : { id: body.nodeId, canvas: { ownerId: user.id } },
     select: { id: true },
   });

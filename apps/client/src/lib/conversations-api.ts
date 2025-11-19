@@ -3,6 +3,21 @@ import { API_BASE } from './keys-api';
 
 export type Conversation = { id: string; title: string; canvasId: string | null; createdAt: string; updatedAt: string };
 export type Message = { id: string; nodeId: string; role: 'user' | 'assistant' | 'system'; content: string; createdAt: string };
+export type ConversationDetail = {
+    conversation: Conversation;
+    canvas: CanvasSummary;
+    nodes: ConversationNode[];
+    messages: Message[];
+}
+export type CanvasSummary = { id: string; title: string; createdAt: string } | null;
+export type ConversationNode = {
+    id: string;
+    label: string;
+    provider: string;
+    model: string;
+    createdAt: string;
+    messages: Message[]
+}
 
 export async function createConversation(input: { title?: string; canvasId?: string }) {
     const res = await fetch(`${API_BASE}/api/conversations`, {
@@ -40,4 +55,19 @@ export async function appendMessage(conversationId: string, input: { nodeId: str
     });
     if (!res.ok) throw new Error(await res.text());
     return (await res.json()) as { id: string; nodeId: string; role: string; content: string; createdAt: string };
+}
+
+export async function getConversationDetail(
+    id: string,
+    opts?: { nodeId?: string }
+) {
+    const params = new URLSearchParams();
+    if (opts?.nodeId) params.set("nodeId", opts.nodeId);
+    const query = params.toString();
+    const res = await fetch(
+        `${API_BASE}/api/conversations/${id}${query ? `?${query}` : ""}`,
+        { credentials: "include" }
+    );
+    if (!res.ok) throw new Error(await res.text());
+    return (await res.json()) as ConversationDetail;
 }
