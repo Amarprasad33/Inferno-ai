@@ -12,6 +12,7 @@ type ChatNodeData = {
   setIsPaneInteractive: (interactive: boolean) => void;
   conversationId?: string;
   dbNodeId?: string;
+  initialMessages?: { role: "user" | "assistant" | "system"; content: string }[];
 };
 
 type Message = {
@@ -124,6 +125,19 @@ const ChatNode = memo(({ data }: { data: ChatNodeData }) => {
       handleSend();
     }
   };
+  // To render the chat nodes from history
+  const normalizeMessages = (messages?: ChatNodeData["initialMessages"]) =>
+    messages && messages.length > 0
+      ? messages.map((msg: any) => ({
+          text: msg.content,
+          userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
+        }))
+      : [{ text: "Hello! How can I help you today?", userType: "assistant" as const }];
+
+  useEffect(() => {
+    setMessages(normalizeMessages(data.initialMessages));
+  }, [data.initialMessages]);
+
   useEffect(() => {
     console.log("chatNode-data", data);
   }, [data]);

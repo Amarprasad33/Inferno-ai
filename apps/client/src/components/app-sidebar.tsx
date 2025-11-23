@@ -11,18 +11,15 @@ import {
   SidebarMenuButton,
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
+// import { getConversationDetail } from "@/lib/conversations-api";
 import { useConversationHistoryStore } from "@/stores/conversation-history";
+import { useConversationDetailStore } from "@/stores/conversation-detail";
 import { useEffect } from "react";
 
 export function AppSidebar() {
-  const {
-    conversations,
-    loading,
-    error,
-    selectedConversationId,
-    setSelectedConversationId,
-    refreshConversations,
-  } = useConversationHistoryStore();
+  const { conversations, loading, error, selectedConversationId, setSelectedConversationId, refreshConversations } =
+    useConversationHistoryStore();
+  const { loadDetail, loading: detailLoading, error: detailError } = useConversationDetailStore();
 
   useEffect(() => {
     if (!loading && conversations.length === 0) {
@@ -30,18 +27,31 @@ export function AppSidebar() {
     }
   }, [loading, conversations.length, refreshConversations]);
 
-  const handleSelect = (id: string) => {
+  const handleSelect = async (id: string) => {
+    // if (selectedConversationId === id) {
+    //   console.log("sel--", selectedConversationId, "---", id);
+    //   return;
+    // }
     setSelectedConversationId(id);
+    try {
+      console.log("detailLoading--", detailLoading);
+      await loadDetail(id);
+    } catch (err) {
+      console.log("error--", err);
+      console.log("detailErr", detailError);
+    }
+    // const convoDetail = await getConversationDetail(id);
+    // console.log("conv-Details-----0--", convoDetail);
     // if (isMobile) setOpenMobile(false);
     // else setOpen(false);
-  }
+  };
 
   return (
     <Sidebar>
       <SidebarHeader />
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Components</SidebarGroupLabel>
+          <SidebarGroupLabel>History</SidebarGroupLabel>
 
           <SidebarGroupContent>
             {/* <SidebarMenu>
@@ -61,9 +71,7 @@ export function AppSidebar() {
                   onClick={() => handleSelect(conversation.id)}
                 >
                   <span className="flex-1 truncate">{conversation.title}</span>
-                  <span className="text-[11px] text-zinc-500">
-                    {new Date(conversation.updatedAt).toLocaleString()}
-                  </span>
+                  <span className="text-[11px] text-zinc-500">{new Date(conversation.updatedAt).toLocaleString()}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}

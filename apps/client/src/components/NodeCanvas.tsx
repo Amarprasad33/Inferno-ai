@@ -18,6 +18,8 @@ import { toast } from "sonner";
 import { SidebarTrigger } from "./ui/sidebar";
 import { createCanvas, createNode } from "@/lib/canvas-api";
 import { createConversation } from "@/lib/conversations-api";
+import { useConversationHistoryStore } from "@/stores/conversation-history";
+import { useConversationDetailStore } from "@/stores/conversation-detail";
 
 // The options to hide the attribution watermark.
 const proOptions = {
@@ -37,6 +39,9 @@ const NodeCanvas = () => {
     width: 0,
     height: 0,
   });
+
+  const { selectedConversationId } = useConversationHistoryStore();
+  const { detail, loading: detailLoading } = useConversationDetailStore();
 
   // server ids
   const [canvasId, setCanvasId] = useState<string | null>(null);
@@ -68,6 +73,30 @@ const NodeCanvas = () => {
 
   // Add ref to track if initialization has started
   const initStarted = useRef(false);
+
+  const hydrateNodes = useCallback(
+    (detailNodes: typeof detail.nodes) =>
+      detailNodes.map((node, idx) => ({
+        id: node.id,
+        type: "chat",
+        position: {
+          // x: node?.position?.x ?? getCenterPosition().x + idx * 40,
+          // y: node?.position?.y ?? getCenterPosition().y + idx * 40,
+          x: Math.max(0, (windowDimensions.width - 280) / 2 - 140) + idx * 400,
+          y: Math.max(0, (windowDimensions.height - 400) / 2 - 10) + idx * 40,
+        },
+        data: {
+          label: node.label,
+          conversationId: detail?.conversation.id,
+          dbNodeId: node.id,
+          provider: node.provider,
+          model: node.model,
+          setIsPaneInteractive: setIsPanelInteractiveStable,
+          initialMessages: node.messages,
+        },
+      })),
+    [detail, setIsPanelInteractiveStable]
+  );
 
   // create canvas + conversation on mount
   useEffect(() => {
@@ -111,10 +140,25 @@ const NodeCanvas = () => {
     }
     createConversationInDb();
     return () => {
-      console.log('Cleanup--NodeCanvas-useEffect -00 ');
+      console.log("Cleanup--NodeCanvas-useEffect -00 ");
       // cancelled = true;
     };
   }, []);
+
+  // Hydrate canvas whenever a conversation is selected
+  useEffect(() => {
+    if (!selectedConversationId || !detail || detail.conversation.id !== selectedConversationId) {
+      console.log("detail---missing--", detail);
+      return;
+    }
+    setConversationId(detail.conversation.id);
+    setCanvasId(detail.canvas?.id ?? null);
+    setEdges([]);
+    // const hydra = hydrateNodes(detail.nodes);
+    // console.log("hydra--", hydra);
+
+    setNodes(hydrateNodes(detail.nodes));
+  }, [selectedConversationId, detail, hydrateNodes]);
 
   // Update window dimensions and recalculate node positions
   useEffect(() => {
@@ -152,7 +196,7 @@ const NodeCanvas = () => {
         description: "Max node limit reached!!",
         action: {
           label: "OK!",
-          onClick: () => { },
+          onClick: () => {},
         },
       });
       return;
