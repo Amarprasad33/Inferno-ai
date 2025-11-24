@@ -205,6 +205,36 @@ conversations.post("/:id/messages", requireAuth, async (c) => {
   );
 });
 
+// Update conversation title
+conversations.patch("/:id", requireAuth, async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const body = (await c.req.json().catch(() => null)) as {
+    title?: string;
+  } | null;
+  const title = body?.title?.trim();
+  if (!title) return c.json({ error: "title required" }, 400);
+
+  const conv = await prisma.conversation.findFirst({
+    where: { id: id, userId: user?.id, deletedAt: null },
+  });
+  if (!conv) return c.body(null, 404);
+
+  const updated = await prisma.conversation.update({
+    where: { id },
+    data: { title: title.slice(0, 200), updatedAt: new Date() },
+    select: {
+      id: true,
+      title: true,
+      canvasId: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  return c.json(updated);
+});
+
 // Delete conversation (soft delete)
 conversations.delete("/:id", requireAuth, async (c) => {
   const user = c.get("user")!;

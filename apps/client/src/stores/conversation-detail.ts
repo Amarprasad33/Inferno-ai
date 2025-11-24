@@ -7,6 +7,8 @@ type ConversationDetailState = {
   loading: boolean;
   error: string | null;
   loadDetail: (conversationId: string) => Promise<void>;
+  updateConversationTitleLocally: (id: string, title: string) => Promise<void>;
+  clearIfDeleted: (id: string) => Promise<void>;
   reset: () => void;
 };
 
@@ -29,6 +31,13 @@ export const useConversationDetailStore = create<ConversationDetailState>()(
         set({ loading: false });
       }
     },
+    updateConversationTitleLocally: (id: string, title: string) =>
+      set((state) =>
+        state.detail && state.detail.conversation.id === id
+          ? { detail: { ...state.detail, conversation: { ...state.detail.conversation, title } } }
+          : state
+      ),
+    clearIfDeleted: (id: string) => set((state) => (state.detail?.conversation.id === id ? { detail: null } : state)),
     reset: () => set({ detail: null, loading: false, error: null }),
   }))
 );

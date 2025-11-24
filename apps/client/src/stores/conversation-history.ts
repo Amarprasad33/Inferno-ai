@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import { listConversations, type Conversation } from "@/lib/conversations-api";
+import {
+  deleteConversation,
+  listConversations,
+  updateConversationTitle,
+  type Conversation,
+} from "@/lib/conversations-api";
 
 type ConversationHistoryState = {
   conversations: Conversation[];
@@ -12,6 +17,8 @@ type ConversationHistoryState = {
   setLoading: (value: boolean) => void;
   setError: (message: string | null) => void;
   refreshConversations: () => Promise<void>;
+  updateTitle: (id: string, title: string) => Promise<void>;
+  removeConversation: (id: string) => Promise<void>;
 };
 
 export const useConversationHistoryStore = create<ConversationHistoryState>()(
@@ -30,6 +37,7 @@ export const useConversationHistoryStore = create<ConversationHistoryState>()(
           const { setLoading, setConversations, setError } = get();
           setLoading(true);
           try {
+            console.log("refreshing-conversations------🔵🔵");
             const res = await listConversations();
             console.log("res-conversations------", res);
             setConversations(res.conversations);
@@ -41,13 +49,40 @@ export const useConversationHistoryStore = create<ConversationHistoryState>()(
             setLoading(false);
           }
         },
+        updateTitle: async (id: string, title: string) => {
+          set({ loading: true });
+          try {
+            const updated = await updateConversationTitle(id, title);
+            set((state) => ({
+              conversations: state.conversations.map((c) => (c.id === id ? updated : c)),
+              loading: false,
+            }));
+          } catch (err: any) {
+            set({ error: err.message ?? "Failed to rename", loading: false });
+            throw err;
+          }
+        },
+        removeConversation: async (id: string) => {
+          set({ loading: true });
+          try {
+            await deleteConversation(id);
+            set((state) => ({
+              conversations: state.conversations.filter((c) => c.id !== id),
+              selectedConversationId: state.selectedConversationId === id ? null : state.selectedConversationId,
+              loading: false,
+            }));
+          } catch (err: any) {
+            set({ error: err.message ?? "Failed to delete", loading: false });
+            throw err;
+          }
+        },
       }),
       {
-        name: 'inferno/conversation-history',
+        name: "inferno/conversation-history",
         partialize: (state) => ({
           conversations: state.conversations,
           selectedConversationId: state.selectedConversationId,
-        })
+        }),
       }
     )
   )
