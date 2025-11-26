@@ -13,7 +13,7 @@ import ReactFlow, {
 } from "reactflow";
 import type { Node, Edge, NodeChange, EdgeChange, Connection } from "reactflow";
 import "reactflow/dist/style.css";
-import ChatNode from "./ChatNode";
+import ChatNode, { type ChatNodeData } from "./ChatNode";
 import { toast } from "sonner";
 import { SidebarTrigger } from "./ui/sidebar";
 import { createCanvas, createNode } from "@/lib/canvas-api";
@@ -59,15 +59,15 @@ const NodeCanvas = () => {
   }, []);
 
   const initialNodes: Node<{ label: string; setIsPaneInteractive: (interactive: boolean) => void }>[] = [
-    {
-      id: "0",
-      type: "chat",
-      position: getCenterPosition(),
-      data: {
-        label: "Chat Node",
-        setIsPaneInteractive: setIsPanelInteractiveStable,
-      },
-    },
+    // {
+    //   id: "0",
+    //   type: "chat",
+    //   position: getCenterPosition(),
+    //   data: {
+    //     label: "Chat Node",
+    //     setIsPaneInteractive: setIsPanelInteractiveStable,
+    //   },
+    // },
   ];
   const [nodes, setNodes] = useState<Node<{ label: string }>[]>(initialNodes);
 
@@ -99,51 +99,51 @@ const NodeCanvas = () => {
   );
 
   // create canvas + conversation on mount
-  useEffect(() => {
-    // Guard: Only run once
-    if (initStarted.current || canvasId !== null) {
-      return;
-    }
+  // useEffect(() => {
+  //   // Guard: Only run once
+  //   if (initStarted.current || canvasId !== null) {
+  //     return;
+  //   }
 
-    initStarted.current = true;
-    // const cancelled = false;
+  //   initStarted.current = true;
+  //   // const cancelled = false;
 
-    async function createConversationInDb() {
-      try {
-        const ownCanvas = await createCanvas({});
-        console.log("oCanvas--", ownCanvas);
-        // if (cancelled) return;
-        setCanvasId(ownCanvas.id);
+  //   async function createConversationInDb() {
+  //     try {
+  //       const ownCanvas = await createCanvas({});
+  //       console.log("oCanvas--", ownCanvas);
+  //       // if (cancelled) return;
+  //       setCanvasId(ownCanvas.id);
 
-        const convo = await createConversation({ canvasId: ownCanvas.id, title: "Untitled" });
-        console.log("convo--", convo);
-        // if (cancelled) return;
-        setConversationId(convo.id);
+  //       const convo = await createConversation({ canvasId: ownCanvas.id, title: "Untitled" });
+  //       console.log("convo--", convo);
+  //       // if (cancelled) return;
+  //       setConversationId(convo.id);
 
-        const nodeData = await createNode(ownCanvas.id, {
-          label: "Chat Node",
-          provider: "groq",
-          model: "groq/compound",
-        });
-        console.log("Initial node created--", nodeData);
+  //       const nodeData = await createNode(ownCanvas.id, {
+  //         label: "Chat Node",
+  //         provider: "groq",
+  //         model: "groq/compound",
+  //       });
+  //       console.log("Initial node created--", nodeData);
 
-        // Inject conversationId into existing nodes data
-        setNodes((prev) =>
-          prev.map((n) => ({
-            ...n,
-            data: { ...(n.data as any), conversationId: convo.id, dbNodeId: nodeData.id },
-          }))
-        );
-      } catch (err) {
-        console.log("err", err);
-      }
-    }
-    createConversationInDb();
-    return () => {
-      console.log("Cleanup--NodeCanvas-useEffect -00 ");
-      // cancelled = true;
-    };
-  }, []);
+  //       // Inject conversationId into existing nodes data
+  //       setNodes((prev) =>
+  //         prev.map((n) => ({
+  //           ...n,
+  //           data: { ...(n.data as any), conversationId: convo.id, dbNodeId: nodeData.id },
+  //         }))
+  //       );
+  //     } catch (err) {
+  //       console.log("err", err);
+  //     }
+  //   }
+  //   createConversationInDb();
+  //   return () => {
+  //     console.log("Cleanup--NodeCanvas-useEffect -00 ");
+  //     // cancelled = true;
+  //   };
+  // }, []);
 
   // Hydrate canvas whenever a conversation is selected
   useEffect(() => {
@@ -176,13 +176,13 @@ const NodeCanvas = () => {
   }, []);
 
   // Update initial node position when window dimensions change
-  useEffect(() => {
-    if (windowDimensions.width > 0 && windowDimensions.height > 0) {
-      setNodes((prevNodes) =>
-        prevNodes.map((node) => (node.id === "0" ? { ...node, position: getCenterPosition() } : node))
-      );
-    }
-  }, [windowDimensions]);
+  // useEffect(() => {
+  //   if (windowDimensions.width > 0 && windowDimensions.height > 0) {
+  //     setNodes((prevNodes) =>
+  //       prevNodes.map((node) => (node.id === "0" ? { ...node, position: getCenterPosition() } : node))
+  //     );
+  //   }
+  // }, [windowDimensions]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)), []);
 
@@ -201,16 +201,16 @@ const NodeCanvas = () => {
       });
       return;
     }
-    if (!canvasId || !conversationId) {
-      toast("Please wait while conversation initializes");
-      return;
-    }
+
+    // if (!canvasId || !conversationId) {
+    //   toast("Please wait while conversation initializes");
+    //   return;
+    // }
 
     try {
+      // Create visual node only - no DB operations
       const label = `Chat Node ${nodeId}`;
       // Provider/model currently mirrored from chatNode usage
-      const nodeData = await createNode(canvasId, { label, provider: "groq", model: "groq/compound" });
-
       const newNode = {
         id: `${nodeId}`,
         type: "chat",
@@ -222,8 +222,10 @@ const NodeCanvas = () => {
         data: {
           label,
           setIsPaneInteractive: setIsPanelInteractiveStable,
-          conversationId,
-          dbNodeId: nodeData.id,
+          // conversationId,
+          // dbNodeId: nodeData.id,
+          // No conversationId or dbNodeId yet - will be created on first message
+          onInitializeNode: initializeNodeInDb, // Pass callback to create DB resources
         },
       };
       setNodes((nds) => [...nds, newNode]);
@@ -252,6 +254,65 @@ const NodeCanvas = () => {
   // useEffect(() => {
   //     console.log("i-->", isPaneInteractive);
   // }, [isPaneInteractive])
+
+  const initializeNodeInDb = useCallback(
+    async (nodeId: string, label: string) => {
+      try {
+        let currentCanvasId = canvasId;
+
+        if (!currentCanvasId) {
+          const ownCanvas = await createCanvas({});
+          currentCanvasId = ownCanvas.id;
+          console.log("oCanvas--", ownCanvas);
+          setCanvasId(ownCanvas.id);
+        }
+
+        let currentConversationId = conversationId;
+        if (!currentConversationId) {
+          const convo = await createConversation({
+            canvasId: currentCanvasId,
+            title: "Untitled",
+          });
+          currentConversationId = convo.id;
+          console.log("convo--", convo);
+          setConversationId(convo.id);
+        }
+
+        // Create node in DB
+        const nodeData = await createNode(currentCanvasId, {
+          label,
+          provider: "groq",
+          model: "groq/compound",
+        });
+
+        // Update the node's data with DB IDs
+        setNodes((prev) =>
+          prev.map((n) =>
+            n.id === nodeId
+              ? {
+                  ...n,
+                  data: {
+                    ...(n.data as ChatNodeData),
+                    conversationId: currentConversationId,
+                    dbNodeId: nodeData.id,
+                    // Remove the callback after initialization
+                    onInitializeNode: undefined,
+                  },
+                }
+              : n
+          )
+        );
+
+        return {
+          conversationId: currentConversationId,
+          dbNodeId: nodeData.id,
+        };
+      } catch (error) {
+        console.error("Failed to initialize node in DB:", error);
+      }
+    },
+    [canvasId, conversationId]
+  );
 
   return (
     // --- FIX IS HERE ---
