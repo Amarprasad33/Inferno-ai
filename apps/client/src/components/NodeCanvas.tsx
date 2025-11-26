@@ -154,6 +154,7 @@ const NodeCanvas = () => {
     setConversationId(detail.conversation.id);
     setCanvasId(detail.canvas?.id ?? null);
     setEdges([]);
+    nodeId = detail.nodes?.length + 1 || 1;
     // const hydra = hydrateNodes(detail.nodes);
     // console.log("hydra--", hydra);
 
@@ -222,7 +223,7 @@ const NodeCanvas = () => {
         data: {
           label,
           setIsPaneInteractive: setIsPanelInteractiveStable,
-          // conversationId,
+          ...(conversationId && { conversationId }),
           // dbNodeId: nodeData.id,
           // No conversationId or dbNodeId yet - will be created on first message
           onInitializeNode: initializeNodeInDb, // Pass callback to create DB resources
