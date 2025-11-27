@@ -53,6 +53,7 @@ export const useConversationHistoryStore = create<ConversationHistoryState>()(
           set({ loading: true });
           try {
             const updated = await updateConversationTitle(id, title);
+            console.log("update-res", updated);
             set((state) => ({
               conversations: state.conversations.map((c) => (c.id === id ? updated : c)),
               loading: false,

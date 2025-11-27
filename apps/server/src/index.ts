@@ -31,7 +31,7 @@ app.use(
       "Authorization",
       "X-Requested-With", // Often needed for AJAX
     ],
-    allowMethods: ["POST", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
     credentials: true,
     maxAge: 600,
