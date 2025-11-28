@@ -14,8 +14,17 @@ import {
 // import { getConversationDetail } from "@/lib/conversations-api";
 import { useConversationHistoryStore } from "@/stores/conversation-history";
 import { useConversationDetailStore } from "@/stores/conversation-detail";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 export function AppSidebar() {
   const {
@@ -35,6 +44,14 @@ export function AppSidebar() {
     updateConversationTitleLocally,
     clearIfDeleted,
   } = useConversationDetailStore();
+
+  // State for rename dialog
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [conversationToRename, setConversationToRename] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
+  const [newTitle, setNewTitle] = useState("");
 
   useEffect(() => {
     if (!loading && conversations.length === 0) {
@@ -66,6 +83,28 @@ export function AppSidebar() {
     refreshConversations();
   };
 
+  const handleRenameClick = (conversation: { id: string; title: string }) => {
+    setConversationToRename(conversation);
+    setNewTitle(conversation.title);
+    setRenameDialogOpen(true);
+  };
+
+  const handleRenameSubmit = async () => {
+    if (!conversationToRename || !newTitle || newTitle === conversationToRename.title) {
+      setRenameDialogOpen(false);
+      return;
+    }
+    try {
+      await updateTitle(conversationToRename.id, newTitle);
+      updateConversationTitleLocally(conversationToRename.id, newTitle);
+      setRenameDialogOpen(false);
+      setConversationToRename(null);
+      setNewTitle("");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <Sidebar>
       <SidebarHeader />
@@ -95,20 +134,7 @@ export function AppSidebar() {
                   <span className="text-[11px] text-zinc-500">{new Date(conversation.updatedAt).toLocaleString()}</span>
                 </SidebarMenuButton>
                 <div className="flex gap-2 px-2 py-1">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={async () => {
-                      const next = prompt("Rename conversation", conversation.title);
-                      if (!next || next === conversation.title) return;
-                      try {
-                        await updateTitle(conversation.id, next);
-                        updateConversationTitleLocally(conversation.id, next);
-                      } catch (err) {
-                        console.error(err);
-                      }
-                    }}
-                  >
+                  <Button size="sm" variant="outline" onClick={async () => handleRenameClick(conversation)}>
                     Rename
                   </Button>
                   <Button
@@ -133,6 +159,44 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter />
+
+      {/* Rename Dialog */}
+      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename Conversation</DialogTitle>
+            <DialogDescription>Enter a new name for this conversation.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="Conversation title"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleRenameSubmit();
+                }
+              }}
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRenameDialogOpen(false);
+                setConversationToRename(null);
+                setNewTitle("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleRenameSubmit} disabled={!newTitle || newTitle === conversationToRename?.title}>
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   );
 }
