@@ -5,6 +5,7 @@ import { Handle, Position } from "reactflow";
 
 import { appendMessage } from "@/lib/conversations-api";
 import { memo } from "react";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 // Update the type for our node data to include the new function
 export type ChatNodeData = {
@@ -204,12 +205,19 @@ const ChatNode = memo(
                                     : "bg-zinc-700 text-zinc-300 self-start max-w-[65%]"
                                 }`}
               >
-                <div
+                {/* <div
                   className={msg.userType === "assistant" ? "assistant" : "user"}
                   style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
                 >
                   {msg.text}
-                </div>
+                </div> */}
+                {msg.userType === "assistant" ? (
+                  <MarkdownRenderer content={msg.text} />
+                ) : (
+                  <div className="user" style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                    {msg.text}
+                  </div>
+                )}
               </div>
             ))}
             <div ref={messagesEndRef} />
