@@ -64,6 +64,8 @@ model Account {
   accessToken  String?
   refreshToken String?
   idToken      String?
+  accessTokenExpiresAt DateTime? 
+  scope                String?   
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -151,4 +153,17 @@ model VerificationToken {
   createdAt DateTime         @default(now())
 
   user User? @relation(fields: [userId], references: [id])
+}
+
+// For Better Auth
+model verification {
+  id        String   @id @default(uuid())
+  identifier String
+  value     String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([identifier])
+  @@index([value])
 }

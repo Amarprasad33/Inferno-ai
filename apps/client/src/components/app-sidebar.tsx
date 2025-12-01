@@ -58,7 +58,7 @@ export function AppSidebar() {
       console.log("effect-sidebar");
       void refreshConversations();
     }
-  }, [loading, conversations.length, refreshConversations]);
+  }, []);
 
   const handleSelect = async (id: string) => {
     // if (selectedConversationId === id) {

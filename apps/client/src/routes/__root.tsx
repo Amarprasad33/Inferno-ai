@@ -1,9 +1,4 @@
-import {
-  createRootRoute,
-  Link,
-  Outlet,
-  useLocation,
-} from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { useSession } from "@/lib/auth-client";
@@ -12,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useSessionStore } from "@/stores/session-store";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { signOut } from "@/lib/auth-client";
 
 function RootComponent() {
   // const { data, isLoading } = useSession();
@@ -56,28 +52,16 @@ function RootComponent() {
             <div>Inferno</div>
 
             <div className="flex gap-3">
-              <Link
-                to="/"
-                className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold "
-              >
+              <Link to="/" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold ">
                 Home
               </Link>
-              <Link
-                to="/about"
-                className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold"
-              >
+              <Link to="/about" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
                 About
               </Link>
-              <Link
-                to="/exp/infini"
-                className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold"
-              >
+              <Link to="/exp/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
                 Infini
               </Link>
-              <Link
-                to="/chat"
-                className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold"
-              >
+              <Link to="/chat" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
                 Chat
               </Link>
             </div>
@@ -87,14 +71,18 @@ function RootComponent() {
                   {session.data?.user.name.substring(0, 1)}
                 </div>
               )}
-              <Link
-                to="/signin"
-                className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold"
-              >
-                <Button variant="ghost" className="px-4 py-[4px]">
-                  Sign in
+
+              {session && session?.data ? (
+                <Button variant="ghost" className="px-4 py-[4px]" onClick={() => signOut()}>
+                  Sign Out
                 </Button>
-              </Link>
+              ) : (
+                <Link to="/signin" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                  <Button variant="ghost" className="px-4 py-[4px]">
+                    Sign in
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
 
