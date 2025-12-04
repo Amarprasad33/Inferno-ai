@@ -48,41 +48,43 @@ function RootComponent() {
     <>
       <SidebarProvider>
         <div className="min-h-screen w-full">
-          <div className="app-bar p-2 flex gap-2 justify-between items-center border-b border-[#3f3f3f]">
-            <div>Inferno</div>
+          <div className="app-bar p-2 flex justify-center border-b border-[#3f3f3f] bg-zinc-950 relative z-10">
+            <div className="flex gap-2 justify-between items-center min-w-md max-w-[1140px] w-3/4">
+              <div>Inferno</div>
 
-            <div className="flex gap-3">
-              <Link to="/" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold ">
-                Home
-              </Link>
-              <Link to="/about" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
-                About
-              </Link>
-              <Link to="/exp/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
-                Infini
-              </Link>
-              <Link to="/chat" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
-                Chat
-              </Link>
-            </div>
-            <div className="flex gap-1 items-center">
-              {session && session?.data && (
-                <div className="w-6 h-6 flex items-center justify-center rounded-full bg-zinc-500">
-                  {session.data?.user.name.substring(0, 1)}
-                </div>
-              )}
-
-              {session && session?.data ? (
-                <Button variant="ghost" className="px-4 py-[4px]" onClick={() => signOut()}>
-                  Sign Out
-                </Button>
-              ) : (
-                <Link to="/signin" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
-                  <Button variant="ghost" className="px-4 py-[4px]">
-                    Sign in
-                  </Button>
+              <div className="flex gap-3">
+                <Link to="/" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold ">
+                  Home
                 </Link>
-              )}
+                <Link to="/about" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                  About
+                </Link>
+                <Link to="/exp/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                  Infini
+                </Link>
+                <Link to="/chat" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                  Chat
+                </Link>
+              </div>
+              <div className="flex gap-1 items-center">
+                {session && session?.data && (
+                  <div className="w-6 h-6 flex items-center justify-center rounded-full bg-zinc-500">
+                    {session.data?.user.name.substring(0, 1)}
+                  </div>
+                )}
+
+                {session && session?.data ? (
+                  <Button variant="ghost" className="px-4 py-[4px]" onClick={() => signOut()}>
+                    Sign Out
+                  </Button>
+                ) : (
+                  <Link to="/signin" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                    <Button variant="ghost" className="px-4 py-[4px]">
+                      Sign in
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
 
