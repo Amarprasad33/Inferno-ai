@@ -8,6 +8,7 @@ import { useSessionStore } from "@/stores/session-store";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { signOut } from "@/lib/auth-client";
+import { InfernoLogo } from "@/icons";
 
 function RootComponent() {
   // const { data, isLoading } = useSession();
@@ -50,7 +51,10 @@ function RootComponent() {
         <div className="min-h-screen w-full">
           <div className="app-bar p-2 flex justify-center border-b border-[#3f3f3f] bg-zinc-950 relative z-10">
             <div className="flex gap-2 justify-between items-center min-w-md max-w-[1140px] w-3/4">
-              <div>Inferno</div>
+              <div className="flex gap-2 items-center">
+                <InfernoLogo className="w-7 h-7" />
+                <div>Inferno</div>
+              </div>
 
               <div className="flex gap-6">
                 <Link to="/" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold ">
