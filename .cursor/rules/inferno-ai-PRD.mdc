@@ -64,7 +64,7 @@ alwaysApply: false
 - State management for chat history per node
 
 ### 5.2. Backend (MVP)
-- Node.js/Express or similar
+- Hono or similar
 - API proxying to multiple AI providers (OpenAI, Anthropic, etc.)
 - User authentication and API key management
 - Secure storage of user data
