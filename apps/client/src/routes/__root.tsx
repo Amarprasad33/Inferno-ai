@@ -52,7 +52,7 @@ function RootComponent() {
             <div className="flex gap-2 justify-between items-center min-w-md max-w-[1140px] w-3/4">
               <div>Inferno</div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-6">
                 <Link to="/" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold ">
                   Home
                 </Link>

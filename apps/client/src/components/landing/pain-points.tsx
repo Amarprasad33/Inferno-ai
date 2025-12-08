@@ -1,6 +1,6 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { GitGraph, Layers, Network } from 'lucide-react';
+import React from "react";
+import { motion } from "motion/react";
+import { GitGraph, Layers, Network } from "lucide-react";
 
 // --- Skeleton Components ---
 
@@ -57,7 +57,7 @@ const ContextSwitchSkeleton = () => {
           x: [0, 20, 0],
           scale: [0.9, 1, 0.9],
           zIndex: [0, 20, 0],
-          opacity: [0.4, 1, 0.4]
+          opacity: [0.4, 1, 0.4],
         }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         className="absolute w-20 h-24 bg-zinc-900 border border-zinc-700 shadow-xl flex flex-col p-2 gap-2"
@@ -73,7 +73,7 @@ const ContextSwitchSkeleton = () => {
           x: [0, -20, 0],
           scale: [1, 0.9, 1],
           zIndex: [20, 0, 20],
-          opacity: [1, 0.4, 1]
+          opacity: [1, 0.4, 1],
         }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         className="absolute w-20 h-24 bg-zinc-800 border border-zinc-600 shadow-xl flex flex-col p-2 gap-2"
@@ -115,7 +115,10 @@ const SiloedKnowledgeSkeleton = () => {
       {/* Connecting Lines */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         <motion.line
-          x1="50%" y1="50%" x2="33%" y2="33%"
+          x1="50%"
+          y1="50%"
+          x2="33%"
+          y2="33%"
           stroke="#52525b"
           strokeWidth="1"
           strokeDasharray="4 4"
@@ -123,7 +126,10 @@ const SiloedKnowledgeSkeleton = () => {
           transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
         />
         <motion.line
-          x1="50%" y1="50%" x2="66%" y2="66%"
+          x1="50%"
+          y1="50%"
+          x2="66%"
+          y2="66%"
           stroke="#52525b"
           strokeWidth="1"
           strokeDasharray="4 4"
@@ -183,7 +189,7 @@ const PainPointCard: React.FC<{
 
 const PainPoints: React.FC = () => {
   return (
-    <section className="py-24 px-6 bg-black border-b border-zinc-900">
+    <section className="py-24 px-6 bg-black relative">
       <div className="max-w-6xl mx-auto">
         <div className="mb-16 md:text-center max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white tracking-tight">
