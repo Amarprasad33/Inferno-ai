@@ -1,11 +1,13 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import {
+  ApiError,
   deleteConversation,
   listConversations,
   updateConversationTitle,
   type Conversation,
 } from "@/lib/conversations-api";
+import { toast } from "sonner";
 
 type ConversationHistoryState = {
   conversations: Conversation[];
@@ -43,7 +45,20 @@ export const useConversationHistoryStore = create<ConversationHistoryState>()(
             setConversations(res.conversations);
             setError(null);
           } catch (err) {
-            const msg = err instanceof Error ? err.message : "Failed to load conversations";
+
+            console.log("error", err);
+            // const msg = err instanceof Error ? err.message : "Failed to load conversations";
+            let msg = "Failed to load conversations";
+            if (err instanceof ApiError && err.status === 401) {
+              msg = "Please sign in to load your chat history.";
+              toast("Sign in required", {
+                description: msg,
+                action: { label: "Sign in", onClick: () => (window.location.href = "/signin") },
+              })
+            } else {
+              msg = err instanceof Error ? err.message : msg;
+              toast("Unable to refresh conversations", { description: msg })
+            }
             setError(msg);
           } finally {
             setLoading(false);

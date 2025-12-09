@@ -26,6 +26,15 @@ export type ConversationNode = {
   messages: Message[];
 };
 
+export class ApiError extends Error {
+  public status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+    this.name = "ApiError";
+  }
+}
+
 export async function createConversation(input: { title?: string; canvasId?: string }) {
   const res = await fetch(`${API_BASE}/api/conversations`, {
     method: "POST",
@@ -39,7 +48,20 @@ export async function createConversation(input: { title?: string; canvasId?: str
 
 export async function listConversations() {
   const res = await fetch(`${API_BASE}/api/conversations`, { credentials: "include" });
-  if (!res.ok) throw new Error(await res.text());
+  console.log("res", res);
+  if (!res.ok) {
+    let message = "Failed to load conversations";
+    const bodytext = await res.text();
+    try {
+      const data = JSON.parse(bodytext);
+      console.log('data', data)
+      message = (data?.message ?? data?.error ?? data?.detail) || message;
+    } catch {
+      console.log('boxy-text', bodytext);
+      message = bodytext;
+    }
+    throw new ApiError(message, res.status);
+  }
   return (await res.json()) as { conversations: Conversation[] };
 }
 

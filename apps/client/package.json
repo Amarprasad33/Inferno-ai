@@ -48,6 +48,7 @@
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.10",
     "zod": "^4.0.17",
+    "zod-error": "^2.0.0",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
