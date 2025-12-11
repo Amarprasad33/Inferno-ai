@@ -5,6 +5,7 @@ import ReactFlow, {
   applyNodeChanges,
   applyEdgeChanges,
   addEdge,
+  MiniMap
   // Node,
   // Edge,
   // NodeChange,
@@ -197,7 +198,7 @@ const NodeCanvas = () => {
         description: "Max node limit reached!!",
         action: {
           label: "OK!",
-          onClick: () => {},
+          onClick: () => { },
         },
       });
       return;
@@ -291,15 +292,15 @@ const NodeCanvas = () => {
           prev.map((n) =>
             n.id === nodeId
               ? {
-                  ...n,
-                  data: {
-                    ...(n.data as ChatNodeData),
-                    conversationId: currentConversationId,
-                    dbNodeId: nodeData.id,
-                    // Remove the callback after initialization
-                    onInitializeNode: undefined,
-                  },
-                }
+                ...n,
+                data: {
+                  ...(n.data as ChatNodeData),
+                  conversationId: currentConversationId,
+                  dbNodeId: nodeData.id,
+                  // Remove the callback after initialization
+                  onInitializeNode: undefined,
+                },
+              }
               : n
           )
         );
@@ -315,10 +316,12 @@ const NodeCanvas = () => {
     [canvasId, conversationId]
   );
 
+  // const nodeClassName = (node: typeof ChatNode) => node.type;
+
   return (
     // --- FIX IS HERE ---
     // The height is now 200% of the viewport height, creating a large scrollable area.
-    <div style={{ height: "100vh", width: "100%", position: "relative" }}>
+    <div style={{ height: "100vh", width: "100%", position: "relative", overflow: "hidden" }}>
       <SidebarTrigger />
       <button
         onClick={addChatNode}
@@ -335,6 +338,7 @@ const NodeCanvas = () => {
         Add Node
       </button>
       <ReactFlow
+        color="dark"
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
@@ -346,9 +350,24 @@ const NodeCanvas = () => {
         zoomOnScroll={isPaneInteractive}
         panOnScroll={isPaneInteractive}
         preventScrolling={isPaneInteractive} // Important for some trackpads
+        minZoom={0.2}
+        translateExtent={[
+          [-2000, -2000],  // top-left bound
+          [4000, 3000]    // bottom-right bound
+        ]}
+        nodeExtent={[
+          [-1990, -1900],  // to keep the nodes inside the viewport bounds
+          [3300, 3300]
+        ]}
       >
         <Background />
         <Controls className="absolute top-[50%] left-1" />
+        <MiniMap zoomable pannable color="dark"
+          style={{ background: "#0b0b0c", border: "1px solid #1f1f1f" }}
+          maskColor="rgba(20,20,20,0.6)"
+          nodeColor={() => "#7dd3fc"}
+          nodeStrokeColor={() => "#1f9cf0"}
+        />
       </ReactFlow>
     </div>
   );

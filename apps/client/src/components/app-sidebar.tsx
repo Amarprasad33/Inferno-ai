@@ -54,10 +54,10 @@ export function AppSidebar() {
   const [newTitle, setNewTitle] = useState("");
 
   useEffect(() => {
-    if (!loading && conversations.length === 0) {
-      console.log("effect-sidebar");
-      void refreshConversations();
-    }
+    // if (!loading && conversations.length === 0) {
+    console.log("effect-sidebar");
+    void refreshConversations();
+    // }
   }, []);
 
   const handleSelect = async (id: string) => {
@@ -123,7 +123,6 @@ export function AppSidebar() {
             {loading && <SidebarMenuSkeleton />}
             {!loading && conversations.length === 0 && <div>No conversations yet.</div>}
             {error && <div className="text-red-400 text-xs px-2 py-2">{error}</div>}
-            err-{error}
             {conversations.map((conversation) => (
               <SidebarMenuItem key={conversation.id}>
                 <SidebarMenuButton
