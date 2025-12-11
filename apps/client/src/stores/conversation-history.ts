@@ -47,6 +47,7 @@ export const useConversationHistoryStore = create<ConversationHistoryState>()(
           } catch (err) {
 
             console.log("error", err);
+            setConversations([]);
             // const msg = err instanceof Error ? err.message : "Failed to load conversations";
             let msg = "Failed to load conversations";
             if (err instanceof ApiError && err.status === 401) {

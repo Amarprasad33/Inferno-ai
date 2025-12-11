@@ -7,10 +7,11 @@ export const Route = createFileRoute('/chat/')({
 
 function RouteComponent() {
     return (
-        <div className='border border-green-500 mt-10 min-h-screen h-screen p-1'>
+        <div className='border border-green-500 mt-10 min-h-screen p-1 flex flex-col'>
             {/* <KonvaCanvas /> */}
             {/* <KonvaCanvasChatGroup /> */}
             <NodeCanvas />
+            <div>Ends here</div>
         </div>
     )
 }
