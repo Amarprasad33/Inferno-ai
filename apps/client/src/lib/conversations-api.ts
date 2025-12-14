@@ -76,14 +76,14 @@ export async function getConversation(id: string, opts?: { nodeId?: string }) {
 }
 
 export async function appendMessage(
-  conversationId: string,
-  input: { nodeId: string; role: "user" | "assistant" | "system"; content: string }
+  nodeId: string,
+  input: { role: "user" | "assistant" | "system"; content: string }
 ) {
-  const res = await fetch(`${API_BASE}/api/conversations/${encodeURIComponent(conversationId)}/messages`, {
+  const res = await fetch(`${API_BASE}/api/nodes/${encodeURIComponent(nodeId)}/messages`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
+    body: JSON.stringify({ ...input, nodeId }),
   });
   if (!res.ok) throw new Error(await res.text());
   return (await res.json()) as { id: string; nodeId: string; role: string; content: string; createdAt: string };

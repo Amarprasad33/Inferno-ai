@@ -3,7 +3,8 @@ import { API_BASE } from "@/lib/keys-api";
 import { useEffect, useRef, useState } from "react";
 import { Handle, Position } from "reactflow";
 
-import { appendMessage } from "@/lib/conversations-api";
+// import { appendMessage } from "@/lib/conversations-api";
+import { appendMessage } from "@/lib/nodes-api";
 import { memo } from "react";
 import MarkdownRenderer from "./MarkdownRenderer";
 
@@ -11,10 +12,9 @@ import MarkdownRenderer from "./MarkdownRenderer";
 export type ChatNodeData = {
   label: string;
   setIsPaneInteractive: (interactive: boolean) => void;
-  conversationId?: string;
   dbNodeId?: string;
   initialMessages?: { role: "user" | "assistant" | "system"; content: string }[];
-  onInitializeNode?: (nodeId: string, label: string) => Promise<{ conversationId: string; dbNodeId: string }>;
+  onInitializeNode?: (nodeId: string, label: string) => Promise<{ dbNodeId: string }>;
 };
 
 type Message = {
@@ -34,15 +34,14 @@ const ChatNode = memo(
 
     const handleSend = async () => {
       if (input.trim() === "" || loading) return;
-      console.log("data", data, "convoID", data.conversationId);
-      // if (!data.conversationId || !data.dbNodeId) {
-      //   console.warn("Conversation or node not ready yet.");
+      console.log("data", data);
+      // if (!data.dbNodeId) {
+      //   console.warn("Node not ready yet.");
       //   return;
       // }
-      let currentConversationId = data.conversationId;
       let currentDbNodeId = data.dbNodeId;
 
-      if (!currentConversationId || !currentDbNodeId) {
+      if (!currentDbNodeId) {
         if (!data.onInitializeNode) {
           console.warn("Node initialization callback not available");
           return;
@@ -51,7 +50,6 @@ const ChatNode = memo(
         setLoading(true);
         try {
           const result = await data.onInitializeNode(id, data.label);
-          currentConversationId = result.conversationId;
           currentDbNodeId = result.dbNodeId;
         } catch (err) {
           console.log("Failed to save the Node:", err);
@@ -65,8 +63,8 @@ const ChatNode = memo(
       setMessages((prev) => [...prev, userMsg]);
       // Make the API request to /chat
       try {
-        // Append user message to conversation
-        await appendMessage(currentConversationId, { nodeId: currentDbNodeId, role: "user", content: userMsg.text });
+        // Append user message to node
+        await appendMessage(currentDbNodeId, { role: "user", content: userMsg.text });
 
         // Transforming existing messages to the ChatBody format - send to inference ai and stream back
         const chatMessages = [...messages, userMsg].map((m) => ({
@@ -116,8 +114,7 @@ const ChatNode = memo(
 
         // Append assistant message after stream completes
         if (assistantText) {
-          await appendMessage(currentConversationId, {
-            nodeId: currentDbNodeId,
+          await appendMessage(currentDbNodeId, {
             role: "assistant",
             content: assistantText,
           });
@@ -159,9 +156,9 @@ const ChatNode = memo(
     const normalizeMessages = (messages?: ChatNodeData["initialMessages"]) =>
       messages && messages.length > 0
         ? messages.map((msg: any) => ({
-            text: msg.content,
-            userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
-          }))
+          text: msg.content,
+          userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
+        }))
         : [{ text: "Hello! How can I help you today?", userType: "assistant" as const }];
 
     useEffect(() => {
@@ -199,11 +196,10 @@ const ChatNode = memo(
               <div
                 key={idx}
                 className={`p-2 rounded-lg break-words select-text cursor-text selection:bg-white selection:text-black
-                                ${
-                                  msg.userType === "user"
-                                    ? "bg-zinc-800 text-zinc-100 self-end max-w-[70%]"
-                                    : "bg-zinc-700 text-zinc-300 self-start max-w-[65%]"
-                                }`}
+                                ${msg.userType === "user"
+                    ? "bg-zinc-800 text-zinc-100 self-end max-w-[70%]"
+                    : "bg-zinc-700 text-zinc-300 self-start max-w-[65%]"
+                  }`}
               >
                 {/* <div
                   className={msg.userType === "assistant" ? "assistant" : "user"}
@@ -260,7 +256,6 @@ const ChatNode = memo(
 
     return (
       prev.label === next.label &&
-      prev.conversationId === next.conversationId &&
       prev.dbNodeId === next.dbNodeId &&
       prev.initialMessages === next.initialMessages
       // Functions are compared by reference, skipping them since they're stable

@@ -12,8 +12,9 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 // import { getConversationDetail } from "@/lib/conversations-api";
-import { useConversationHistoryStore } from "@/stores/conversation-history";
-import { useConversationDetailStore } from "@/stores/conversation-detail";
+// import { useConversationHistoryStore } from "@/stores/conversation-history";
+// import { useConversationDetailStore } from "@/stores/conversation-detail";
+import { useCanvasStore } from "@/stores/canvas-store";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import {
@@ -28,26 +29,20 @@ import { Input } from "@/components/ui/input";
 
 export function AppSidebar() {
   const {
-    conversations,
+    canvases,
     loading,
     error,
-    selectedConversationId,
-    setSelectedConversationId,
-    refreshConversations,
+    selectedCanvasId,
+    setSelectedCanvasId,
+    loadCanvases,
+    loadCanvas,
+    deleteCanvas,
     updateTitle,
-    removeConversation,
-  } = useConversationHistoryStore();
-  const {
-    loadDetail,
-    loading: detailLoading,
-    error: detailError,
-    updateConversationTitleLocally,
-    clearIfDeleted,
-  } = useConversationDetailStore();
+  } = useCanvasStore();
 
   // State for rename dialog
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
-  const [conversationToRename, setConversationToRename] = useState<{
+  const [canvasToRename, setCanvasToRename] = useState<{
     id: string;
     title: string;
   } | null>(null);
@@ -56,7 +51,7 @@ export function AppSidebar() {
   useEffect(() => {
     // if (!loading && conversations.length === 0) {
     console.log("effect-sidebar");
-    void refreshConversations();
+    void loadCanvases();
     // }
   }, []);
 
@@ -65,13 +60,12 @@ export function AppSidebar() {
     //   console.log("sel--", selectedConversationId, "---", id);
     //   return;
     // }
-    setSelectedConversationId(id);
+    setSelectedCanvasId(id);
     try {
-      console.log("detailLoading--", detailLoading);
-      await loadDetail(id);
+      console.log("detailLoading--", loading);
+      await loadCanvas(id);
     } catch (err) {
       console.log("error--", err);
-      console.log("detailErr", detailError);
     }
     // const convoDetail = await getConversationDetail(id);
     // console.log("conv-Details-----0--", convoDetail);
@@ -80,25 +74,24 @@ export function AppSidebar() {
   };
 
   const refreshConvos = () => {
-    refreshConversations();
+    loadCanvases();
   };
 
-  const handleRenameClick = (conversation: { id: string; title: string }) => {
-    setConversationToRename(conversation);
-    setNewTitle(conversation.title);
+  const handleRenameClick = (canvas: { id: string; title: string }) => {
+    setCanvasToRename(canvas);
+    setNewTitle(canvas.title);
     setRenameDialogOpen(true);
   };
 
   const handleRenameSubmit = async () => {
-    if (!conversationToRename || !newTitle || newTitle === conversationToRename.title) {
+    if (!canvasToRename || !newTitle || newTitle === canvasToRename.title) {
       setRenameDialogOpen(false);
       return;
     }
     try {
-      await updateTitle(conversationToRename.id, newTitle);
-      updateConversationTitleLocally(conversationToRename.id, newTitle);
+      await updateTitle(canvasToRename.id, newTitle);
       setRenameDialogOpen(false);
-      setConversationToRename(null);
+      setCanvasToRename(null);
       setNewTitle("");
     } catch (err) {
       console.error(err);
@@ -121,30 +114,30 @@ export function AppSidebar() {
               </SidebarMenuItem>
             </SidebarMenu> */}
             {loading && <SidebarMenuSkeleton />}
-            {!loading && conversations.length === 0 && <div>No conversations yet.</div>}
+            {!loading && canvases.length === 0 && <div>No canvases yet.</div>}
             {error && <div className="text-red-400 text-xs px-2 py-2">{error}</div>}
-            {conversations.map((conversation) => (
-              <SidebarMenuItem key={conversation.id}>
+            {canvases.map((canvas) => (
+              <SidebarMenuItem key={canvas.id}>
                 <SidebarMenuButton
-                  isActive={conversation.id === selectedConversationId}
-                  onClick={() => handleSelect(conversation.id)}
+                  isActive={canvas.id === selectedCanvasId}
+                  onClick={() => handleSelect(canvas.id)}
                   className="justify-between gap-2"
                 >
-                  <span className="flex-1 truncate">{conversation.title}</span>
-                  <span className="text-[11px] text-zinc-500">{new Date(conversation.updatedAt).toLocaleString()}</span>
+                  <span className="flex-1 truncate">{canvas.title}</span>
+                  <span className="text-[11px] text-zinc-500">{new Date(canvas.updatedAt).toLocaleString()}</span>
                 </SidebarMenuButton>
                 <div className="flex gap-2 px-2 py-1">
-                  <Button size="sm" variant="outline" onClick={async () => handleRenameClick(conversation)}>
+                  <Button size="sm" variant="outline" onClick={async () => handleRenameClick(canvas)}>
                     Rename
                   </Button>
                   <Button
                     size="sm"
                     variant="destructive"
                     onClick={async () => {
-                      if (!confirm("Delete this conversation?")) return;
+                      if (!confirm("Delete this canvas?")) return;
                       try {
-                        await removeConversation(conversation.id);
-                        clearIfDeleted(conversation.id);
+                        await deleteCanvas(canvas.id);
+                        // clearIfDeleted(conversation.id);
                       } catch (err) {
                         console.error(err);
                       }
@@ -164,14 +157,14 @@ export function AppSidebar() {
       <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rename Conversation</DialogTitle>
-            <DialogDescription>Enter a new name for this conversation.</DialogDescription>
+            <DialogTitle>Rename Canvas</DialogTitle>
+            <DialogDescription>Enter a new name for this canvas.</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Input
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
-              placeholder="Conversation title"
+              placeholder="Canvas title"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleRenameSubmit();
@@ -185,13 +178,13 @@ export function AppSidebar() {
               variant="outline"
               onClick={() => {
                 setRenameDialogOpen(false);
-                setConversationToRename(null);
+                setCanvasToRename(null);
                 setNewTitle("");
               }}
             >
               Cancel
             </Button>
-            <Button onClick={handleRenameSubmit} disabled={!newTitle || newTitle === conversationToRename?.title}>
+            <Button onClick={handleRenameSubmit} disabled={!newTitle || newTitle === canvasToRename?.title}>
               Save
             </Button>
           </DialogFooter>

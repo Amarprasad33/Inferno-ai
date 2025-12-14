@@ -1,5 +1,18 @@
 // apps/client/src/lib/canvas-api.ts
 import { API_BASE } from './keys-api';
+import type { Node } from './nodes-api';
+
+export type Canvas = {
+    id: string;
+    title: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type CanvasDetail = {
+    canvas: Canvas;
+    nodes: Node[];
+};
 
 export async function createCanvas(input?: { title?: string }) {
     const res = await fetch(`${API_BASE}/api/canvas`, {
@@ -9,7 +22,38 @@ export async function createCanvas(input?: { title?: string }) {
         body: JSON.stringify(input ?? {}),
     });
     if (!res.ok) throw new Error(await res.text());
-    return await res.json() as { id: string; title: string; createdAt: string };
+    return await res.json() as Canvas;
+}
+
+export async function listCanvases() {
+    const res = await fetch(`${API_BASE}/api/canvas`, { credentials: 'include' });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json() as { canvases: Canvas[] };
+}
+
+export async function getCanvas(id: string) {
+    const res = await fetch(`${API_BASE}/api/canvas/${encodeURIComponent(id)}`, { credentials: 'include' });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json() as CanvasDetail;
+}
+
+export async function deleteCanvas(id: string) {
+    const res = await fetch(`${API_BASE}/api/canvas/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+    });
+    if (!res.ok && res.status !== 204) throw new Error(await res.text());
+}
+
+export async function updateCanvasTitle(id: string, title: string) {
+    const res = await fetch(`${API_BASE}/api/canvas/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json() as Canvas;
 }
 
 export async function createNode(canvasId: string, input: { label?: string; provider: string; model: string }) {

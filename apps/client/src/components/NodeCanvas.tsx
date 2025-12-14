@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import ReactFlow, {
   Controls,
   Background,
@@ -17,10 +17,12 @@ import "reactflow/dist/style.css";
 import ChatNode, { type ChatNodeData } from "./ChatNode";
 import { toast } from "sonner";
 import { SidebarTrigger } from "./ui/sidebar";
-import { createCanvas, createNode } from "@/lib/canvas-api";
-import { createConversation } from "@/lib/conversations-api";
-import { useConversationHistoryStore } from "@/stores/conversation-history";
-import { useConversationDetailStore } from "@/stores/conversation-detail";
+import { createCanvas, createNode, type CanvasDetail } from "@/lib/canvas-api";
+// import { createConversation } from "@/lib/conversations-api";
+import { useCanvasStore } from "@/stores/canvas-store";
+// import { useConversationHistoryStore } from "@/stores/conversation-history";
+// import { useConversationDetailStore } from "@/stores/conversation-detail";
+// import type { ConversationDetail } from "@/lib/conversations-api";
 
 // The options to hide the attribution watermark.
 const proOptions = {
@@ -41,19 +43,20 @@ const NodeCanvas = () => {
     height: 0,
   });
 
-  const { selectedConversationId } = useConversationHistoryStore();
-  const { detail, loading: detailLoading } = useConversationDetailStore();
+  const { selectedCanvasId, currentCanvas } = useCanvasStore();
+  // const { selectedConversationId } = useConversationHistoryStore();
+  // const { detail } = useConversationDetailStore();
 
   // server ids
   const [canvasId, setCanvasId] = useState<string | null>(null);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  // const [conversationId, setConversationId] = useState<string | null>(null);
 
   // Calculate center position based on window dimensions
-  const getCenterPosition = () => {
-    const centerX = (windowDimensions.width - 280) / 2 - 140; // 100px offset to the left
-    const centerY = (windowDimensions.height - 400) / 2 - 10; // 50px offset to the top
-    return { x: Math.max(0, centerX), y: Math.max(0, centerY) };
-  };
+  // const getCenterPosition = () => {
+  //   const centerX = (windowDimensions.width - 280) / 2 - 140; // 100px offset to the left
+  //   const centerY = (windowDimensions.height - 400) / 2 - 10; // 50px offset to the top
+  //   return { x: Math.max(0, centerX), y: Math.max(0, centerY) };
+  // };
 
   const setIsPanelInteractiveStable = useCallback((interactive: boolean) => {
     setIsPaneInteractive(interactive);
@@ -73,11 +76,13 @@ const NodeCanvas = () => {
   const [nodes, setNodes] = useState<Node<{ label: string }>[]>(initialNodes);
 
   // Add ref to track if initialization has started
-  const initStarted = useRef(false);
+  // const initStarted = useRef(false);
+
+
 
   const hydrateNodes = useCallback(
-    (detailNodes: typeof detail.nodes) =>
-      detailNodes.map((node, idx) => ({
+    (detailNodes: CanvasDetail["nodes"]) =>
+      (detailNodes || []).map((node, idx) => ({
         id: node.id,
         type: "chat",
         position: {
@@ -88,15 +93,19 @@ const NodeCanvas = () => {
         },
         data: {
           label: node.label,
-          conversationId: detail?.conversation.id,
+          // conversationId: detail?.conversation.id,
           dbNodeId: node.id,
           provider: node.provider,
           model: node.model,
           setIsPaneInteractive: setIsPanelInteractiveStable,
-          initialMessages: node.messages,
+          // initialMessages: node.messages,
+          initialMessages: [], // Messages are not part of node list response yet, might need separate fetch or update API
         },
       })),
-    [detail, setIsPanelInteractiveStable]
+    // [detail, setIsPanelInteractiveStable]
+    // [windowDimensions, setIsPanelInteractiveStable]
+    [currentCanvas, setIsPanelInteractiveStable]
+
   );
 
   // create canvas + conversation on mount
@@ -146,21 +155,21 @@ const NodeCanvas = () => {
   //   };
   // }, []);
 
-  // Hydrate canvas whenever a conversation is selected
+  // Hydrate canvas whenever a canvas is selected
   useEffect(() => {
-    if (!selectedConversationId || !detail || detail.conversation.id !== selectedConversationId) {
-      console.log("detail---missing--", detail);
+    if (!selectedCanvasId || !currentCanvas || currentCanvas.canvas.id !== selectedCanvasId) {
+      // console.log("detail---missing--", detail);
       return;
     }
-    setConversationId(detail.conversation.id);
-    setCanvasId(detail.canvas?.id ?? null);
+    // setConversationId(detail.conversation.id);
+    setCanvasId(currentCanvas.canvas?.id ?? null);
     setEdges([]);
-    nodeId = detail.nodes?.length + 1 || 1;
+    nodeId = currentCanvas.nodes?.length + 1 || 1;
     // const hydra = hydrateNodes(detail.nodes);
     // console.log("hydra--", hydra);
 
-    setNodes(hydrateNodes(detail.nodes));
-  }, [selectedConversationId, detail, hydrateNodes]);
+    setNodes(hydrateNodes(currentCanvas.nodes));
+  }, [selectedCanvasId, currentCanvas, hydrateNodes]);
 
   // Update window dimensions and recalculate node positions
   useEffect(() => {
@@ -224,7 +233,7 @@ const NodeCanvas = () => {
         data: {
           label,
           setIsPaneInteractive: setIsPanelInteractiveStable,
-          ...(conversationId && { conversationId }),
+          // ...(conversationId && { conversationId }),
           // dbNodeId: nodeData.id,
           // No conversationId or dbNodeId yet - will be created on first message
           onInitializeNode: initializeNodeInDb, // Pass callback to create DB resources
@@ -269,16 +278,16 @@ const NodeCanvas = () => {
           setCanvasId(ownCanvas.id);
         }
 
-        let currentConversationId = conversationId;
-        if (!currentConversationId) {
-          const convo = await createConversation({
-            canvasId: currentCanvasId,
-            title: "Untitled",
-          });
-          currentConversationId = convo.id;
-          console.log("convo--", convo);
-          setConversationId(convo.id);
-        }
+        // let currentConversationId = conversationId;
+        // if (!currentConversationId) {
+        //   const convo = await createConversation({
+        //     canvasId: currentCanvasId,
+        //     title: "Untitled",
+        //   });
+        //   currentConversationId = convo.id;
+        //   console.log("convo--", convo);
+        //   setConversationId(convo.id);
+        // }
 
         // Create node in DB
         const nodeData = await createNode(currentCanvasId, {
@@ -295,8 +304,8 @@ const NodeCanvas = () => {
                 ...n,
                 data: {
                   ...(n.data as ChatNodeData),
-                  conversationId: currentConversationId,
                   dbNodeId: nodeData.id,
+                  // conversationId: currentConversationId,
                   // Remove the callback after initialization
                   onInitializeNode: undefined,
                 },
@@ -306,14 +315,14 @@ const NodeCanvas = () => {
         );
 
         return {
-          conversationId: currentConversationId,
           dbNodeId: nodeData.id,
+          // conversationId: currentConversationId,
         };
       } catch (error) {
         console.error("Failed to initialize node in DB:", error);
       }
     },
-    [canvasId, conversationId]
+    [canvasId]
   );
 
   // const nodeClassName = (node: typeof ChatNode) => node.type;
