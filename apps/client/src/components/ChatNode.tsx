@@ -26,7 +26,7 @@ const ChatNode = memo(
   ({ data, id }: { data: ChatNodeData; id: string }) => {
     console.log("id-rec", id);
     const [messages, setMessages] = useState<Message[]>([
-      { text: "Hello! How can I help you today?", userType: "assistant" },
+      // { text: "Hello! How can I help you today?", userType: "assistant" },
     ]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false); // <-- loading state
@@ -173,22 +173,50 @@ const ChatNode = memo(
     }, [messages]);
 
     return (
-      <div className="chat-node flex flex-col bg-zinc-900 border border-zinc-700 rounded-xl min-w-[35rem] min-h-[50vh] max-w-[800px]">
+      <div className="chat-node flex flex-col bg-[#121212] border border-zinc-800 rounded-xl min-w-[35rem] min-h-[50vh] max-w-[800px]">
         <Handle
           type="target"
           position={Position.Left}
           className="!w-3 !h-3 !bg-zinc-700 !border !border-zinc-600 !-left-[6px]"
         />
-        <div className="flex gap-2 items-center text-zinc-600 w-full border-b border-zinc-700 rounded-t-xl px-2 py-2">
-          <div className="w-5 h-5 bg-inherit rounded-full border border-zinc-600 cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear" />
+        <div className="flex gap-2 justify-between items-center text-zinc-600 w-full rounded-t-xl px-2 py-2">
+          <div className="w-5 h-5 bg-inherit flex items-center justify-center rounded-full border border-[#A6A6A6] cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear">
+            <svg
+              className="w-3 h-3"
+              width="8"
+              height="8"
+              viewBox="0 0 8 8"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3.67683 1.57323C3.70007 1.59645 3.71851 1.62402 3.73109 1.65437C3.74367 1.68472 3.75015 1.71725 3.75015 1.7501C3.75015 1.78296 3.74367 1.81549 3.73109 1.84584C3.71851 1.87619 3.70007 1.90376 3.67683 1.92698L1.85339 3.75011L6.74995 3.7501C6.81626 3.7501 6.87985 3.77644 6.92673 3.82333C6.97361 3.87021 6.99995 3.9338 6.99995 4.0001C6.99995 4.06641 6.97361 4.13 6.92673 4.17688C6.87985 4.22377 6.81626 4.2501 6.74995 4.2501L1.85339 4.25011L3.67683 6.07323C3.72374 6.12014 3.75009 6.18376 3.75009 6.25011C3.75009 6.31645 3.72374 6.38007 3.67683 6.42698C3.62992 6.47389 3.56629 6.50024 3.49995 6.50024C3.43361 6.50024 3.36999 6.47389 3.32308 6.42698L1.07308 4.17698C1.04983 4.15376 1.03139 4.12619 1.01881 4.09584C1.00623 4.06549 0.999756 4.03296 0.999756 4.00011C0.999756 3.96725 1.00623 3.93472 1.01881 3.90437C1.03139 3.87402 1.04983 3.84645 1.07308 3.82323L3.32308 1.57323C3.3463 1.54999 3.37387 1.53155 3.40422 1.51896C3.43457 1.50638 3.4671 1.49991 3.49995 1.49991C3.53281 1.49991 3.56534 1.50638 3.59569 1.51896C3.62604 1.53155 3.65361 1.54999 3.67683 1.57323Z"
+                fill="#D0D0D0"
+              />
+            </svg>
+          </div>
           <div>{data.label}</div>
-          <div className="ml-auto w-5 h-5 bg-inherit rounded-full border border-zinc-600 cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear" />
+          <div className="w-5 h-5 bg-inherit flex items-center justify-center rounded-full border border-[#A6A6A6] cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear">
+            <svg
+              className="w-3 h-3"
+              width="8"
+              height="8"
+              viewBox="0 0 8 8"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4.32317 1.57323C4.29993 1.59645 4.28149 1.62402 4.26891 1.65437C4.25633 1.68472 4.24985 1.71725 4.24985 1.7501C4.24985 1.78296 4.25633 1.81549 4.26891 1.84584C4.28149 1.87619 4.29993 1.90376 4.32317 1.92698L6.14661 3.75011L1.25005 3.7501C1.18374 3.7501 1.12016 3.77644 1.07327 3.82333C1.02639 3.87021 1.00005 3.9338 1.00005 4.0001C1.00005 4.06641 1.02639 4.13 1.07327 4.17688C1.12016 4.22377 1.18374 4.2501 1.25005 4.2501L6.14661 4.25011L4.32317 6.07323C4.27626 6.12014 4.24991 6.18376 4.24991 6.25011C4.24991 6.31645 4.27626 6.38007 4.32317 6.42698C4.37008 6.47389 4.43371 6.50024 4.50005 6.50024C4.56639 6.50024 4.63001 6.47389 4.67692 6.42698L6.92692 4.17698C6.95017 4.15376 6.96861 4.12619 6.98119 4.09584C6.99377 4.06549 7.00025 4.03296 7.00025 4.00011C7.00025 3.96725 6.99377 3.93472 6.98119 3.90437C6.96861 3.87402 6.95017 3.84645 6.92692 3.82323L4.67692 1.57323C4.65371 1.54999 4.62613 1.53155 4.59578 1.51896C4.56543 1.50638 4.5329 1.49991 4.50005 1.49991C4.46719 1.49991 4.43466 1.50638 4.40431 1.51896C4.37396 1.53155 4.34639 1.54999 4.32317 1.57323Z"
+                fill="#D0D0D0"
+              />
+            </svg>
+          </div>
         </div>
         {/* Chat Space (Main Content) */}
         <div className="p-2 grow flex flex-col">
           {/* Messages */}
           <div
-            className="nodrag flex-grow overflow-y-auto space-y-2 w-full flex flex-col pb-14 max-h-[80vh]"
+            className="nodrag flex-grow overflow-y-auto space-y-2 w-full flex flex-col pb-14 max-h-[80vh] cursor-default"
             onMouseEnter={() => data.setIsPaneInteractive(false)}
             onMouseLeave={() => data.setIsPaneInteractive(true)}
           >
