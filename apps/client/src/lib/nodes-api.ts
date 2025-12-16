@@ -2,7 +2,15 @@
 import { API_BASE } from "./keys-api";
 
 // Types for node APIs
-export type Node = { id: string; label: string; provider: string; model: string; createdAt: string; updatedAt: string };
+export type Node = {
+    id: string;
+    label: string;
+    provider: string;
+    model: string;
+    createdAt: string;
+    updatedAt: string;
+    messages?: { role: "user" | "assistant" | "system"; content: string }[];
+};
 export type Message = {
     id: string;
     nodeId: string;

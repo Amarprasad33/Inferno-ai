@@ -177,7 +177,7 @@ nodes.post("/:id/messages", requireAuth, async (c) => {
   // });
   const node = await prisma.node.findFirst({
     where: { id: nodeId, userId: user.id },
-    select: { id: true },
+    select: { id: true, canvasId: true },
   });
   if (!node) return c.json({ error: "invalid node" }, 400);
 
@@ -195,6 +195,13 @@ nodes.post("/:id/messages", requireAuth, async (c) => {
     where: { id: node.id },
     data: { updatedAt: new Date() },
   });
+
+  if (node.canvasId) {
+    await prisma.canvas.update({
+      where: { id: node.canvasId },
+      data: { updatedAt: new Date() },
+    });
+  }
 
   return c.json(
     {

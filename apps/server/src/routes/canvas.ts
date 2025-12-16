@@ -54,7 +54,21 @@ canvas.get('/:id', requireAuth, async (c) => {
 
     const nodes = await prisma.node.findMany({
         where: { canvasId: id },
-        select: { id: true, label: true, provider: true, model: true, createdAt: true, updatedAt: true },
+        select: {
+            id: true,
+            label: true,
+            provider: true,
+            model: true,
+            createdAt: true,
+            updatedAt: true,
+            messages: {
+                orderBy: { createdAt: 'asc' },
+                select: {
+                    role: true,
+                    content: true
+                }
+            }
+        },
     });
 
     return c.json({ canvas, nodes });

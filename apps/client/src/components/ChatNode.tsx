@@ -7,6 +7,7 @@ import { Handle, Position } from "reactflow";
 import { appendMessage } from "@/lib/nodes-api";
 import { memo } from "react";
 import MarkdownRenderer from "./MarkdownRenderer";
+import { useCanvasStore } from "@/stores/canvas-store";
 
 // Update the type for our node data to include the new function
 export type ChatNodeData = {
@@ -17,28 +18,41 @@ export type ChatNodeData = {
   onInitializeNode?: (nodeId: string, label: string) => Promise<{ dbNodeId: string }>;
 };
 
+export type ChatNodeProps = {
+  data: ChatNodeData;
+  id: string;
+};
+
 type Message = {
   text: string;
   userType: "user" | "assistant";
+  isThinking?: boolean;
 };
 
+export const DEFAULT_WELCOME_MESSAGE = "Hello! How can I help you today?";
+
 const ChatNode = memo(
-  ({ data, id }: { data: ChatNodeData; id: string }) => {
+  ({ data, id }: ChatNodeProps) => {
     console.log("id-rec", id);
     const [messages, setMessages] = useState<Message[]>([
       // { text: "Hello! How can I help you today?", userType: "assistant" },
     ]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false); // <-- loading state
+    const { loadCanvases } = useCanvasStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const handleSend = async () => {
       if (input.trim() === "" || loading) return;
-      console.log("data", data);
-      // if (!data.dbNodeId) {
-      //   console.warn("Node not ready yet.");
-      //   return;
-      // }
+
+      const messageText = input;
+      const userMsg: Message = { text: messageText, userType: "user" };
+      const thinkingMsg: Message = { text: "Thinking...", userType: "assistant", isThinking: true };
+
+      // Immediate UI updates
+      setInput("");
+      setMessages((prev) => [...prev, userMsg, thinkingMsg]);
+
       let currentDbNodeId = data.dbNodeId;
 
       if (!currentDbNodeId) {
@@ -54,19 +68,20 @@ const ChatNode = memo(
         } catch (err) {
           console.log("Failed to save the Node:", err);
           setLoading(false);
+          // Optionally revert message here if needed, but for now we just stop
           return;
         }
         setLoading(false);
       }
 
-      const userMsg: Message = { text: input, userType: "user" };
-      setMessages((prev) => [...prev, userMsg]);
-      // Make the API request to /chat
       try {
         // Append user message to node
         await appendMessage(currentDbNodeId, { role: "user", content: userMsg.text });
 
-        // Transforming existing messages to the ChatBody format - send to inference ai and stream back
+        // Refresh history immediately
+        void loadCanvases();
+
+        // Transforming existing messages to the ChatBody format
         const chatMessages = [...messages, userMsg].map((m) => ({
           role: m.userType === "user" ? "user" : ("assistant" as const),
           content: m.text,
@@ -94,8 +109,19 @@ const ChatNode = memo(
         let assistantIndex = -1;
 
         setMessages((prev) => {
-          assistantIndex = prev.length;
-          return [...prev, { text: "", userType: "assistant" as const }];
+          // Find the index of the thinking message (should be the last one)
+          const thinkingIndex = prev.findIndex(m => m.isThinking);
+          if (thinkingIndex !== -1) {
+            assistantIndex = thinkingIndex;
+            const next = [...prev];
+            // Replace thinking message with empty assistant message to start streaming
+            next[assistantIndex] = { text: "", userType: "assistant" };
+            return next;
+          } else {
+            // Fallback if thinking message not found (shouldn't happen)
+            assistantIndex = prev.length;
+            return [...prev, { text: "", userType: "assistant" }];
+          }
         });
 
         while (true) {
@@ -110,7 +136,6 @@ const ChatNode = memo(
             return next;
           });
         }
-        console.log("assistant-text--", assistantText);
 
         // Append assistant message after stream completes
         if (assistantText) {
@@ -121,31 +146,27 @@ const ChatNode = memo(
         }
       } catch (er) {
         console.log("err", er);
+        // Remove thinking message on error
+        setMessages(prev => prev.filter(m => !m.isThinking));
       } finally {
-        console.log("finally block");
-        setInput("");
-        setLoading(true);
         setLoading(false);
       }
-
-      // Show "thinking" message
-      // setMessages(prev => [
-      //     ...prev,
-      //     { text: "Bot is thinking...", userType: 'assistant' }
-      // ]);
-      // setTimeout(() => {
-      //     setMessages(prev => {
-      //         // Remove the last "thinking" message and add the real reply
-      //         const msgs = prev.slice(0, -1);
-      //         return [
-      //             ...msgs,
-      //             { text: "This is a bot reply :)", userType: 'assistant' }
-      //         ];
-      //     });
-      //     setLoading(false); // Stop loading
-      // }, 1000);
-    };
-
+    }; // Show "thinking" message
+    // setMessages(prev => [
+    //     ...prev,
+    //     { text: "Bot is thinking...", userType: 'assistant' }
+    // ]);
+    // setTimeout(() => {
+    //     setMessages(prev => {
+    //         // Remove the last "thinking" message and add the real reply
+    //         const msgs = prev.slice(0, -1);
+    //         return [
+    //             ...msgs,
+    //             { text: "This is a bot reply :)", userType: 'assistant' }
+    //         ];
+    //     });
+    //     setLoading(false); // Stop loading
+    // }, 1000);
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -159,7 +180,7 @@ const ChatNode = memo(
           text: msg.content,
           userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
         }))
-        : [{ text: "Hello! How can I help you today?", userType: "assistant" as const }];
+        : [{ text: DEFAULT_WELCOME_MESSAGE, userType: "assistant" as const }];
 
     useEffect(() => {
       setMessages(normalizeMessages(data.initialMessages));
@@ -236,7 +257,13 @@ const ChatNode = memo(
                   {msg.text}
                 </div> */}
                 {msg.userType === "assistant" ? (
-                  <MarkdownRenderer content={msg.text} />
+                  msg.isThinking ? (
+                    <div className="flex items-center gap-2 text-zinc-400 italic">
+                      <span className="animate-pulse">Thinking...</span>
+                    </div>
+                  ) : (
+                    <MarkdownRenderer content={msg.text} />
+                  )
                 ) : (
                   <div className="user" style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
                     {msg.text}
@@ -273,7 +300,7 @@ const ChatNode = memo(
       </div>
     );
   },
-  (prevProps, nextProps) => {
+  (prevProps: ChatNodeProps, nextProps: ChatNodeProps) => {
     // Only re-render if id or actual data content changes
     // position updates - ReactFlow handles internally
     if (prevProps.id !== nextProps.id) return false;

@@ -38,6 +38,7 @@ export function AppSidebar() {
     loadCanvas,
     deleteCanvas,
     updateTitle,
+    createCanvas,
   } = useCanvasStore();
 
   // State for rename dialog
@@ -73,9 +74,7 @@ export function AppSidebar() {
     // else setOpen(false);
   };
 
-  const refreshConvos = () => {
-    loadCanvases();
-  };
+
 
   const handleRenameClick = (canvas: { id: string; title: string }) => {
     setCanvasToRename(canvas);
@@ -104,7 +103,39 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>History</SidebarGroupLabel>
-          <Button onClick={refreshConvos}>Refresh</Button>
+          <div className="px-2 py-2">
+            <Button
+              className="w-full justify-start gap-2"
+              variant="outline"
+              onClick={async () => {
+                try {
+                  const newCanvas = await createCanvas("New Conversation");
+                  await loadCanvases();
+                  setSelectedCanvasId(newCanvas.id);
+                  await loadCanvas(newCanvas.id);
+                } catch (err) {
+                  console.error("Failed to create new conversation:", err);
+                }
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="M12 5v14" />
+              </svg>
+              New Conversation
+            </Button>
+          </div>
+          {/* <Button onClick={refreshConvos}>Refresh</Button> */}
           <SidebarGroupContent>
             {/* <SidebarMenu>
               <SidebarMenuItem>
