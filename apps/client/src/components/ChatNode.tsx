@@ -93,7 +93,8 @@ const ChatNode = memo(
           headers: { "Content-type": "application/json" },
           body: JSON.stringify({
             provider: "groq",
-            model: "groq/compound",
+            // model: "openai/gpt-oss-120b",
+            model: "llama-3.3-70b-versatile",
             messages: chatMessages,
           }),
         });
@@ -110,7 +111,7 @@ const ChatNode = memo(
 
         setMessages((prev) => {
           // Find the index of the thinking message (should be the last one)
-          const thinkingIndex = prev.findIndex(m => m.isThinking);
+          const thinkingIndex = prev.findIndex((m) => m.isThinking);
           if (thinkingIndex !== -1) {
             assistantIndex = thinkingIndex;
             const next = [...prev];
@@ -147,7 +148,7 @@ const ChatNode = memo(
       } catch (er) {
         console.log("err", er);
         // Remove thinking message on error
-        setMessages(prev => prev.filter(m => !m.isThinking));
+        setMessages((prev) => prev.filter((m) => !m.isThinking));
       } finally {
         setLoading(false);
       }
@@ -177,9 +178,9 @@ const ChatNode = memo(
     const normalizeMessages = (messages?: ChatNodeData["initialMessages"]) =>
       messages && messages.length > 0
         ? messages.map((msg: any) => ({
-          text: msg.content,
-          userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
-        }))
+            text: msg.content,
+            userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
+          }))
         : [{ text: DEFAULT_WELCOME_MESSAGE, userType: "assistant" as const }];
 
     useEffect(() => {
@@ -245,10 +246,11 @@ const ChatNode = memo(
               <div
                 key={idx}
                 className={`p-2 rounded-lg break-words select-text cursor-text selection:bg-white selection:text-black
-                                ${msg.userType === "user"
-                    ? "bg-zinc-800 text-zinc-100 self-end max-w-[70%]"
-                    : "bg-zinc-700 text-zinc-300 self-start max-w-[65%]"
-                  }`}
+                                ${
+                                  msg.userType === "user"
+                                    ? "bg-zinc-800 text-zinc-100 self-end max-w-[70%]"
+                                    : "bg-zinc-700 text-zinc-300 self-start max-w-[65%]"
+                                }`}
               >
                 {/* <div
                   className={msg.userType === "assistant" ? "assistant" : "user"}
@@ -310,9 +312,7 @@ const ChatNode = memo(
     const next = nextProps.data;
 
     return (
-      prev.label === next.label &&
-      prev.dbNodeId === next.dbNodeId &&
-      prev.initialMessages === next.initialMessages
+      prev.label === next.label && prev.dbNodeId === next.dbNodeId && prev.initialMessages === next.initialMessages
       // Functions are compared by reference, skipping them since they're stable
     );
   }

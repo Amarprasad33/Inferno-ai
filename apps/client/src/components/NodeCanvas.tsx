@@ -339,7 +339,7 @@ const NodeCanvas = () => {
     // --- FIX IS HERE ---
     // The height is now 200% of the viewport height, creating a large scrollable area.
     <div style={{ height: "100vh", width: "100%", position: "relative", overflow: "hidden" }}>
-      <SidebarTrigger />
+      <SidebarTrigger className="absolute top-20 left-5 p-1 rounded-md z-30 bg-zinc-900 hover:bg-zinc-700/30 border border-zinc-800" />
       <button
         onClick={addChatNode}
         className="bg-[rgb(99 99 99 / 5%)] hover:bg-zinc-700/30 rounded-lg border border-zinc-800 backdrop-blur-[1px]"
@@ -373,8 +373,8 @@ const NodeCanvas = () => {
           [4000, 3000], // bottom-right bound
         ]}
         nodeExtent={[
-          [-1990, -1900], // to keep the nodes inside the viewport bounds
-          [3300, 3300],
+          [-4200, -2000], // to keep the nodes inside the viewport bounds
+          [6000, 3000],
         ]}
       >
         <Background />
