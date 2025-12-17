@@ -8,6 +8,7 @@ import { chat } from "./routes/chat";
 import { conversations } from "./routes/conversations";
 import { cors } from "hono/cors";
 import { canvas } from "./routes/canvas";
+import { nodes } from "./routes/node";
 
 const app = new Hono<{
   Variables: {
@@ -71,6 +72,7 @@ app.route("/api/keys", keys);
 app.route("/chat", chat);
 app.route("/api/canvas", canvas);
 app.route("/api/conversations", conversations);
+app.route("/api/nodes", nodes);
 
 app.get("/test", async (c) => {
   return c.json({ success: true, message: "Test response" });

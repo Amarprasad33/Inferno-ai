@@ -33,7 +33,6 @@ model User {
   accounts           Account[]
   sessions           Session[]
   verificationTokens VerificationToken[]
-  conversations      Conversation[]
 }
 
 // New: sessions
@@ -64,8 +63,8 @@ model Account {
   accessToken  String?
   refreshToken String?
   idToken      String?
-  accessTokenExpiresAt DateTime? 
-  scope                String?   
+  accessTokenExpiresAt DateTime?
+  scope                String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -81,19 +80,21 @@ model Canvas {
   ownerId       String
   title         String         @default("Untitled Canvas")
   createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   owner         User           @relation(fields: [ownerId], references: [id])
   nodes         Node[]
-  conversations Conversation[]
 }
 
 model Node {
   id        String    @id @default(uuid())
   canvasId  String
+  userId    String
   label     String    @default("Chat")
   provider  String
   model     String
   createdAt DateTime  @default(now())
-  canvas    Canvas    @relation(fields: [canvasId], references: [id])
+  updatedAt DateTime  @updatedAt
+  canvas    Canvas    @relation(fields: [canvasId], references: [id], onDelete: Cascade)
   messages  Message[]
 }
 
@@ -109,33 +110,14 @@ model ApiKey {
   @@unique([userId, provider], map: "user_provider_unique")
 }
 
-model Conversation {
-  id        String    @id @default(uuid())
-  userId    String
-  canvasId  String?
-  title     String    @default("Untitled")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  user     User      @relation(fields: [userId], references: [id])
-  canvas   Canvas?   @relation(fields: [canvasId], references: [id])
-  messages Message[]
-
-  @@index([userId])
-  @@index([canvasId])
-}
-
 model Message {
   id             String   @id @default(uuid())
-  conversationId String
   nodeId         String
   role           String
   content        String
   createdAt      DateTime @default(now())
 
-  conversation Conversation @relation(fields: [conversationId], references: [id])
-  node         Node         @relation(fields: [nodeId], references: [id])
+  node         Node         @relation(fields: [nodeId], references: [id], onDelete: Cascade)
 }
 
 // New: verification tokens (email verify + password reset)

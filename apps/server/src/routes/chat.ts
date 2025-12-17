@@ -52,13 +52,23 @@ chat.post('/', requireAuth, async (c) => {
 	const keyRow = await prisma.apiKey.findUnique({
 		where: { userId_provider: { userId: user.id, provider } }
 	});
-	if (!keyRow) return c.json({ error: `No API key stored for provider "${provider}"` }, 400);
 
-	let apiKey: string;
-	try {
-		apiKey = decryptSecret(keyRow.encryptedSecret, keyRow.iv);
-	} catch {
-		return c.json({ error: 'Stored API key cannot be decrypted. Please re-add your key.' }, 500);
+	let apiKey: string | undefined;
+
+	if (keyRow) {
+		try {
+			apiKey = decryptSecret(keyRow.encryptedSecret, keyRow.iv);
+		} catch {
+			return c.json({ error: 'Stored API key cannot be decrypted. Please re-add your key.' }, 500);
+		}
+	} else {
+		// Fallback to env vars
+		if (provider === 'openai') apiKey = process.env.OPENAI_API_KEY;
+		else if (provider === 'groq') apiKey = process.env.GROQ_API_KEY;
+
+		if (!apiKey) {
+			return c.json({ error: `No API key stored for provider "${provider}"` }, 400);
+		}
 	}
 
 	// Build provider client
