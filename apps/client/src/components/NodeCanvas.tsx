@@ -5,7 +5,7 @@ import ReactFlow, {
   applyNodeChanges,
   applyEdgeChanges,
   addEdge,
-  MiniMap
+  MiniMap,
   // Node,
   // Edge,
   // NodeChange,
@@ -79,8 +79,6 @@ const NodeCanvas = () => {
   // Add ref to track if initialization has started
   // const initStarted = useRef(false);
 
-
-
   const hydrateNodes = useCallback(
     (detailNodes: CanvasDetail["nodes"]) =>
       (detailNodes || []).map((node, idx) => ({
@@ -106,7 +104,6 @@ const NodeCanvas = () => {
     // [detail, setIsPanelInteractiveStable]
     // [windowDimensions, setIsPanelInteractiveStable]
     [currentCanvas, setIsPanelInteractiveStable]
-
   );
 
   // create canvas + conversation on mount
@@ -159,7 +156,7 @@ const NodeCanvas = () => {
   // Hydrate canvas whenever a canvas is selected
   useEffect(() => {
     if (!selectedCanvasId || !currentCanvas || currentCanvas.canvas.id !== selectedCanvasId) {
-      // console.log("detail---missing--", detail);
+      console.log("detail---missing--", currentCanvas);
       return;
     }
     // setConversationId(detail.conversation.id);
@@ -167,7 +164,7 @@ const NodeCanvas = () => {
     setEdges([]);
     nodeId = currentCanvas.nodes?.length + 1 || 1;
     // const hydra = hydrateNodes(detail.nodes);
-    // console.log("hydra--", hydra);
+    console.log("hydra--", currentCanvas);
 
     setNodes(hydrateNodes(currentCanvas.nodes));
   }, [selectedCanvasId, currentCanvas, hydrateNodes]);
@@ -208,7 +205,7 @@ const NodeCanvas = () => {
         description: "Max node limit reached!!",
         action: {
           label: "OK!",
-          onClick: () => { },
+          onClick: () => {},
         },
       });
       return;
@@ -312,15 +309,15 @@ const NodeCanvas = () => {
           prev.map((n) =>
             n.id === nodeId
               ? {
-                ...n,
-                data: {
-                  ...(n.data as ChatNodeData),
-                  dbNodeId: nodeData.id,
-                  // conversationId: currentConversationId,
-                  // Remove the callback after initialization
-                  onInitializeNode: undefined,
-                },
-              }
+                  ...n,
+                  data: {
+                    ...(n.data as ChatNodeData),
+                    dbNodeId: nodeData.id,
+                    // conversationId: currentConversationId,
+                    // Remove the callback after initialization
+                    onInitializeNode: undefined,
+                  },
+                }
               : n
           )
         );
@@ -372,17 +369,20 @@ const NodeCanvas = () => {
         preventScrolling={isPaneInteractive} // Important for some trackpads
         minZoom={0.2}
         translateExtent={[
-          [-2000, -2000],  // top-left bound
-          [4000, 3000]    // bottom-right bound
+          [-2000, -2000], // top-left bound
+          [4000, 3000], // bottom-right bound
         ]}
         nodeExtent={[
-          [-1990, -1900],  // to keep the nodes inside the viewport bounds
-          [3300, 3300]
+          [-1990, -1900], // to keep the nodes inside the viewport bounds
+          [3300, 3300],
         ]}
       >
         <Background />
         <Controls className="absolute top-[50%] left-1" />
-        <MiniMap zoomable pannable color="dark"
+        <MiniMap
+          zoomable
+          pannable
+          color="dark"
           style={{ background: "#0b0b0c", border: "1px solid #1f1f1f" }}
           maskColor="rgba(20,20,20,0.6)"
           nodeColor={() => "#7dd3fc"}
