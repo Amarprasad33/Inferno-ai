@@ -215,3 +215,24 @@ button:focus-visible {
     @apply bg-background text-foreground;
   }
 }
+
+.edgebutton {
+  width: 24px;
+  height: 24px;
+  background: #ef4444;
+  border: 1px solid #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 1;
+  transition: all 0.2s;
+}
+
+.edgebutton:hover {
+  background: #dc2626;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.edgebutton-foreignobject {
+  pointer-events: all;
+}

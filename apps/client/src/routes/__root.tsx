@@ -63,9 +63,9 @@ function RootComponent() {
                 <Link to="/about" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
                   About
                 </Link>
-                <Link to="/exp/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                {/* <Link to="/exp/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
                   Infini
-                </Link>
+                </Link> */}
                 <Link to="/chat" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
                   Chat
                 </Link>

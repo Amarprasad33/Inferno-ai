@@ -21,9 +21,7 @@ import { createCanvas, createNode, type CanvasDetail } from "@/lib/canvas-api";
 import { appendMessage } from "@/lib/nodes-api";
 // import { createConversation } from "@/lib/conversations-api";
 import { useCanvasStore } from "@/stores/canvas-store";
-// import { useConversationHistoryStore } from "@/stores/conversation-history";
-// import { useConversationDetailStore } from "@/stores/conversation-detail";
-// import type { ConversationDetail } from "@/lib/conversations-api";
+import CustomEdge from "./custom/CustomEdge";
 
 // The options to hide the attribution watermark.
 const proOptions = {
@@ -32,6 +30,10 @@ const proOptions = {
 
 const nodeTypes = {
   chat: ChatNode,
+};
+
+const edgeTypes = {
+  custom: CustomEdge,
 };
 
 let nodeId = 1;
@@ -106,53 +108,6 @@ const NodeCanvas = () => {
     [currentCanvas, setIsPanelInteractiveStable]
   );
 
-  // create canvas + conversation on mount
-  // useEffect(() => {
-  //   // Guard: Only run once
-  //   if (initStarted.current || canvasId !== null) {
-  //     return;
-  //   }
-
-  //   initStarted.current = true;
-  //   // const cancelled = false;
-
-  //   async function createConversationInDb() {
-  //     try {
-  //       const ownCanvas = await createCanvas({});
-  //       console.log("oCanvas--", ownCanvas);
-  //       // if (cancelled) return;
-  //       setCanvasId(ownCanvas.id);
-
-  //       const convo = await createConversation({ canvasId: ownCanvas.id, title: "Untitled" });
-  //       console.log("convo--", convo);
-  //       // if (cancelled) return;
-  //       setConversationId(convo.id);
-
-  //       const nodeData = await createNode(ownCanvas.id, {
-  //         label: "Chat Node",
-  //         provider: "groq",
-  //         model: "groq/compound",
-  //       });
-  //       console.log("Initial node created--", nodeData);
-
-  //       // Inject conversationId into existing nodes data
-  //       setNodes((prev) =>
-  //         prev.map((n) => ({
-  //           ...n,
-  //           data: { ...(n.data as any), conversationId: convo.id, dbNodeId: nodeData.id },
-  //         }))
-  //       );
-  //     } catch (err) {
-  //       console.log("err", err);
-  //     }
-  //   }
-  //   createConversationInDb();
-  //   return () => {
-  //     console.log("Cleanup--NodeCanvas-useEffect -00 ");
-  //     // cancelled = true;
-  //   };
-  // }, []);
-
   // Hydrate canvas whenever a canvas is selected
   useEffect(() => {
     if (!selectedCanvasId || !currentCanvas || currentCanvas.canvas.id !== selectedCanvasId) {
@@ -195,9 +150,21 @@ const NodeCanvas = () => {
 
   const onNodesChange = useCallback((changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)), []);
 
-  const onEdgesChange = useCallback((changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)), []);
+  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
+    console.log("changes--", changes);
+    setEdges((eds) => applyEdgeChanges(changes, eds));
+  }, []);
 
-  const onConnect = useCallback((params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)), []);
+  const onConnect = useCallback((params: Connection | Edge) => {
+    console.log("params", params, nodes);
+    const sourceNode = nodes.find((n) => n.id === params.source);
+    const targetNode = nodes.find((n) => n.id === params.target);
+
+    console.log("sourceNode", sourceNode);
+    console.log("targetNode", targetNode);
+
+    setEdges((eds) => addEdge(params, eds));
+  }, []);
 
   const addChatNode = async () => {
     if (nodes.length > 5) {
@@ -217,17 +184,31 @@ const NodeCanvas = () => {
     // }
 
     try {
+      let position: { x: number; y: number };
+
+      if (nodes.length === 0) {
+        // First node at initial position
+        position = { x: 100, y: 100 };
+      } else {
+        // Subsequent nodes positioned relative to the last node
+        const lastNode = nodes[nodes.length - 1];
+        position = {
+          x: lastNode.position.x + 600,
+          y: lastNode.position.y + 0,
+        };
+      }
       // Create visual node only - no DB operations
       const label = `Chat Node ${nodeId}`;
       // Provider/model currently mirrored from chatNode usage
       const newNode = {
         id: `${nodeId}`,
         type: "chat",
-        position: {
-          // Spawns nodes over a large area
-          x: Math.random() * 800,
-          y: Math.random() * 800,
-        },
+        position: position,
+        // position: {
+        //   // Spawns nodes over a large area
+        //   x: 100,
+        //   y: 100,
+        // },
         data: {
           label,
           setIsPaneInteractive: setIsPanelInteractiveStable,
@@ -243,21 +224,6 @@ const NodeCanvas = () => {
       console.log("err", e);
       toast("Failded to create node");
     }
-    // const newNode = {
-    //     id: `${nodeId}`,
-    //     type: 'chat',
-    //     position: {
-    //         // Spawns nodes over a larger area
-    //         x: Math.random() * 800,
-    //         y: Math.random() * 800,
-    //     },
-    //     data: {
-    //         label: `Chat Node ${nodeId}`,
-    //         setIsPaneInteractive: setIsPaneInteractive
-    //     },
-    // };
-    // setNodes((nds) => [...nds, newNode]);
-    // nodeId++; // Increment after creating the node
   };
 
   // useEffect(() => {
@@ -362,7 +328,11 @@ const NodeCanvas = () => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         proOptions={proOptions}
+        defaultEdgeOptions={{ type: "custom" }}
+        edgesFocusable={true}
+        edgesUpdatable={true}
         // 3. CONTROL REACT FLOW'S PROPS with our state.
         zoomOnScroll={isPaneInteractive}
         panOnScroll={isPaneInteractive}
@@ -373,7 +343,7 @@ const NodeCanvas = () => {
           [4000, 3000], // bottom-right bound
         ]}
         nodeExtent={[
-          [-4200, -2000], // to keep the nodes inside the viewport bounds
+          [-3800, -2000], // to keep the nodes inside the viewport bounds
           [6000, 3000],
         ]}
       >
