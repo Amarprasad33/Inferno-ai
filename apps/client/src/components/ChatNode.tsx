@@ -8,6 +8,8 @@ import { appendMessage } from "@/lib/nodes-api";
 import { memo } from "react";
 import MarkdownRenderer from "./MarkdownRenderer";
 import { useCanvasStore } from "@/stores/canvas-store";
+import { InfernoLogoLarge } from "@/icons";
+import { useSessionStore } from "@/stores/session-store";
 
 // Update the type for our node data to include the new function
 export type ChatNodeData = {
@@ -41,6 +43,7 @@ const ChatNode = memo(
     const [loading, setLoading] = useState(false); // <-- loading state
     const { loadCanvases } = useCanvasStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const { user } = useSessionStore();
 
     const handleSend = async () => {
       if (input.trim() === "" || loading) return;
@@ -238,10 +241,18 @@ const ChatNode = memo(
         <div className="p-2 grow flex flex-col">
           {/* Messages */}
           <div
-            className="nodrag flex-grow overflow-y-auto space-y-2 w-full flex flex-col pb-14 max-h-[80vh] cursor-default"
+            className="nodrag flex-grow overflow-y-auto space-y-2 w-full flex flex-col pb-14 h-[clamp(30vh,40vh,80vh)] cursor-default"
             onMouseEnter={() => data.setIsPaneInteractive(false)}
             onMouseLeave={() => data.setIsPaneInteractive(true)}
           >
+            {messages.length === 0 && (
+              <div className="h-full w-full relative flex flex-col gap-3 justify-center items-center">
+                <div className="mt-6">
+                  <InfernoLogoLarge />
+                </div>
+                <div className="text-white font-medium text-lg">How I can help, {user?.name}?</div>
+              </div>
+            )}
             {messages.map((msg, idx) => (
               <div
                 key={idx}
