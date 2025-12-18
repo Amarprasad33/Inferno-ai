@@ -122,6 +122,10 @@ const NodeCanvas = () => {
     console.log("hydra--", currentCanvas);
 
     setNodes(hydrateNodes(currentCanvas.nodes));
+
+    return () => {
+      setCanvasId(null);
+    };
   }, [selectedCanvasId, currentCanvas, hydrateNodes]);
 
   // Update window dimensions and recalculate node positions

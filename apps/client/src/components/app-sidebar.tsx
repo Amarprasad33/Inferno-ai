@@ -15,7 +15,7 @@ import {
 // import { useConversationHistoryStore } from "@/stores/conversation-history";
 // import { useConversationDetailStore } from "@/stores/conversation-detail";
 import { useCanvasStore } from "@/stores/canvas-store";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -26,13 +26,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { SpinnerCustom } from "./ui/spinner";
 
 export function AppSidebar() {
   const {
     canvases,
     loading,
     error,
-    selectedCanvasId,
+    // selectedCanvasId,
     setSelectedCanvasId,
     loadCanvases,
     loadCanvas,
@@ -48,6 +49,9 @@ export function AppSidebar() {
     title: string;
   } | null>(null);
   const [newTitle, setNewTitle] = useState("");
+  const [sidebarLoading, setSidebarLoading] = useState(false);
+  // Use ref to track if it's the first load
+  const isInitialLoadRef = useRef(true);
 
   useEffect(() => {
     // if (!loading && conversations.length === 0) {
@@ -55,6 +59,16 @@ export function AppSidebar() {
     void loadCanvases();
     // }
   }, []);
+  useEffect(() => {
+    if (loading && isInitialLoadRef.current) {
+      setSidebarLoading(true);
+    } else {
+      setSidebarLoading(false);
+      if (!loading && isInitialLoadRef.current) {
+        isInitialLoadRef.current = false;
+      }
+    }
+  }, [loading]);
 
   const handleSelect = async (id: string) => {
     // if (selectedConversationId === id) {
@@ -73,8 +87,6 @@ export function AppSidebar() {
     // if (isMobile) setOpenMobile(false);
     // else setOpen(false);
   };
-
-
 
   const handleRenameClick = (canvas: { id: string; title: string }) => {
     setCanvasToRename(canvas);
@@ -99,6 +111,15 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
+      {sidebarLoading && (
+        <div className="absolute inset-0 w-full h-full bg-zinc-900/80 z-50 backdrop-blur-xs flex items-center justify-center">
+          <div className="flex flex-col gap-2 items-center">
+            <SpinnerCustom />
+            <span className="text-zinc-200 text-sm font-normal">Loading...</span>
+          </div>
+        </div>
+      )}
+
       <SidebarHeader />
       <SidebarContent>
         <SidebarGroup>
@@ -150,7 +171,7 @@ export function AppSidebar() {
             {canvases.map((canvas) => (
               <SidebarMenuItem key={canvas.id}>
                 <SidebarMenuButton
-                  isActive={canvas.id === selectedCanvasId}
+                  // isActive={canvas.id === selectedCanvasId}
                   onClick={() => handleSelect(canvas.id)}
                   className="justify-between gap-2"
                 >

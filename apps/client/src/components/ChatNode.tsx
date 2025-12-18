@@ -177,11 +177,11 @@ const ChatNode = memo(
     // To render the chat nodes from history
     const normalizeMessages = (messages?: ChatNodeData["initialMessages"]) =>
       messages && messages.length > 0
-        ? messages.map((msg: any) => ({
+        ? messages.map((msg: { role: "user" | "assistant" | "system"; content: string }) => ({
             text: msg.content,
             userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
           }))
-        : [{ text: DEFAULT_WELCOME_MESSAGE, userType: "assistant" as const }];
+        : [];
 
     useEffect(() => {
       setMessages(normalizeMessages(data.initialMessages));
@@ -202,7 +202,7 @@ const ChatNode = memo(
           className="!w-3 !h-3 !bg-zinc-700 !border !border-zinc-600 !-left-[6px]"
         />
         <div className="flex gap-2 justify-between items-center text-zinc-600 w-full rounded-t-xl px-2 py-2">
-          <div className="w-5 h-5 bg-inherit flex items-center justify-center rounded-full border border-[#A6A6A6] cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear">
+          <div className="w-6 h-6 bg-inherit flex items-center justify-center rounded-full border border-[#A6A6A6] cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear">
             <svg
               className="w-3 h-3"
               width="8"
@@ -218,7 +218,7 @@ const ChatNode = memo(
             </svg>
           </div>
           <div>{data.label}</div>
-          <div className="w-5 h-5 bg-inherit flex items-center justify-center rounded-full border border-[#A6A6A6] cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear">
+          <div className="w-6 h-6 bg-inherit flex items-center justify-center rounded-full border border-[#A6A6A6] cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear">
             <svg
               className="w-3 h-3"
               width="8"
