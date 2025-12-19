@@ -14,7 +14,7 @@ import ReactFlow, {
 } from "reactflow";
 import type { Node, Edge, NodeChange, EdgeChange, Connection } from "reactflow";
 import "reactflow/dist/style.css";
-import ChatNode, { type ChatNodeData, DEFAULT_WELCOME_MESSAGE } from "./ChatNode";
+import ChatNode, { type ChatNodeData } from "./ChatNode";
 import { toast } from "sonner";
 import { SidebarTrigger } from "./ui/sidebar";
 import { createCanvas, createNode, type CanvasDetail } from "@/lib/canvas-api";
@@ -197,7 +197,7 @@ const NodeCanvas = () => {
         // Subsequent nodes positioned relative to the last node
         const lastNode = nodes[nodes.length - 1];
         position = {
-          x: lastNode.position.x + 600,
+          x: lastNode.position.x + 800,
           y: lastNode.position.y + 0,
         };
       }
@@ -263,16 +263,6 @@ const NodeCanvas = () => {
           provider: "groq",
           model: "groq/compound",
         });
-
-        // Persist default welcome message
-        try {
-          await appendMessage(nodeData.id, {
-            role: "assistant",
-            content: DEFAULT_WELCOME_MESSAGE,
-          });
-        } catch (err) {
-          console.error("Failed to persist default message:", err);
-        }
 
         // Update the node's data with DB IDs
         setNodes((prev) =>

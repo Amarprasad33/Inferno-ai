@@ -10,6 +10,7 @@ import MarkdownRenderer from "./MarkdownRenderer";
 import { useCanvasStore } from "@/stores/canvas-store";
 import { InfernoLogoLarge } from "@/icons";
 import { useSessionStore } from "@/stores/session-store";
+import { Button } from "./ui/button";
 
 // Update the type for our node data to include the new function
 export type ChatNodeData = {
@@ -31,7 +32,7 @@ type Message = {
   isThinking?: boolean;
 };
 
-export const DEFAULT_WELCOME_MESSAGE = "Hello! How can I help you today?";
+// export const DEFAULT_WELCOME_MESSAGE = "Hello! How can I help you today?";
 
 const ChatNode = memo(
   ({ data, id }: ChatNodeProps) => {
@@ -198,7 +199,7 @@ const ChatNode = memo(
     }, [messages]);
 
     return (
-      <div className="chat-node flex flex-col bg-[#121212] border border-zinc-800 rounded-xl min-w-[35rem] min-h-[50vh] max-w-[800px]">
+      <div className="chat-node flex flex-col bg-[#121212] border border-zinc-800 rounded-2xl min-w-[42vw] min-h-[50vh] max-w-[600px]">
         <Handle
           type="target"
           position={Position.Left}
@@ -241,7 +242,7 @@ const ChatNode = memo(
         <div className="p-2 grow flex flex-col">
           {/* Messages */}
           <div
-            className="nodrag flex-grow overflow-y-auto space-y-2 w-full flex flex-col pb-14 h-[clamp(30vh,40vh,80vh)] cursor-default"
+            className="nodrag px-20 flex-grow overflow-y-auto space-y-2 w-full flex flex-col gap-3 pb-14 h-[clamp(30vh,40vh,80vh)] cursor-default custom-scrollbar"
             onMouseEnter={() => data.setIsPaneInteractive(false)}
             onMouseLeave={() => data.setIsPaneInteractive(true)}
           >
@@ -256,11 +257,11 @@ const ChatNode = memo(
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`p-2 rounded-lg break-words select-text cursor-text selection:bg-white selection:text-black
+                className={`rounded-lg break-words select-text cursor-text selection:bg-white selection:text-black
                                 ${
                                   msg.userType === "user"
-                                    ? "bg-zinc-800 text-zinc-100 self-end max-w-[70%]"
-                                    : "bg-zinc-700 text-zinc-300 self-start max-w-[65%]"
+                                    ? "bg-zinc-700 text-zinc-100 self-end max-w-[70%] mx-[2px] p-2"
+                                    : "bg-inherit text-zinc-300 self-start flex-1 max-w-[99%] mx-[2px]"
                                 }`}
               >
                 {/* <div
@@ -288,11 +289,11 @@ const ChatNode = memo(
           </div>
           {/* Input */}
           <textarea
-            className="nodrag flex-shrink-0 text-zinc-300 outline-none border-t border-zinc-600 px-3 py-3 rounded-b-xl"
+            className="nodrag flex-shrink-0 text-zinc-300 outline-none bg-[#1D1E20]/90 border border-white/5 px-3 py-3 rounded-lg"
             placeholder="Ask a question.."
             style={{
               width: "100%",
-              minHeight: "100px",
+              minHeight: "130px",
               maxHeight: "180px",
               overflowY: "auto",
               resize: "none",
@@ -304,6 +305,21 @@ const ChatNode = memo(
             onMouseEnter={() => data.setIsPaneInteractive(false)}
             onMouseLeave={() => data.setIsPaneInteractive(true)}
           />
+          <Button className="rounded-sm absolute bottom-4 right-4 ![padding:0px_7px]" onClick={handleSend}>
+            <svg
+              className="!w-[22px] !h-[22px]"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M7.27937 5.67203L4.66543 8.28596C4.54062 8.40651 4.37346 8.47321 4.19995 8.4717C4.02644 8.47019 3.86046 8.4006 3.73777 8.2779C3.61507 8.15521 3.54548 7.98923 3.54397 7.81572C3.54246 7.64221 3.60916 7.47505 3.72971 7.35024L7.47326 3.60669C7.53457 3.54502 7.60747 3.49609 7.68777 3.46269C7.76806 3.4293 7.85416 3.41211 7.94112 3.41211C8.02808 3.41211 8.11418 3.4293 8.19448 3.46269C8.27477 3.49609 8.34767 3.54502 8.40898 3.60669L12.1525 7.35024C12.2701 7.47561 12.3343 7.6418 12.3315 7.81365C12.3287 7.9855 12.2592 8.14951 12.1376 8.271C12.016 8.39249 11.8519 8.46191 11.6801 8.46458C11.5082 8.46725 11.3421 8.40296 11.2168 8.2853L8.60288 5.67137V12.015C8.60288 12.1905 8.53316 12.3588 8.40905 12.4829C8.28495 12.607 8.11663 12.6767 7.94112 12.6767C7.76561 12.6767 7.59729 12.607 7.47319 12.4829C7.34909 12.3588 7.27937 12.1905 7.27937 12.015V5.67203Z"
+                fill="black"
+              />
+            </svg>
+          </Button>
         </div>
         <Handle
           type="source"
