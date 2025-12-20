@@ -47,11 +47,26 @@ export default function CustomEdge({
           requiredExtensions="http://www.w3.org/1999/xhtml"
         >
           <button
-            className="edgebutton bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center cursor-pointer border-0"
+            className="edgebutton !bg-[#f3f3f3] hover:!bg-orange-400 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center cursor-pointer border-0"
             onClick={onEdgeClick}
             title="Delete edge"
           >
-            ×
+            <svg
+              className="!w-4 !h-4"
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M2.91675 2.91675L7.08341 7.08341M2.91675 7.08341L7.08341 2.91675"
+                stroke="black"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </button>
         </foreignObject>
       </g>

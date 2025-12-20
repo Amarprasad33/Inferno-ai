@@ -1,24 +1,12 @@
 import { useState, useCallback, useEffect } from "react";
-import ReactFlow, {
-  Controls,
-  Background,
-  applyNodeChanges,
-  applyEdgeChanges,
-  addEdge,
-  MiniMap,
-  // Node,
-  // Edge,
-  // NodeChange,
-  // EdgeChange,
-  // Connection,
-} from "reactflow";
+import ReactFlow, { Controls, Background, applyNodeChanges, applyEdgeChanges, addEdge, MiniMap } from "reactflow";
 import type { Node, Edge, NodeChange, EdgeChange, Connection } from "reactflow";
 import "reactflow/dist/style.css";
 import ChatNode, { type ChatNodeData } from "./ChatNode";
 import { toast } from "sonner";
 import { SidebarTrigger } from "./ui/sidebar";
 import { createCanvas, createNode, type CanvasDetail } from "@/lib/canvas-api";
-import { appendMessage } from "@/lib/nodes-api";
+// import { appendMessage } from "@/lib/nodes-api";
 // import { createConversation } from "@/lib/conversations-api";
 import { useCanvasStore } from "@/stores/canvas-store";
 import CustomEdge from "./custom/CustomEdge";
@@ -45,10 +33,15 @@ const NodeCanvas = () => {
     width: 0,
     height: 0,
   });
-
-  const { selectedCanvasId, currentCanvas } = useCanvasStore();
-  // const { selectedConversationId } = useConversationHistoryStore();
-  // const { detail } = useConversationDetailStore();
+  const {
+    selectedCanvasId,
+    currentCanvas,
+    nodes: structuralNodes,
+    nodesById,
+    addNode,
+    setNodes: setStructuralNodes,
+    resetNodes,
+  } = useCanvasStore();
 
   // server ids
   const [canvasId, setCanvasId] = useState<string | null>(null);
@@ -99,8 +92,8 @@ const NodeCanvas = () => {
           provider: node.provider,
           model: node.model,
           setIsPaneInteractive: setIsPanelInteractiveStable,
-          // initialMessages: node.messages,
           initialMessages: node.messages || [],
+          onTopHandleClick: addNodeOnHandleClick,
         },
       })),
     // [detail, setIsPanelInteractiveStable]
@@ -119,14 +112,15 @@ const NodeCanvas = () => {
     setEdges([]);
     nodeId = currentCanvas.nodes?.length + 1 || 1;
     // const hydra = hydrateNodes(detail.nodes);
-    console.log("hydra--", currentCanvas);
-
-    setNodes(hydrateNodes(currentCanvas.nodes));
+    console.log("hydra--", currentCanvas, "struct-nodes", structuralNodes);
+    const hydratedNodes = hydrateNodes(currentCanvas.nodes);
+    setNodes(hydratedNodes);
+    // console.log("");
 
     return () => {
       setCanvasId(null);
     };
-  }, [selectedCanvasId, currentCanvas, hydrateNodes]);
+  }, [selectedCanvasId, currentCanvas?.canvas?.id, hydrateNodes]);
 
   // Update window dimensions and recalculate node positions
   useEffect(() => {
@@ -152,7 +146,10 @@ const NodeCanvas = () => {
   //   }
   // }, [windowDimensions]);
 
-  const onNodesChange = useCallback((changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)), []);
+  const onNodesChange = useCallback((changes: NodeChange[]) => {
+    console.log("Nodes-Change", changes);
+    setNodes((nds) => applyNodeChanges(changes, nds));
+  }, []);
 
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
     console.log("changes--", changes);
@@ -161,8 +158,8 @@ const NodeCanvas = () => {
 
   const onConnect = useCallback((params: Connection | Edge) => {
     console.log("params", params, nodes);
-    const sourceNode = nodes.find((n) => n.id === params.source);
-    const targetNode = nodes.find((n) => n.id === params.target);
+    const sourceNode = structuralNodes.find((n) => n.id === params.source);
+    const targetNode = structuralNodes.find((n) => n.id === params.target);
 
     console.log("sourceNode", sourceNode);
     console.log("targetNode", targetNode);
@@ -220,6 +217,7 @@ const NodeCanvas = () => {
           // dbNodeId: nodeData.id,
           // No conversationId or dbNodeId yet - will be created on first message
           onInitializeNode: initializeNodeInDb, // Pass callback to create DB resources
+          onTopHandleClick: addNodeOnHandleClick,
         },
       };
       setNodes((nds) => [...nds, newNode]);
@@ -229,10 +227,6 @@ const NodeCanvas = () => {
       toast("Failded to create node");
     }
   };
-
-  // useEffect(() => {
-  //     console.log("i-->", isPaneInteractive);
-  // }, [isPaneInteractive])
 
   const initializeNodeInDb = useCallback(
     async (nodeId: string, label: string) => {
@@ -264,6 +258,17 @@ const NodeCanvas = () => {
           model: "groq/compound",
         });
 
+        // Add to structural nodes store
+        addNode({
+          id: nodeData.id,
+          label: nodeData.label,
+          provider: nodeData.provider,
+          model: nodeData.model,
+          createdAt: nodeData.createdAt,
+          updatedAt: nodeData.createdAt,
+          messages: [],
+        });
+
         // Update the node's data with DB IDs
         setNodes((prev) =>
           prev.map((n) =>
@@ -293,6 +298,88 @@ const NodeCanvas = () => {
     [canvasId]
   );
 
+  const addNodeOnHandleClick = useCallback(
+    async (sourceNodeId: string, handleType: "source" | "target", handlePosition: "left" | "right") => {
+      // use structural Nodes and nodes combined for the desired result
+      console.log("addNode-onHandleClick", sourceNodeId, "nodesssss", nodes);
+      if (nodes.length > 5) {
+        toast("Cannot create more nodes!", {
+          description: "Max node limit reached!!",
+          action: {
+            label: "OK!",
+            onClick: () => {},
+          },
+        });
+        console.log("IFFFFF");
+        return;
+      }
+      console.log("af----eff", nodes);
+      try {
+        const sourceNode = nodes.find((n) => n.id === sourceNodeId);
+        console.log("source-node", sourceNode);
+        if (!sourceNode) return;
+
+        // Calculate pos for new node based on handle position
+        let position: { x: number; y: number };
+        const offSetX = 600;
+        const offsetY = 0;
+
+        if (handlePosition === "right") {
+          position = {
+            x: sourceNode.position.x + offSetX,
+            y: sourceNode.position.y + offsetY,
+          };
+        } else {
+          position = {
+            x: sourceNode.position.x - offSetX,
+            y: sourceNode.position.y + offsetY,
+          };
+        }
+
+        // Create new node
+        const label = `Chat Node ${nodeId}`;
+        const newNode = {
+          id: `${nodeId}`,
+          type: "chat",
+          position: position,
+          data: {
+            label,
+            setIsPaneInteractive: setIsPanelInteractiveStable,
+            onInitializeNode: initializeNodeInDb,
+            onTopHandleClick: addNodeOnHandleClick,
+          },
+        };
+        console.log("nwe--nn---", newNode, "pos", handlePosition);
+        // Add the new node
+        setNodes((nds) => [...nds, newNode]);
+
+        // Create edge between source and new node
+        const newEdge = {
+          id: handlePosition === "right" ? `edge-${sourceNodeId}-${nodeId}` : `edge-${nodeId}-${sourceNodeId}`,
+          source: handleType === "source" ? sourceNodeId : `${nodeId}`,
+          target: handleType === "source" ? `${nodeId}` : sourceNodeId,
+          sourceHandle: "right-handle",
+          targetHandle: "left-handle",
+          type: "custom", // Use your custom edge type if you have one
+        };
+
+        setEdges((eds) => [...eds, newEdge]);
+
+        console.log("🔗 Created new node and edge:", {
+          sourceNodeId,
+          newNodeId: `${nodeId}`,
+          edge: newEdge,
+        });
+
+        nodeId++;
+      } catch (e) {
+        console.log("err-", e);
+        toast("Failed to create node");
+      }
+    },
+    [setIsPanelInteractiveStable, initializeNodeInDb]
+  );
+
   // const nodeClassName = (node: typeof ChatNode) => node.type;
 
   return (
@@ -315,6 +402,9 @@ const NodeCanvas = () => {
         Add Node
       </button>
       <ReactFlow
+        // onNodeDragStop={(_, node) => {
+        //   console.log("node drag stopped", node);
+        // }}
         color="dark"
         nodes={nodes}
         edges={edges}

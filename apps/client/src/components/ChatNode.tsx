@@ -19,6 +19,7 @@ export type ChatNodeData = {
   dbNodeId?: string;
   initialMessages?: { role: "user" | "assistant" | "system"; content: string }[];
   onInitializeNode?: (nodeId: string, label: string) => Promise<{ dbNodeId: string }>;
+  onTopHandleClick?: (nodeId: string, handleType: "source" | "target", handlePosition: "left" | "right") => void;
 };
 
 export type ChatNodeProps = {
@@ -201,12 +202,16 @@ const ChatNode = memo(
     return (
       <div className="chat-node flex flex-col bg-[#121212] border border-zinc-800 rounded-2xl min-w-[42vw] min-h-[50vh] max-w-[600px]">
         <Handle
+          id="left-handle"
           type="target"
           position={Position.Left}
           className="!w-3 !h-3 !bg-zinc-700 !border !border-zinc-600 !-left-[6px]"
         />
         <div className="flex gap-2 justify-between items-center text-zinc-600 w-full rounded-t-xl px-2 py-2">
-          <div className="w-6 h-6 bg-inherit flex items-center justify-center rounded-full border border-[#A6A6A6] cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear">
+          <div
+            className="w-6 h-6 bg-inherit flex items-center justify-center rounded-full border border-[#A6A6A6] cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear"
+            onClick={() => data.onTopHandleClick?.(id, "source", "left")}
+          >
             <svg
               className="w-3 h-3"
               width="8"
@@ -222,7 +227,10 @@ const ChatNode = memo(
             </svg>
           </div>
           <div>{data.label}</div>
-          <div className="w-6 h-6 bg-inherit flex items-center justify-center rounded-full border border-[#A6A6A6] cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear">
+          <div
+            className="w-6 h-6 bg-inherit flex items-center justify-center rounded-full border border-[#A6A6A6] cursor-cell hover:border-blue-500 duration-100 transition-colors ease-linear"
+            onClick={() => data.onTopHandleClick?.(id, "source", "right")}
+          >
             <svg
               className="w-3 h-3"
               width="8"
@@ -322,6 +330,7 @@ const ChatNode = memo(
           </Button>
         </div>
         <Handle
+          id="right-handle"
           type="source"
           position={Position.Right}
           className="!w-3 !h-3 !bg-zinc-700 !border !border-zinc-600 !-right-[6px]"

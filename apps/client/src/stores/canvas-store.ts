@@ -9,6 +9,7 @@ import {
   type Canvas,
   type CanvasDetail,
 } from "@/lib/canvas-api";
+import type { Node } from "@/lib/nodes-api";
 // import { toast } from "sonner";
 
 type CanvasState = {
@@ -24,6 +25,14 @@ type CanvasState = {
   deleteCanvas: (id: string) => Promise<void>;
   updateTitle: (id: string, title: string) => Promise<void>;
   resetCurrentCanvas: () => void;
+
+  // Nodes independent of Reactflow's insides
+  nodes: Node[];
+  nodesById: Map<string, Node>;
+  setNodes: (nodes: Node[]) => void;
+  addNode: (node: Node) => void;
+  removeNode: (nodeId: string) => void;
+  resetNodes: () => void;
 };
 
 export const useCanvasStore = create<CanvasState>()(
@@ -35,7 +44,12 @@ export const useCanvasStore = create<CanvasState>()(
         loading: false,
         error: null,
         selectedCanvasId: null,
+
+        nodes: [],
+        nodesById: new Map(),
+
         setSelectedCanvasId: (id) => set({ selectedCanvasId: id }),
+
         loadCanvases: async () => {
           set({ loading: true, error: null });
           try {
@@ -54,6 +68,7 @@ export const useCanvasStore = create<CanvasState>()(
             const detail = await getCanvas(id);
             console.log("detail", detail);
             set({ currentCanvas: detail });
+            set({ nodes: detail.nodes });
           } catch (err) {
             console.error("Failed to load canvas:", err);
             set({ error: "Failed to load canvas" });
@@ -115,6 +130,32 @@ export const useCanvasStore = create<CanvasState>()(
           }
         },
         resetCurrentCanvas: () => set({ currentCanvas: null }),
+
+        // Nodes related methods
+        setNodes: (nodes: Node[]) => {
+          const nodesMap = new Map<string, Node>();
+          nodes.forEach((node) => {
+            nodesMap.set(node.id, node);
+          });
+          set({ nodes, nodesById: nodesMap });
+        },
+        addNode: (node: Node) => {
+          set((state) => {
+            const newNodes = [...state.nodes, node];
+            const newMap = new Map(state.nodesById);
+            newMap.set(node.id, node);
+            return { nodes: newNodes, nodesById: newMap };
+          });
+        },
+        removeNode: (nodeId: string) => {
+          set((state) => {
+            const newNodes = state.nodes.filter((n) => n.id !== nodeId);
+            const newMap = new Map(state.nodesById);
+            newMap.delete(nodeId);
+            return { nodes: newNodes, nodesById: newMap };
+          });
+        },
+        resetNodes: () => set({ nodes: [], nodesById: new Map() }),
       }),
       {
         name: "inferno/canvas-store",
