@@ -25,9 +25,9 @@
     "@opentelemetry/api": "^1.9.0",
     "@prisma/adapter-neon": "^6.13.0",
     "@prisma/client": "^6.13.0",
-    "ai": "^5.0.10",
+    "ai": "^5.0.52",
     "argon2": "^0.44.0",
-    "better-auth": "^1.4.3",
+    "better-auth": "^1.4.7",
     "dotenv": "^17.2.1",
     "hono": "^4.9.0",
     "jsonwebtoken": "^9.0.2",
@@ -39,5 +39,8 @@
     "prisma": "^6.13.0",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2"
+  },
+  "overrides": {
+    "jws": "^3.2.3"
   }
 }

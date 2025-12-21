@@ -147,7 +147,6 @@ const NodeCanvas = () => {
   // }, [windowDimensions]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
-    console.log("Nodes-Change", changes);
     setNodes((nds) => applyNodeChanges(changes, nds));
   }, []);
 

@@ -120,8 +120,34 @@ export default function SigninForm() {
         <Button
           type="button"
           className="w-full text-zinc-950"
-          onClick={() => {
-            signIn.social({ provider: "google", callbackURL: import.meta.env.VITE_HOME_URL || window.location.origin });
+          onClick={async () => {
+            try {
+              const result = await signIn.social({
+                provider: "google",
+                callbackURL: import.meta.env.VITE_HOME_URL || window.location.origin,
+              });
+
+              // Check if there's an error in the response
+              if (result?.error) {
+                toast("Sign in failed", {
+                  description: result.error.message || "Something went wrong!",
+                  action: {
+                    label: "OK!",
+                    onClick: () => {},
+                  },
+                });
+                return;
+              }
+            } catch (e) {
+              console.error("Sign in error:", e);
+              toast("Something went wrong!", {
+                description: "Please try again after some time.",
+                action: {
+                  label: "OK!",
+                  onClick: () => {},
+                },
+              });
+            }
           }}
         >
           Continue with Google

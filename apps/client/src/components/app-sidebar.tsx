@@ -27,6 +27,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { SpinnerCustom } from "./ui/spinner";
+import { MoreHorizontalIcon } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 export function AppSidebar() {
   const {
@@ -176,9 +185,58 @@ export function AppSidebar() {
                   className="justify-between gap-2"
                 >
                   <span className="flex-1 truncate">{canvas.title}</span>
-                  <span className="text-[11px] text-zinc-500">{new Date(canvas.updatedAt).toLocaleString()}</span>
+                  {/* <span className="text-[11px] text-zinc-500">{new Date(canvas.updatedAt).toLocaleString()}</span> */}
+                  <DropdownMenu modal={false}>
+                    <DropdownMenuTrigger asChild>
+                      {/* <Button variant="outline">Actions</Button> */}
+                      <button
+                        className="cursor-pointer rounded-sm px-[2px]"
+                        aria-label="Open menu"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreHorizontalIcon size={18} />
+                      </button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent className="w-40" align="end">
+                      <DropdownMenuLabel>History Actions</DropdownMenuLabel>
+
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem disabled>
+                          <span className="text-[11px] text-zinc-500">
+                            {new Date(canvas.updatedAt).toLocaleString()}
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => e.stopPropagation()}
+                          onSelect={async (e) => {
+                            e.stopPropagation();
+                            handleRenameClick(canvas);
+                          }}
+                        >
+                          Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-red-400"
+                          onSelect={async (e) => {
+                            if (!confirm("Delete this canvas?")) return;
+                            try {
+                              e.stopPropagation();
+                              await deleteCanvas(canvas.id);
+                              // clearIfDeleted(conversation.id);
+                            } catch (err) {
+                              console.error(err);
+                            }
+                          }}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </SidebarMenuButton>
-                <div className="flex gap-2 px-2 py-1">
+                {/* <div className="flex gap-2 px-2 py-1">
                   <Button size="sm" variant="outline" onClick={async () => handleRenameClick(canvas)}>
                     Rename
                   </Button>
@@ -197,7 +255,7 @@ export function AppSidebar() {
                   >
                     Delete
                   </Button>
-                </div>
+                </div> */}
               </SidebarMenuItem>
             ))}
           </SidebarGroupContent>
