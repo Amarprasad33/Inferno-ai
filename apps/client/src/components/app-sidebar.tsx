@@ -189,13 +189,13 @@ export function AppSidebar() {
                   <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                       {/* <Button variant="outline">Actions</Button> */}
-                      <button
+                      <span
                         className="cursor-pointer rounded-sm px-[2px]"
                         aria-label="Open menu"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <MoreHorizontalIcon size={18} />
-                      </button>
+                      </span>
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent className="w-40" align="end">
