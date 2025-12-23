@@ -66,9 +66,23 @@ export const useCanvasStore = create<CanvasState>()(
           set({ loading: true, error: null });
           try {
             const detail = await getCanvas(id);
+            const clonedDetail = {
+              ...detail,
+              canvas: { ...detail.canvas },
+              nodes: detail.nodes.map((n) => ({
+                ...n,
+                messages: n.messages ? n.messages.map((m) => ({ ...m })) : [],
+              })),
+            };
             console.log("detail", detail);
-            set({ currentCanvas: detail });
-            set({ nodes: detail.nodes });
+            set({ currentCanvas: clonedDetail });
+            // set({ nodes: detail.nodes });
+            set({
+              nodes: detail.nodes.map((n) => ({
+                ...n,
+                messages: n.messages ? n.messages.map((m) => ({ ...m })) : [],
+              })),
+            });
           } catch (err) {
             console.error("Failed to load canvas:", err);
             set({ error: "Failed to load canvas" });

@@ -21,5 +21,5 @@ function RouteComponent() {
 }
 
 const CanvasLoader = () => (
-  <div className="p-4 border bg-zinc-800 border-red-600 h-full flex justify-center items-center">Loading canvas...</div>
+  <div className="p-4 border bg-zinc-800 h-full flex justify-center items-center">Loading canvas...</div>
 );

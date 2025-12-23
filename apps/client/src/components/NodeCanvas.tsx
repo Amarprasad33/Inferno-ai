@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import ReactFlow, { Controls, Background, applyNodeChanges, applyEdgeChanges, addEdge, MiniMap } from "reactflow";
 import type { Node, Edge, NodeChange, EdgeChange, Connection } from "reactflow";
 import "reactflow/dist/style.css";
@@ -45,6 +45,10 @@ const NodeCanvas = () => {
 
   // server ids
   const [canvasId, setCanvasId] = useState<string | null>(null);
+  const addNodeOnHandleClickRef =
+    useRef<(sourceNodeId: string, handleType: "source" | "target", handlePosition: "left" | "right") => Promise<void>>(
+      undefined
+    );
   // const [conversationId, setConversationId] = useState<string | null>(null);
 
   // Calculate center position based on window dimensions
@@ -70,57 +74,12 @@ const NodeCanvas = () => {
     // },
   ];
   const [nodes, setNodes] = useState<Node<{ label: string }>[]>(initialNodes);
+  const nodesRef = useRef(nodes);
 
   // Add ref to track if initialization has started
   // const initStarted = useRef(false);
 
-  const hydrateNodes = useCallback(
-    (detailNodes: CanvasDetail["nodes"]) =>
-      (detailNodes || []).map((node, idx) => ({
-        id: node.id,
-        type: "chat",
-        position: {
-          // x: node?.position?.x ?? getCenterPosition().x + idx * 40,
-          // y: node?.position?.y ?? getCenterPosition().y + idx * 40,
-          x: Math.max(0, (windowDimensions.width - 280) / 2 - 140) + idx * 400,
-          y: Math.max(0, (windowDimensions.height - 400) / 2 - 10) + idx * 40,
-        },
-        data: {
-          label: node.label,
-          // conversationId: detail?.conversation.id,
-          dbNodeId: node.id,
-          provider: node.provider,
-          model: node.model,
-          setIsPaneInteractive: setIsPanelInteractiveStable,
-          initialMessages: node.messages || [],
-          onTopHandleClick: addNodeOnHandleClick,
-        },
-      })),
-    // [detail, setIsPanelInteractiveStable]
-    // [windowDimensions, setIsPanelInteractiveStable]
-    [currentCanvas, setIsPanelInteractiveStable]
-  );
-
   // Hydrate canvas whenever a canvas is selected
-  useEffect(() => {
-    if (!selectedCanvasId || !currentCanvas || currentCanvas.canvas.id !== selectedCanvasId) {
-      console.log("detail---missing--", currentCanvas);
-      return;
-    }
-    // setConversationId(detail.conversation.id);
-    setCanvasId(currentCanvas.canvas?.id ?? null);
-    setEdges([]);
-    nodeId = currentCanvas.nodes?.length + 1 || 1;
-    // const hydra = hydrateNodes(detail.nodes);
-    console.log("hydra--", currentCanvas, "struct-nodes", structuralNodes);
-    const hydratedNodes = hydrateNodes(currentCanvas.nodes);
-    setNodes(hydratedNodes);
-    // console.log("");
-
-    return () => {
-      setCanvasId(null);
-    };
-  }, [selectedCanvasId, currentCanvas?.canvas?.id, hydrateNodes]);
 
   // Update window dimensions and recalculate node positions
   useEffect(() => {
@@ -147,7 +106,15 @@ const NodeCanvas = () => {
   // }, [windowDimensions]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
-    setNodes((nds) => applyNodeChanges(changes, nds));
+    setNodes((nds) => {
+      const updated = applyNodeChanges(changes, nds);
+      // Deep clone
+      return updated.map((node) => ({
+        ...node,
+        position: { ...node.position },
+        data: { ...node.data },
+      }));
+    });
   }, []);
 
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
@@ -155,16 +122,19 @@ const NodeCanvas = () => {
     setEdges((eds) => applyEdgeChanges(changes, eds));
   }, []);
 
-  const onConnect = useCallback((params: Connection | Edge) => {
-    console.log("params", params, nodes);
-    const sourceNode = structuralNodes.find((n) => n.id === params.source);
-    const targetNode = structuralNodes.find((n) => n.id === params.target);
+  const onConnect = useCallback(
+    (params: Connection | Edge) => {
+      console.log("params", params, nodes);
+      const sourceNode = structuralNodes.find((n) => n.id === params.source);
+      const targetNode = structuralNodes.find((n) => n.id === params.target);
 
-    console.log("sourceNode", sourceNode);
-    console.log("targetNode", targetNode);
+      console.log("sourceNode", sourceNode);
+      console.log("targetNode", targetNode);
 
-    setEdges((eds) => addEdge(params, eds));
-  }, []);
+      setEdges((eds) => addEdge(params, eds));
+    },
+    [nodes, structuralNodes]
+  );
 
   const addChatNode = async () => {
     if (nodes.length > 5) {
@@ -299,8 +269,10 @@ const NodeCanvas = () => {
 
   const addNodeOnHandleClick = useCallback(
     async (sourceNodeId: string, handleType: "source" | "target", handlePosition: "left" | "right") => {
+      const nodes = nodesRef.current;
       // use structural Nodes and nodes combined for the desired result
       console.log("addNode-onHandleClick", sourceNodeId, "nodesssss", nodes);
+      console.log("structNodes", structuralNodes);
       if (nodes.length > 5) {
         toast("Cannot create more nodes!", {
           description: "Max node limit reached!!",
@@ -345,7 +317,7 @@ const NodeCanvas = () => {
             label,
             setIsPaneInteractive: setIsPanelInteractiveStable,
             onInitializeNode: initializeNodeInDb,
-            onTopHandleClick: addNodeOnHandleClick,
+            onTopHandleClick: addNodeOnHandleClickRef.current,
           },
         };
         console.log("nwe--nn---", newNode, "pos", handlePosition);
@@ -376,8 +348,59 @@ const NodeCanvas = () => {
         toast("Failed to create node");
       }
     },
-    [setIsPanelInteractiveStable, initializeNodeInDb]
+    [setIsPanelInteractiveStable, initializeNodeInDb, structuralNodes]
   );
+
+  addNodeOnHandleClickRef.current = addNodeOnHandleClick;
+
+  const hydrateNodes = useCallback(
+    (detailNodes: CanvasDetail["nodes"]) =>
+      (detailNodes || []).map((node, idx) => ({
+        id: String(node.id),
+        type: "chat",
+        position: {
+          // x: node?.position?.x ?? getCenterPosition().x + idx * 40,
+          // y: node?.position?.y ?? getCenterPosition().y + idx * 40,
+          x: 500 + idx * 600,
+          y: 500 + 0,
+        },
+        data: {
+          label: String(node.label),
+          // conversationId: detail?.conversation.id,
+          dbNodeId: String(node.id),
+          provider: String(node.provider),
+          model: String(node.model),
+          setIsPaneInteractive: setIsPanelInteractiveStable,
+          initialMessages: node.messages ? [...node.messages] : [],
+          onTopHandleClick: addNodeOnHandleClickRef.current,
+        },
+      })),
+    // [detail, setIsPanelInteractiveStable]
+    // [windowDimensions, setIsPanelInteractiveStable]
+    [setIsPanelInteractiveStable]
+  );
+
+  useEffect(() => {
+    if (!selectedCanvasId || !currentCanvas || currentCanvas.canvas.id !== selectedCanvasId) {
+      console.log("detail---missing--", currentCanvas);
+      return;
+    }
+    // setConversationId(detail.conversation.id);
+    console.log("adDNodeHandleReffff------", addNodeOnHandleClickRef);
+    setCanvasId(currentCanvas.canvas?.id ?? null);
+    setEdges([]);
+    nodeId = currentCanvas.nodes?.length + 1 || 1;
+    // const hydra = hydrateNodes(detail.nodes);
+    console.log("hydra--", currentCanvas, "struct-nodes", structuralNodes);
+    const hydratedNodes = hydrateNodes(currentCanvas.nodes);
+    nodesRef.current = hydratedNodes;
+    setNodes(hydratedNodes);
+    // console.log("");
+
+    return () => {
+      setCanvasId(null);
+    };
+  }, [selectedCanvasId, currentCanvas, hydrateNodes]);
 
   // const nodeClassName = (node: typeof ChatNode) => node.type;
 
