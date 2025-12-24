@@ -23,6 +23,7 @@ function RootComponent() {
 
   useEffect(() => {
     const user = session?.data?.user;
+    console.log("user--ROOT", user);
     if (user) {
       setSession({
         user: {

@@ -1,4 +1,5 @@
 // apps/client/src/lib/canvas-api.ts
+import { responseToError } from "./error";
 import { API_BASE } from "./keys-api";
 import type { Node } from "./nodes-api";
 
@@ -27,7 +28,8 @@ export async function createCanvas(input?: { title?: string }) {
 
 export async function listCanvases() {
   const res = await fetch(`${API_BASE}/api/canvas`, { credentials: "include" });
-  if (!res.ok) throw new Error(await res.text());
+  console.log("res", res);
+  if (!res.ok) throw await responseToError(res);
   return (await res.json()) as { canvases: Canvas[] };
 }
 
