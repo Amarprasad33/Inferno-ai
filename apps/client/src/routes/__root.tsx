@@ -72,10 +72,18 @@ function RootComponent() {
                 </Link>
               </div>
               <div className="flex gap-1 items-center">
-                {session && session?.data && (
-                  <div className="w-6 h-6 flex items-center justify-center rounded-full bg-zinc-500">
-                    {session.data?.user.name.substring(0, 1)}
-                  </div>
+                {session && session.data?.user?.image ? (
+                  <img
+                    src={session.data.user.image}
+                    alt={session.data.user.name ? `${session.data.user.name}'s avatar` : "User avatar"}
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                ) : (
+                  session.data?.user && (
+                    <div className="w-6 h-6 flex items-center justify-center rounded-full bg-zinc-500">
+                      {session?.data?.user?.name?.substring(0, 1)}
+                    </div>
+                  )
                 )}
 
                 {session && session?.data ? (
