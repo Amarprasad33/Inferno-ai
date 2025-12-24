@@ -1,5 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { lazy, Suspense } from "react";
+import { useSessionStore } from "@/stores/session-store";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { lazy, Suspense, useEffect } from "react";
+import { toast } from "sonner";
 // import NodeCanvas from "../../components/NodeCanvas";
 const NodeCanvas = lazy(() => import("@/components/NodeCanvas"));
 
@@ -8,6 +10,25 @@ export const Route = createFileRoute("/chat/")({
 });
 
 function RouteComponent() {
+  const { user, isAuthenticated } = useSessionStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log("/chat -> user-->", user);
+    console.log("/chat -> isAuthenticated-->", isAuthenticated);
+    if (!isAuthenticated) {
+      toast("Your are not signed in.", {
+        description: "You need to sign in to create conversations!",
+        action: {
+          label: "OK!",
+          onClick: () => { },
+        },
+      });
+      navigate({ to: "/signin" })
+    }
+
+  }, [isAuthenticated, user, navigate]);
+
   return (
     <div className="border border-green-500 min-h-screen p-1 flex flex-col">
       {/* <KonvaCanvas /> */}

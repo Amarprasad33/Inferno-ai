@@ -22,14 +22,14 @@ export type ErrorResponseType = {
   message: string;
   code: number;
   status: false;
-  error?: any;
+  error?: unknown;
 }
 
 export class ErrorHandler extends Error {
   status: false;
-  error?: any;
+  error?: unknown;
   code: number;
-  constructor(message: string, code: keyof typeof ERROR_CODE, error?: any) {
+  constructor(message: string, code: keyof typeof ERROR_CODE, error?: unknown) {
     super(message);
     this.status = false;
     this.error = error;
