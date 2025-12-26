@@ -3,6 +3,7 @@ import type { MiddlewareHandler } from "hono";
 import { prisma } from "../lib/prisma";
 import { decryptSecret } from "../lib/crypto";
 import { auth } from "../auth";
+import { aggregateContextWithUserMessage } from "../lib/context-service";
 
 // AI SDK
 import { streamText } from "ai";
@@ -32,7 +33,11 @@ type ChatMessage = {
 type ChatBody = {
   provider?: "openai" | "groq"; // extend as you add more providers
   model: string;
-  messages: ChatMessage[];
+  messages?: ChatMessage[]; // Optional if using contextChain
+  // Context chain support
+  currentNodeId?: string;
+  contextChainIds?: string[]; // Ordered list of upstream node IDs
+  userMessage?: string; // Direct user message text
   // optional: temperature, maxTokens, etc.
   temperature?: number;
   maxTokens?: number;
@@ -43,10 +48,57 @@ chat.post("/", requireAuth, async (c) => {
   const user = c.get("user")!;
   const body = (await c.req.json().catch(() => null)) as ChatBody | null;
   console.log("body--", body);
-  if (!body?.model || !Array.isArray(body.messages)) {
-    return c.json({ error: "model and messages required" }, 400);
+
+  if (!body?.model) {
+    return c.json({ error: "model is required" }, 400);
   }
+
+  // Validate that we have either messages or contextChain
+  if (!body.messages && !body.contextChainIds) {
+    return c.json(
+      { error: "Either messages or contextChainIds must be provided" },
+      400
+    );
+  }
+
+  // If using context chain, validate userMessage is provided
+  if (body.contextChainIds && !body.userMessage) {
+    return c.json(
+      { error: "userMessage is required when using contextChainIds" },
+      400
+    );
+  }
+
   const provider = body.provider ?? "openai";
+
+  // Determine the messages to send to AI
+  let messagesToSend: ChatMessage[];
+
+  if (body.contextChainIds && body.userMessage) {
+    // Use context chain: aggregate messages from upstream nodes
+    try {
+      messagesToSend = await aggregateContextWithUserMessage(
+        body.contextChainIds,
+        body.userMessage,
+        user.id
+      );
+    } catch (error) {
+      console.error("Failed to aggregate context:", error);
+      return c.json(
+        { error: "Failed to aggregate context from upstream nodes" },
+        500
+      );
+    }
+  } else if (body.messages) {
+    // Use provided messages directly (backward compatible)
+    messagesToSend = body.messages;
+  } else {
+    return c.json({ error: "No messages or context chain provided" }, 400);
+  }
+
+  if (messagesToSend.length === 0) {
+    return c.json({ error: "No messages to send" }, 400);
+  }
 
   // Load user's API key for provider
   const keyRow = await prisma.apiKey.findUnique({
@@ -95,10 +147,10 @@ chat.post("/", requireAuth, async (c) => {
     default:
       return c.json({ error: `Unsupported provider "${provider}"` }, 400);
   }
-
+  console.log("messages--M", messagesToSend);
   const result = streamText({
     model: modelFactory(body.model),
-    messages: body.messages,
+    messages: messagesToSend,
     temperature: body.temperature,
     // maxTokens: body.maxTokens   // not supported in this version
     // maxTokens: body.maxTokens
