@@ -1,7 +1,7 @@
 // import React from 'react';
 import { API_BASE } from "@/lib/keys-api";
 import { useEffect, useRef, useState } from "react";
-import { Handle, Position } from "reactflow";
+import { Handle, Position, type Edge } from "reactflow";
 
 // import { appendMessage } from "@/lib/conversations-api";
 import { appendMessage } from "@/lib/nodes-api";
@@ -11,6 +11,7 @@ import { useCanvasStore } from "@/stores/canvas-store";
 import { InfernoLogoLarge } from "@/icons";
 import { useSessionStore } from "@/stores/session-store";
 import { Button } from "./ui/button";
+import { buildContextChainFromReactFlowId } from "@/lib/context-graph";
 
 // Update the type for our node data to include the new function
 export type ChatNodeData = {
@@ -20,6 +21,8 @@ export type ChatNodeData = {
   initialMessages?: { role: "user" | "assistant" | "system"; content: string }[];
   onInitializeNode?: (nodeId: string, label: string) => Promise<{ dbNodeId: string }>;
   onTopHandleClick?: (nodeId: string, handleType: "source" | "target", handlePosition: "left" | "right") => void;
+  edges?: Edge[]; // ReactFlow edges for context chain computation
+  getNodeIdMap?: () => Map<string, string>; // Function to get ReactFlow ID -> DB ID mapping
 };
 
 export type ChatNodeProps = {
@@ -37,7 +40,7 @@ type Message = {
 
 const ChatNode = memo(
   ({ data, id }: ChatNodeProps) => {
-    console.log("id-rec", id);
+    // console.log("id-rec", id);
     const [messages, setMessages] = useState<Message[]>([
       // { text: "Hello! How can I help you today?", userType: "assistant" },
     ]);
@@ -86,22 +89,61 @@ const ChatNode = memo(
         // Refresh history immediately
         void loadCanvases();
 
-        // Transforming existing messages to the ChatBody format
-        const chatMessages = [...messages, userMsg].map((m) => ({
-          role: m.userType === "user" ? "user" : ("assistant" as const),
-          content: m.text,
-        }));
+        // Compute context chain if edges are available
+        let contextChainIds: string[] | undefined;
+        const edges = data.edges || [];
+        const getNodeIdMap = data.getNodeIdMap;
+        console.log("edges-->", edges);
+
+        if (edges.length > 0 && getNodeIdMap && currentDbNodeId) {
+          try {
+            const nodeIdMap = getNodeIdMap();
+            console.log("nodeIdmap", nodeIdMap);
+            // Build context chain: includes upstream nodes + current node
+            contextChainIds = buildContextChainFromReactFlowId(id, edges, nodeIdMap);
+            console.log("contextChainIds", contextChainIds);
+            // If chain only has current node, we can use the simpler approach
+            if (contextChainIds.length === 1 && contextChainIds[0] === currentDbNodeId) {
+              contextChainIds = undefined; // Fall back to messages array for isolated nodes
+            }
+          } catch (error) {
+            console.error("Failed to compute context chain:", error);
+            // Fall back to messages array on error
+            contextChainIds = undefined;
+          }
+        }
+
+        // Prepare request body
+        const requestBody: {
+          provider: string;
+          model: string;
+          messages?: { role: "user" | "assistant"; content: string }[];
+          currentNodeId?: string;
+          contextChainIds?: string[];
+          userMessage?: string;
+        } = {
+          provider: "groq",
+          model: "llama-3.3-70b-versatile",
+        };
+
+        if (contextChainIds && contextChainIds.length > 0) {
+          // Use context chain approach
+          requestBody.currentNodeId = currentDbNodeId;
+          requestBody.contextChainIds = contextChainIds;
+          requestBody.userMessage = userMsg.text;
+        } else {
+          // Fall back to messages array (backward compatible or isolated node)
+          requestBody.messages = [...messages, userMsg].map((m) => ({
+            role: m.userType === "user" ? "user" : ("assistant" as const),
+            content: m.text,
+          }));
+        }
 
         const res = await fetch(`${API_BASE}/chat`, {
           method: "POST",
           credentials: "include",
           headers: { "Content-type": "application/json" },
-          body: JSON.stringify({
-            provider: "groq",
-            // model: "openai/gpt-oss-120b",
-            model: "llama-3.3-70b-versatile",
-            messages: chatMessages,
-          }),
+          body: JSON.stringify(requestBody),
         });
 
         if (!res.ok || !res.body) {

@@ -75,6 +75,29 @@ const NodeCanvas = () => {
   ];
   const [nodes, setNodes] = useState<Node<{ label: string }>[]>(initialNodes);
   const nodesRef = useRef(nodes);
+  const edgesRef = useRef(edges);
+
+  // Update refs when state changes
+  useEffect(() => {
+    nodesRef.current = nodes;
+  }, [nodes]);
+
+  useEffect(() => {
+    edgesRef.current = edges;
+  }, [edges]);
+
+  // Function to build nodeIdMap (ReactFlow ID -> DB ID)
+  // Use ref to avoid circular dependency - this function doesn't need to change
+  const getNodeIdMap = useCallback((): Map<string, string> => {
+    const map = new Map<string, string>();
+    nodesRef.current.forEach((node) => {
+      const dbNodeId = (node.data as ChatNodeData).dbNodeId;
+      if (dbNodeId) {
+        map.set(node.id, dbNodeId);
+      }
+    });
+    return map;
+  }, []); // No dependencies - uses ref
 
   // Add ref to track if initialization has started
   // const initStarted = useRef(false);
@@ -105,22 +128,56 @@ const NodeCanvas = () => {
   //   }
   // }, [windowDimensions]);
 
-  const onNodesChange = useCallback((changes: NodeChange[]) => {
-    setNodes((nds) => {
-      const updated = applyNodeChanges(changes, nds);
-      // Deep clone
-      return updated.map((node) => ({
-        ...node,
-        position: { ...node.position },
-        data: { ...node.data },
-      }));
-    });
-  }, []);
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      setNodes((nds) => {
+        const updated = applyNodeChanges(changes, nds);
+        // Only update data if needed - don't recreate everything
+        return updated.map((node) => ({
+          ...node,
+          position: { ...node.position },
+          data: {
+            ...(node.data as ChatNodeData),
+            // Only update edges/getNodeIdMap if they're missing
+            edges: (node.data as ChatNodeData).edges ?? edgesRef.current,
+            getNodeIdMap: (node.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
+          },
+        }));
+      });
+      console.log("nodes are set");
+    },
+    [getNodeIdMap]
+  );
 
-  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
-    console.log("changes--", changes);
-    setEdges((eds) => applyEdgeChanges(changes, eds));
-  }, []);
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => {
+      console.log("changes--", changes);
+      setEdges((eds) => {
+        const updated = applyEdgeChanges(changes, eds);
+        edgesRef.current = updated;
+        // Only update nodes if edges actually changed (not just position updates)
+        const hasStructuralChange = changes.some(
+          (change) => change.type === "add" || change.type === "remove" || change.type === "select"
+        );
+
+        if (hasStructuralChange) {
+          // Update all nodes with new edges only when structure changes
+          setNodes((nds) =>
+            nds.map((node) => ({
+              ...node,
+              data: {
+                ...(node.data as ChatNodeData),
+                edges: updated,
+                getNodeIdMap,
+              },
+            }))
+          );
+        }
+        return updated;
+      });
+    },
+    [getNodeIdMap]
+  );
 
   const onConnect = useCallback(
     (params: Connection | Edge) => {
@@ -131,9 +188,36 @@ const NodeCanvas = () => {
       console.log("sourceNode", sourceNode);
       console.log("targetNode", targetNode);
 
-      setEdges((eds) => addEdge(params, eds));
+      setEdges((eds) => {
+        const updated = addEdge(params, eds);
+        edgesRef.current = updated;
+        // Update all nodes with new edges (edge was added)
+        setNodes((nds) =>
+          nds.map((node) => ({
+            ...node,
+            data: {
+              ...(node.data as ChatNodeData),
+              edges: updated,
+              getNodeIdMap,
+            },
+          }))
+        );
+        return updated;
+      });
+      console.log(":edges:::", edgesRef.current);
+      setNodes((nds) => {
+        return nds.map((node: Node) => ({
+          ...node,
+          data: {
+            ...(node.data as ChatNodeData),
+            // Only update edges/getNodeIdMap if they're missing
+            edges: edgesRef.current,
+            getNodeIdMap: (node.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
+          },
+        }));
+      });
     },
-    [nodes, structuralNodes]
+    [nodes, structuralNodes, getNodeIdMap]
   );
 
   const addChatNode = async () => {
@@ -187,9 +271,14 @@ const NodeCanvas = () => {
           // No conversationId or dbNodeId yet - will be created on first message
           onInitializeNode: initializeNodeInDb, // Pass callback to create DB resources
           onTopHandleClick: addNodeOnHandleClick,
+          edges: edgesRef.current,
+          getNodeIdMap,
         },
       };
-      setNodes((nds) => [...nds, newNode]);
+      setNodes((nds) => {
+        // Just add the new node - don't update all nodes unnecessarily
+        return [...nds, newNode];
+      });
       nodeId++;
     } catch (e) {
       console.log("err", e);
@@ -250,6 +339,9 @@ const NodeCanvas = () => {
                     // conversationId: currentConversationId,
                     // Remove the callback after initialization
                     onInitializeNode: undefined,
+                    // Ensure edges and getNodeIdMap are still present (use existing or current)
+                    edges: (n.data as ChatNodeData).edges ?? edgesRef.current,
+                    getNodeIdMap: (n.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
                   },
                 }
               : n
@@ -264,7 +356,7 @@ const NodeCanvas = () => {
         console.error("Failed to initialize node in DB:", error);
       }
     },
-    [canvasId]
+    [canvasId, addNode, getNodeIdMap]
   );
 
   const addNodeOnHandleClick = useCallback(
@@ -318,6 +410,8 @@ const NodeCanvas = () => {
             setIsPaneInteractive: setIsPanelInteractiveStable,
             onInitializeNode: initializeNodeInDb,
             onTopHandleClick: addNodeOnHandleClickRef.current,
+            edges: edgesRef.current,
+            getNodeIdMap,
           },
         };
         console.log("nwe--nn---", newNode, "pos", handlePosition);
@@ -334,7 +428,22 @@ const NodeCanvas = () => {
           type: "custom", // Use your custom edge type if you have one
         };
 
-        setEdges((eds) => [...eds, newEdge]);
+        setEdges((eds) => {
+          const updated = [...eds, newEdge];
+          edgesRef.current = updated;
+          // Update all nodes with new edges (edge was added)
+          setNodes((nds) =>
+            nds.map((node) => ({
+              ...node,
+              data: {
+                ...(node.data as ChatNodeData),
+                edges: updated,
+                getNodeIdMap,
+              },
+            }))
+          );
+          return updated;
+        });
 
         console.log("🔗 Created new node and edge:", {
           sourceNodeId,
@@ -348,7 +457,7 @@ const NodeCanvas = () => {
         toast("Failed to create node");
       }
     },
-    [setIsPanelInteractiveStable, initializeNodeInDb, structuralNodes]
+    [setIsPanelInteractiveStable, initializeNodeInDb, structuralNodes, getNodeIdMap]
   );
 
   addNodeOnHandleClickRef.current = addNodeOnHandleClick;
@@ -373,11 +482,13 @@ const NodeCanvas = () => {
           setIsPaneInteractive: setIsPanelInteractiveStable,
           initialMessages: node.messages ? [...node.messages] : [],
           onTopHandleClick: addNodeOnHandleClickRef.current,
+          edges: edgesRef.current,
+          getNodeIdMap,
         },
       })),
     // [detail, setIsPanelInteractiveStable]
     // [windowDimensions, setIsPanelInteractiveStable]
-    [setIsPanelInteractiveStable]
+    [setIsPanelInteractiveStable, getNodeIdMap]
   );
 
   useEffect(() => {
@@ -391,7 +502,7 @@ const NodeCanvas = () => {
     setEdges([]);
     nodeId = currentCanvas.nodes?.length + 1 || 1;
     // const hydra = hydrateNodes(detail.nodes);
-    console.log("hydra--", currentCanvas, "struct-nodes", structuralNodes);
+    // console.log("hydra--", currentCanvas, "struct-nodes", structuralNodes);
     const hydratedNodes = hydrateNodes(currentCanvas.nodes);
     nodesRef.current = hydratedNodes;
     setNodes(hydratedNodes);

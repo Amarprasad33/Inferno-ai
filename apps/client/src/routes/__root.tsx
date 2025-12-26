@@ -19,7 +19,7 @@ function RootComponent() {
   const clear = useSessionStore((s) => s.clear);
   const location = useLocation();
   const showSidebar = ["/chat"].some((p) => location.pathname.startsWith(p));
-  console.log("session", session);
+  // console.log("session", session);
 
   useEffect(() => {
     const user = session?.data?.user;
