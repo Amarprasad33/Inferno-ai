@@ -1,9 +1,10 @@
 export type AIProvider = "openai" | "groq" | "anthropic"; // extend as needed
 
 export type AIModel = {
-  id: string; // e.g., "llama-3.3-70b-versatile"
-  name: string; // Display name
+  id: string;
+  displayName: string; // Display displayName
   provider: AIProvider;
+  subProvider?: string;
   description?: string;
   maxTokens?: number;
   available?: boolean; // For feature flags
@@ -12,22 +13,66 @@ export type AIModel = {
 export const AI_MODELS: Record<AIProvider, AIModel[]> = {
   groq: [
     {
-      id: "llama-3.3-70b-versatile",
-      name: "Llama 3.3 70B Versatile",
+      id: "groq/compound",
+      displayName: "Compound",
       provider: "groq",
-      description: "Fast and versatile model",
+      subProvider: "Groq",
+      description: "",
+    },
+    {
+      id: "groq/compound-mini",
+      displayName: "Compound Mini",
+      provider: "groq",
+      subProvider: "Groq",
+      description: "",
     },
     {
       id: "llama-3.1-8b-instant",
-      name: "Llama 3.1 8B Instant",
+      displayName: "Llama 3.1 8B",
       provider: "groq",
+      subProvider: "Meta",
+      description: "",
     },
+    {
+      id: "llama-3.3-70b-versatile",
+      displayName: "Llama 3.3 70B",
+      provider: "groq",
+      subProvider: "Meta",
+      description: "",
+    },
+    {
+      id: "meta-llama/llama-guard-4-12b",
+      displayName: "Llama Guard 4 12B",
+      provider: "groq",
+      subProvider: "Meta",
+      description: "",
+    },
+    {
+      id: "openai/gpt-oss-20b",
+      displayName: "GPT OSS 20B",
+      provider: "groq",
+      subProvider: "OpenAI",
+      description: "",
+    },
+    {
+      id: "openai/gpt-oss-120b",
+      displayName: "GPT OSS 120B",
+      provider: "groq",
+      subProvider: "OpenAI",
+      description: "",
+    },
+
     // Add more...
   ],
   openai: [
     {
       id: "gpt-4o",
-      name: "GPT-4o",
+      displayName: "GPT-4o",
+      provider: "openai",
+    },
+    {
+      id: "gpt-5.1",
+      displayName: "GPT-5",
       provider: "openai",
     },
     // Add more...

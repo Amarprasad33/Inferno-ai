@@ -339,7 +339,7 @@ const ChatNode = memo(
           </div>
           {/* Input */}
           <textarea
-            className="nodrag flex-shrink-0 text-zinc-300 outline-none bg-[#1D1E20]/90 border border-white/5 px-3 py-3 rounded-lg"
+            className="nodrag shrink-0 text-zinc-300 outline-none bg-[#1D1E20]/90 border border-white/5 px-3 py-3 rounded-lg"
             placeholder="Ask a question.."
             style={{
               width: "100%",
