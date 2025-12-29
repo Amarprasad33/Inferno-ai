@@ -12,6 +12,10 @@ import { InfernoLogoLarge } from "@/icons";
 import { useSessionStore } from "@/stores/session-store";
 import { Button } from "./ui/button";
 import { buildContextChainFromReactFlowId } from "@/lib/context-graph";
+import { ChevronDown } from "lucide-react";
+import { ERROR_CODE, responseToError, standardizeApiError } from "@/lib/error";
+import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover-custom";
 
 // Update the type for our node data to include the new function
 export type ChatNodeData = {
@@ -147,7 +151,8 @@ const ChatNode = memo(
         });
 
         if (!res.ok || !res.body) {
-          throw new Error(await res.text().catch(() => `HTTP ${res.status}`));
+          // throw new Error(await res.text().catch(() => `HTTP ${res.status}`));
+          throw await responseToError(res);
         }
 
         // Stream text response
@@ -196,6 +201,36 @@ const ChatNode = memo(
         console.log("err", er);
         // Remove thinking message on error
         setMessages((prev) => prev.filter((m) => !m.isThinking));
+        const apiErr = standardizeApiError(er);
+        console.log("apiErr--", apiErr);
+        if (
+          apiErr.code === ERROR_CODE.BAD_REQUEST &&
+          apiErr.message.includes("No API key stored for provider")
+        ) {
+          toast("API key required", {
+            description: "Add an API key for your AI provider to start chatting.",
+            action: {
+              label: "Add keys",
+              onClick: () => {
+                window.location.href = "/account/your_keys";
+              },
+            },
+          });
+        } else if (apiErr.code === ERROR_CODE.UNAUTHORIZED) {
+          toast("Sign in required", {
+            description: "Please sign in to continue.",
+            action: {
+              label: "Sign in",
+              onClick: () => {
+                window.location.href = "/signin";
+              },
+            },
+          });
+        } else {
+          toast("Unable to send message", {
+            description: apiErr.message,
+          });
+        }
       } finally {
         setLoading(false);
       }
@@ -225,9 +260,9 @@ const ChatNode = memo(
     const normalizeMessages = (messages?: ChatNodeData["initialMessages"]) =>
       messages && messages.length > 0
         ? messages.map((msg: { role: "user" | "assistant" | "system"; content: string }) => ({
-            text: msg.content,
-            userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
-          }))
+          text: msg.content,
+          userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
+        }))
         : [];
 
     useEffect(() => {
@@ -308,11 +343,10 @@ const ChatNode = memo(
               <div
                 key={idx}
                 className={`rounded-lg break-words select-text cursor-text selection:bg-white selection:text-black
-                                ${
-                                  msg.userType === "user"
-                                    ? "bg-zinc-700 text-zinc-100 self-end max-w-[70%] mx-[2px] p-2"
-                                    : "bg-inherit text-zinc-300 self-start flex-1 max-w-[99%] mx-[2px]"
-                                }`}
+                                ${msg.userType === "user"
+                    ? "bg-zinc-700 text-zinc-100 self-end max-w-[70%] mx-[2px] p-2"
+                    : "bg-inherit text-zinc-300 self-start flex-1 max-w-[99%] mx-[2px]"
+                  }`}
               >
                 {/* <div
                   className={msg.userType === "assistant" ? "assistant" : "user"}
@@ -339,7 +373,7 @@ const ChatNode = memo(
           </div>
           {/* Input */}
           <textarea
-            className="nodrag shrink-0 text-zinc-300 outline-none bg-[#1D1E20]/90 border border-white/5 px-3 py-3 rounded-lg"
+            className="nodrag shrink-0 text-sm text-zinc-300 outline-none bg-[#1D1E20]/90 border border-white/5 px-3 py-3 rounded-lg"
             placeholder="Ask a question.."
             style={{
               width: "100%",
@@ -355,9 +389,29 @@ const ChatNode = memo(
             onMouseEnter={() => data.setIsPaneInteractive(false)}
             onMouseLeave={() => data.setIsPaneInteractive(true)}
           />
-          <Button className="rounded-sm absolute bottom-4 right-4 ![padding:0px_7px]" onClick={handleSend}>
+          <div className="absolute bottom-4 left-4">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button className="rounded-sm p-[0px_7px] bg-inherit hover:bg-[#292A2D]" onClick={handleSend}>
+                  <svg className="w-[22px]! h-[22px]!" width="18" height="21" viewBox="0 0 18 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 5.15701L8.9337 10.314V20.628L17.8674 15.471V5.15701L8.9337 0L0 5.15701Z" fill="#4B4B4B" />
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.9337 20.628L0 15.471V5.15701L8.9337 0V10.314L17.8674 15.471L8.9337 20.628Z" fill="#4B4B4B" />
+                    <rect width="10.3153" height="10.314" transform="matrix(0.866062 0.499937 0 1 0 5.15698)" fill="white" />
+                  </svg>
+                  <span className="text-sm text-white font-normal">Gemini 3 Pro</span>
+                  <ChevronDown className="text-white" />
+                </Button>
+              </PopoverTrigger>
+
+              <PopoverContent align="start" className="max-w-[200px] " >
+                Compound mini
+              </PopoverContent>
+
+            </Popover>
+          </div>
+          <Button className="rounded-sm absolute bottom-4 right-4 p-[0px_7px]!" onClick={handleSend}>
             <svg
-              className="!w-[22px] !h-[22px]"
+              className="w-[22px]! h-[22px]!"
               width="16"
               height="16"
               viewBox="0 0 16 16"

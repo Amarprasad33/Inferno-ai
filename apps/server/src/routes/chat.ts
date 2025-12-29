@@ -119,21 +119,26 @@ chat.post("/", requireAuth, async (c) => {
         500
       );
     }
+  } else {
+    return c.json(
+      { error: `No API key stored for provider "${provider}"` },
+      400
+    );
   }
   // This for devleopment purpose - Omit this in prod
-  else {
-    // Fallback to env vars
-    console.log("Fallback-to-env - API keys");
-    if (provider === "openai") apiKey = process.env.OPENAI_API_KEY;
-    else if (provider === "groq") apiKey = process.env.GROQ_API_KEY;
+  // else {
+  //   // Fallback to env vars
+  //   console.log("Fallback-to-env - API keys");
+  //   if (provider === "openai") apiKey = process.env.OPENAI_API_KEY;
+  //   else if (provider === "groq") apiKey = process.env.GROQ_API_KEY;
 
-    if (!apiKey) {
-      return c.json(
-        { error: `No API key stored for provider "${provider}"` },
-        400
-      );
-    }
-  }
+  //   if (!apiKey) {
+  //     return c.json(
+  //       { error: `No API key stored for provider "${provider}"` },
+  //       400
+  //     );
+  //   }
+  // }
   console.log("provider----->>   ", provider);
   // Build provider client
   let modelFactory: (id: string) => any;
