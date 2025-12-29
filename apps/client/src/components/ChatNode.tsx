@@ -16,6 +16,8 @@ import { ChevronDown } from "lucide-react";
 import { ERROR_CODE, responseToError, standardizeApiError } from "@/lib/error";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover-custom";
+import { getAllProviders, getModelsByProvider, type AIModel, type AIProvider } from "@/lib/config/ai-models";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 // Update the type for our node data to include the new function
 export type ChatNodeData = {
@@ -53,6 +55,14 @@ const ChatNode = memo(
     const { loadCanvases } = useCanvasStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const { user } = useSessionStore();
+
+    const [selectedProvider, setSelectedProvider] = useState<AIProvider | null>(null);
+    const [selectedModel, setSelectedModel] = useState<string | null>(null);
+
+    const availableModels = selectedProvider ? getModelsByProvider(selectedProvider) : [];
+    const selectedModelData =
+      selectedProvider && selectedModel ? availableModels.find((m) => m.id === selectedModel) : null;
+    // const { data: availableProviders = [] } = useProvidersQuery();
 
     const handleSend = async () => {
       if (input.trim() === "" || loading) return;
@@ -203,10 +213,7 @@ const ChatNode = memo(
         setMessages((prev) => prev.filter((m) => !m.isThinking));
         const apiErr = standardizeApiError(er);
         console.log("apiErr--", apiErr);
-        if (
-          apiErr.code === ERROR_CODE.BAD_REQUEST &&
-          apiErr.message.includes("No API key stored for provider")
-        ) {
+        if (apiErr.code === ERROR_CODE.BAD_REQUEST && apiErr.message.includes("No API key stored for provider")) {
           toast("API key required", {
             description: "Add an API key for your AI provider to start chatting.",
             action: {
@@ -260,9 +267,9 @@ const ChatNode = memo(
     const normalizeMessages = (messages?: ChatNodeData["initialMessages"]) =>
       messages && messages.length > 0
         ? messages.map((msg: { role: "user" | "assistant" | "system"; content: string }) => ({
-          text: msg.content,
-          userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
-        }))
+            text: msg.content,
+            userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
+          }))
         : [];
 
     useEffect(() => {
@@ -343,10 +350,11 @@ const ChatNode = memo(
               <div
                 key={idx}
                 className={`rounded-lg break-words select-text cursor-text selection:bg-white selection:text-black
-                                ${msg.userType === "user"
-                    ? "bg-zinc-700 text-zinc-100 self-end max-w-[70%] mx-[2px] p-2"
-                    : "bg-inherit text-zinc-300 self-start flex-1 max-w-[99%] mx-[2px]"
-                  }`}
+                                ${
+                                  msg.userType === "user"
+                                    ? "bg-zinc-700 text-zinc-100 self-end max-w-[70%] mx-[2px] p-2"
+                                    : "bg-inherit text-zinc-300 self-start flex-1 max-w-[99%] mx-[2px]"
+                                }`}
               >
                 {/* <div
                   className={msg.userType === "assistant" ? "assistant" : "user"}
@@ -389,24 +397,101 @@ const ChatNode = memo(
             onMouseEnter={() => data.setIsPaneInteractive(false)}
             onMouseLeave={() => data.setIsPaneInteractive(true)}
           />
-          <div className="absolute bottom-4 left-4">
+          {/* Model selection */}
+          <div className="nodrag absolute bottom-4 left-4">
             <Popover>
               <PopoverTrigger asChild>
                 <Button className="rounded-sm p-[0px_7px] bg-inherit hover:bg-[#292A2D]" onClick={handleSend}>
-                  <svg className="w-[22px]! h-[22px]!" width="18" height="21" viewBox="0 0 18 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 5.15701L8.9337 10.314V20.628L17.8674 15.471V5.15701L8.9337 0L0 5.15701Z" fill="#4B4B4B" />
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.9337 20.628L0 15.471V5.15701L8.9337 0V10.314L17.8674 15.471L8.9337 20.628Z" fill="#4B4B4B" />
-                    <rect width="10.3153" height="10.314" transform="matrix(0.866062 0.499937 0 1 0 5.15698)" fill="white" />
+                  <svg
+                    className="w-[22px]! h-[22px]!"
+                    width="18"
+                    height="21"
+                    viewBox="0 0 18 21"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M0 5.15701L8.9337 10.314V20.628L17.8674 15.471V5.15701L8.9337 0L0 5.15701Z"
+                      fill="#4B4B4B"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M8.9337 20.628L0 15.471V5.15701L8.9337 0V10.314L17.8674 15.471L8.9337 20.628Z"
+                      fill="#4B4B4B"
+                    />
+                    <rect
+                      width="10.3153"
+                      height="10.314"
+                      transform="matrix(0.866062 0.499937 0 1 0 5.15698)"
+                      fill="white"
+                    />
                   </svg>
-                  <span className="text-sm text-white font-normal">Gemini 3 Pro</span>
+                  <span className="text-sm text-white font-normal">
+                    {selectedModelData?.displayName || "Select Model"}
+                  </span>
                   <ChevronDown className="text-white" />
                 </Button>
               </PopoverTrigger>
 
-              <PopoverContent align="start" className="max-w-[200px] " >
-                Compound mini
-              </PopoverContent>
+              <PopoverContent align="start" className="max-w-[200px] ">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-300">Provider</label>
+                  <Select
+                    value={selectedProvider || ""}
+                    onValueChange={(value) => {
+                      const provider = value as AIProvider;
+                      setSelectedProvider(provider);
+                      const models = getModelsByProvider(provider);
+                      if (models.length > 0) {
+                        setSelectedModel(models[0].id);
+                      } else {
+                        setSelectedModel(null);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="bg-[#1D1E20] border-zinc-700 text-zinc-300">
+                      <SelectValue placeholder="Select provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAllProviders().map((provider) => (
+                        <SelectItem key={provider} value={provider} className="text-zinc-300 focus:bg-zinc-700">
+                          {provider.charAt(0).toUpperCase() + provider.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {/* Model selection */}
+                {selectedProvider && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-zinc-300">Model</label>
+                    <Select value={selectedModel || ""} onValueChange={(value) => setSelectedModel(value)}>
+                      <SelectTrigger className="bg-[#1D1E20] border-zinc-700 text-zinc-300">
+                        <SelectValue placeholder="Select model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableModels.map((model) => (
+                          <SelectItem key={model.id} value={model.id} className="text-zinc-300 focus:bg-zinc-700">
+                            <div className="flex flex-col">
+                              <span>{model.displayName}</span>
+                              {model.subProvider && <span className="text-xs text-zinc-500">{model.subProvider}</span>}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
+                {/* {availableProviders.length === 0 && (
+                  <div className="text-sm text-zinc-400 text-center py-2">
+                    No API keys configured. Add keys in settings.
+                  </div>
+                )} */}
+              </PopoverContent>
             </Popover>
           </div>
           <Button className="rounded-sm absolute bottom-4 right-4 p-[0px_7px]!" onClick={handleSend}>
