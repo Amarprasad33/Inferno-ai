@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover-custom";
 import { getAllProviders, getModelsByProvider, type AIModel, type AIProvider } from "@/lib/config/ai-models";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { useProvidersQuery } from "@/lib/keys-hooks";
 
 // Update the type for our node data to include the new function
 export type ChatNodeData = {
@@ -62,7 +63,19 @@ const ChatNode = memo(
     const availableModels = selectedProvider ? getModelsByProvider(selectedProvider) : [];
     const selectedModelData =
       selectedProvider && selectedModel ? availableModels.find((m) => m.id === selectedModel) : null;
-    // const { data: availableProviders = [] } = useProvidersQuery();
+    const { data: availableProviders = [] } = useProvidersQuery();
+
+    useEffect(() => {
+      console.log("Providers--", availableProviders);
+      if (availableProviders.length > 0 && !selectedProvider) {
+        const firstProvider = availableProviders[0] as AIProvider;
+        setSelectedProvider(firstProvider);
+        const models = getModelsByProvider(firstProvider);
+        if (models.length > 0) {
+          setSelectedModel(models[0].id);
+        }
+      }
+    }, [availableProviders, selectedProvider]);
 
     const handleSend = async () => {
       if (input.trim() === "" || loading) return;
@@ -411,14 +424,14 @@ const ChatNode = memo(
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
                       d="M0 5.15701L8.9337 10.314V20.628L17.8674 15.471V5.15701L8.9337 0L0 5.15701Z"
                       fill="#4B4B4B"
                     />
                     <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
                       d="M8.9337 20.628L0 15.471V5.15701L8.9337 0V10.314L17.8674 15.471L8.9337 20.628Z"
                       fill="#4B4B4B"
                     />
@@ -456,7 +469,7 @@ const ChatNode = memo(
                       <SelectValue placeholder="Select provider" />
                     </SelectTrigger>
                     <SelectContent>
-                      {getAllProviders().map((provider) => (
+                      {availableProviders.map((provider) => (
                         <SelectItem key={provider} value={provider} className="text-zinc-300 focus:bg-zinc-700">
                           {provider.charAt(0).toUpperCase() + provider.slice(1)}
                         </SelectItem>
@@ -486,11 +499,11 @@ const ChatNode = memo(
                   </div>
                 )}
 
-                {/* {availableProviders.length === 0 && (
+                {availableProviders.length === 0 && (
                   <div className="text-sm text-zinc-400 text-center py-2">
                     No API keys configured. Add keys in settings.
                   </div>
-                )} */}
+                )}
               </PopoverContent>
             </Popover>
           </div>
