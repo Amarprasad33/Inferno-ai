@@ -490,7 +490,6 @@ const ChatNode = memo(
                           <SelectItem key={model.id} value={model.id} className="text-zinc-300 focus:bg-zinc-700">
                             <div className="flex flex-col">
                               <span>{model.displayName}</span>
-                              {model.subProvider && <span className="text-xs text-zinc-500">{model.subProvider}</span>}
                             </div>
                           </SelectItem>
                         ))}
