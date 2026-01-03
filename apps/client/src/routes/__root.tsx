@@ -1,4 +1,4 @@
-import { createRootRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { useSession } from "@/lib/auth-client";
@@ -8,12 +8,13 @@ import { useSessionStore } from "@/stores/session-store";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { signOut } from "@/lib/auth-client";
-import { InfernoLogo } from "@/icons";
+import { InfernoLogoSmall } from "@/icons";
 
 function RootComponent() {
   // const { data, isLoading } = useSession();
   // console.log("data", data);
   // console.log("data--load", isLoading);
+  const navigate = useNavigate();
   const session = useSession();
   const setSession = useSessionStore((s) => s.setSession);
   const clear = useSessionStore((s) => s.clear);
@@ -50,24 +51,43 @@ function RootComponent() {
     <>
       <SidebarProvider>
         <div className="min-h-screen w-full">
-          <div className="app-bar p-2 flex justify-center border-b border-[#3f3f3f] bg-zinc-950 relative z-10">
+          <div className="app-bar sticky top-0 px-2 py-3 flex justify-center border-b border-[#222224] bg-zinc-950 z-40">
             <div className="flex gap-2 justify-between items-center min-w-md max-w-[1140px] w-3/4">
-              <div className="flex gap-2 items-center">
-                <InfernoLogo className="w-7 h-7" />
-                <div>Inferno</div>
+              <div className="flex gap-2 items-center cursor-pointer" onClick={() => navigate({ to: "/" })}>
+                <span className="bg-white p-[6px] rounded-[8px]">
+                  <InfernoLogoSmall className="w-6 h-6 text-black " />
+                </span>
+                <div className="font-space-grotesk font-semibold text-2xl">
+                  Inferno<span className="text-[#297BE6]">AI</span>
+                </div>
               </div>
 
-              <div className="flex gap-6">
-                <Link to="/" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold ">
+              <div className="flex gap-2">
+                <Link
+                  to="/"
+                  className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold "
+                >
                   Home
                 </Link>
-                <Link to="/about" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                <Link
+                  to="/about"
+                  className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold"
+                >
                   About
                 </Link>
-                {/* <Link to="/exp/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                <Link
+                  to="/pricing"
+                  className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold"
+                >
+                  Pricing
+                </Link>
+                {/* <Link to="/exp/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-semibold">
                   Infini
                 </Link> */}
-                <Link to="/chat" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                <Link
+                  to="/chat"
+                  className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold"
+                >
                   Chat
                 </Link>
               </div>
@@ -76,11 +96,11 @@ function RootComponent() {
                   <img
                     src={session.data.user.image}
                     alt={session.data.user.name ? `${session.data.user.name}'s avatar` : "User avatar"}
-                    className="w-6 h-6 rounded-full object-cover"
+                    className="w-7 h-7 rounded-full object-cover"
                   />
                 ) : (
                   session.data?.user && (
-                    <div className="w-6 h-6 flex items-center justify-center rounded-full bg-zinc-500">
+                    <div className="w-7 h-7 flex items-center justify-center rounded-full bg-zinc-500">
                       {session?.data?.user?.name?.substring(0, 1)}
                     </div>
                   )

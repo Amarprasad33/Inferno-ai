@@ -1,15 +1,22 @@
+import { InfernoLogoSmall } from "@/icons";
+import { useNavigate } from "@tanstack/react-router";
 import { Flame } from "lucide-react";
 
 export default function Footer() {
+  const navigate = useNavigate();
   return (
     <footer className="relative bg-black border-t border-zinc-900 pt-16 pb-8 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         <div className="col-span-1">
           <div className="flex items-center gap-2 mb-6">
-            <div className="w-6 h-6 bg-zinc-100 flex items-center justify-center rounded-none">
-              <Flame className="w-4 h-4 text-black fill-black" />
+            <div className="flex gap-2 items-center cursor-pointer" onClick={() => navigate({ to: "/" })}>
+              <span className="bg-white p-[6px] rounded-[8px]">
+                <InfernoLogoSmall className="w-6 h-6 text-black " />
+              </span>
+              <div className="font-space-grotesk font-semibold text-2xl">
+                Inferno<span className="text-[#297BE6]">AI</span>
+              </div>
             </div>
-            <span className="font-bold text-white tracking-tight">Inferno AI</span>
           </div>
           <p className="text-zinc-500 text-sm leading-relaxed">
             The infinite workspace for the next generation of AI orchestration. Designed for power users.

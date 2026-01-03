@@ -13,6 +13,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignupIndexRouteImport } from './routes/signup/index'
 import { Route as SigninIndexRouteImport } from './routes/signin/index'
+import { Route as PricingIndexRouteImport } from './routes/pricing/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as ExpInfiniRouteImport } from './routes/exp/infini'
 import { Route as AccountYour_keysIndexRouteImport } from './routes/account/your_keys/index'
@@ -37,6 +38,11 @@ const SigninIndexRoute = SigninIndexRouteImport.update({
   path: '/signin/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingIndexRoute = PricingIndexRouteImport.update({
+  id: '/pricing/',
+  path: '/pricing/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
   id: '/chat/',
   path: '/chat/',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/exp/infini': typeof ExpInfiniRoute
   '/chat': typeof ChatIndexRoute
+  '/pricing': typeof PricingIndexRoute
   '/signin': typeof SigninIndexRoute
   '/signup': typeof SignupIndexRoute
   '/account/your_keys': typeof AccountYour_keysIndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/exp/infini': typeof ExpInfiniRoute
   '/chat': typeof ChatIndexRoute
+  '/pricing': typeof PricingIndexRoute
   '/signin': typeof SigninIndexRoute
   '/signup': typeof SignupIndexRoute
   '/account/your_keys': typeof AccountYour_keysIndexRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/exp/infini': typeof ExpInfiniRoute
   '/chat/': typeof ChatIndexRoute
+  '/pricing/': typeof PricingIndexRoute
   '/signin/': typeof SigninIndexRoute
   '/signup/': typeof SignupIndexRoute
   '/account/your_keys/': typeof AccountYour_keysIndexRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/exp/infini'
     | '/chat'
+    | '/pricing'
     | '/signin'
     | '/signup'
     | '/account/your_keys'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/exp/infini'
     | '/chat'
+    | '/pricing'
     | '/signin'
     | '/signup'
     | '/account/your_keys'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/exp/infini'
     | '/chat/'
+    | '/pricing/'
     | '/signin/'
     | '/signup/'
     | '/account/your_keys/'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ExpInfiniRoute: typeof ExpInfiniRoute
   ChatIndexRoute: typeof ChatIndexRoute
+  PricingIndexRoute: typeof PricingIndexRoute
   SigninIndexRoute: typeof SigninIndexRoute
   SignupIndexRoute: typeof SignupIndexRoute
   AccountYour_keysIndexRoute: typeof AccountYour_keysIndexRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SigninIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing/': {
+      id: '/pricing/'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chat/': {
       id: '/chat/'
       path: '/chat'
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ExpInfiniRoute: ExpInfiniRoute,
   ChatIndexRoute: ChatIndexRoute,
+  PricingIndexRoute: PricingIndexRoute,
   SigninIndexRoute: SigninIndexRoute,
   SignupIndexRoute: SignupIndexRoute,
   AccountYour_keysIndexRoute: AccountYour_keysIndexRoute,
