@@ -1,4 +1,4 @@
-import { createRootRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet, useLocation, useNavigate, useRouter } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { useSession } from "@/lib/auth-client";
@@ -16,10 +16,12 @@ function RootComponent() {
   // console.log("data--load", isLoading);
   const navigate = useNavigate();
   const session = useSession();
+  const router = useRouter();
   const setSession = useSessionStore((s) => s.setSession);
   const clear = useSessionStore((s) => s.clear);
   const location = useLocation();
   const showSidebar = ["/chat"].some((p) => location.pathname.startsWith(p));
+  const hideTopBar = ["/signin", "/signup", "/chat"].some((p) => location.pathname.startsWith(p));
   // console.log("session", session);
 
   useEffect(() => {
@@ -47,79 +49,86 @@ function RootComponent() {
     clear,
   ]);
 
+  useEffect(() => {
+    router.preloadRoute({ to: "/signin" }).catch(() => {});
+    router.preloadRoute({ to: "/signup" }).catch(() => {});
+  }, [router]);
+
   return (
     <>
       <SidebarProvider>
         <div className="min-h-screen w-full">
-          <div className="app-bar sticky top-0 px-2 py-3 flex justify-center border-b border-[#222224] bg-zinc-950 z-40">
-            <div className="flex gap-2 justify-between items-center min-w-md max-w-[1140px] w-3/4">
-              <div className="flex gap-2 items-center cursor-pointer" onClick={() => navigate({ to: "/" })}>
-                <span className="bg-white p-[6px] rounded-[8px]">
-                  <InfernoLogoSmall className="w-6 h-6 text-black " />
-                </span>
-                <div className="font-space-grotesk font-semibold text-2xl">
-                  Inferno<span className="text-[#297BE6]">AI</span>
+          {!hideTopBar && (
+            <div className="app-bar sticky top-0 px-2 py-3 flex justify-center border-b border-[#222224] bg-zinc-950 z-40">
+              <div className="flex gap-2 justify-between items-center min-w-md max-w-[1140px] w-3/4">
+                <div className="flex gap-2 items-center cursor-pointer" onClick={() => navigate({ to: "/" })}>
+                  <span className="bg-white p-[6px] rounded-[8px]">
+                    <InfernoLogoSmall className="w-6 h-6 text-black " />
+                  </span>
+                  <div className="font-space-grotesk font-semibold text-2xl">
+                    Inferno<span className="text-[#297BE6]">AI</span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex gap-2">
-                <Link
-                  to="/"
-                  className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold "
-                >
-                  Home
-                </Link>
-                <Link
-                  to="/about"
-                  className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold"
-                >
-                  About
-                </Link>
-                <Link
-                  to="/pricing"
-                  className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold"
-                >
-                  Pricing
-                </Link>
-                {/* <Link to="/exp/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-semibold">
+                <div className="flex gap-2">
+                  <Link
+                    to="/"
+                    className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold "
+                  >
+                    Home
+                  </Link>
+                  <Link
+                    to="/about"
+                    className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold"
+                  >
+                    About
+                  </Link>
+                  <Link
+                    to="/pricing"
+                    className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold"
+                  >
+                    Pricing
+                  </Link>
+                  {/* <Link to="/exp/infini" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-semibold">
                   Infini
                 </Link> */}
-                <Link
-                  to="/chat"
-                  className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold"
-                >
-                  Chat
-                </Link>
-              </div>
-              <div className="flex gap-1 items-center">
-                {session && session.data?.user?.image ? (
-                  <img
-                    src={session.data.user.image}
-                    alt={session.data.user.name ? `${session.data.user.name}'s avatar` : "User avatar"}
-                    className="w-7 h-7 rounded-full object-cover"
-                  />
-                ) : (
-                  session.data?.user && (
-                    <div className="w-7 h-7 flex items-center justify-center rounded-full bg-zinc-500">
-                      {session?.data?.user?.name?.substring(0, 1)}
-                    </div>
-                  )
-                )}
-
-                {session && session?.data ? (
-                  <Button variant="ghost" className="px-4 py-[4px]" onClick={() => signOut()}>
-                    Sign Out
-                  </Button>
-                ) : (
-                  <Link to="/signin" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
-                    <Button variant="ghost" className="px-4 py-[4px]">
-                      Sign in
-                    </Button>
+                  <Link
+                    to="/chat"
+                    className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold"
+                  >
+                    Chat
                   </Link>
-                )}
+                </div>
+                <div className="flex gap-1 items-center">
+                  {session && session.data?.user?.image ? (
+                    <img
+                      src={session.data.user.image}
+                      alt={session.data.user.name ? `${session.data.user.name}'s avatar` : "User avatar"}
+                      className="w-7 h-7 rounded-full object-cover"
+                    />
+                  ) : (
+                    session.data?.user && (
+                      <div className="w-7 h-7 flex items-center justify-center rounded-full bg-zinc-500">
+                        {session?.data?.user?.name?.substring(0, 1)}
+                      </div>
+                    )
+                  )}
+
+                  {session && session?.data ? (
+                    <Button variant="ghost" className="px-4 py-[4px]" onClick={() => signOut()}>
+                      Sign Out
+                    </Button>
+                  ) : (
+                    <Link to="/signin" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                      <Button variant="ghost" className="px-4 py-[4px]">
+                        Sign in
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="flex">
             {showSidebar && <AppSidebar />}

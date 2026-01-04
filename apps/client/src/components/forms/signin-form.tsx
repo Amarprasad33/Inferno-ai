@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
+import { GoogleIcon } from "@/icons";
 // import axios from 'axios';
 // import { useRouter } from 'next/navigation';
 // import { MultiSelect } from '../ui/multi-select';
@@ -117,9 +118,15 @@ export default function SigninForm() {
           Sign In
         </Button>
 
+        <div className="w-full relative bg-zinc-800 h-px flex justify-center">
+          <span className="absolute -top-[24px] px-[14px] py-[10px] rounded-full font-semibold text-base bg-zinc-950">
+            or
+          </span>
+        </div>
+
         <Button
           type="button"
-          className="w-full text-zinc-950"
+          className="bg-inherit border border-[#2F2F31] hover:bg-zinc-900 w-full text-zinc-300"
           onClick={async () => {
             try {
               const result = await signIn.social({
@@ -150,7 +157,8 @@ export default function SigninForm() {
             }
           }}
         >
-          Continue with Google
+          <GoogleIcon className="w-5! h-5!" />
+          <span>Continue with Google</span>
         </Button>
       </form>
     </Form>
