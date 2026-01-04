@@ -40,6 +40,7 @@ export default function SignupForm() {
       //     throw new Error('Signup failed');
       //   }
     } catch (error: unknown) {
+      console.log("error", error);
       toast("Signin failed", {
         description: "Something went wrong!",
         action: {

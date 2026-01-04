@@ -34,7 +34,7 @@ export const HtmlChatWindow: React.FC<HtmlChatWindowProps> = ({
   const nodeRef = useRef(null);
 
   // Function to handle sending a message
-  const handleSend = (e: any) => {
+  const handleSend = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
 
