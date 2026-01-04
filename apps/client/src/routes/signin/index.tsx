@@ -9,16 +9,16 @@ export const Route = createFileRoute("/signin/")({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const quotes = [
-    "Your ideas were never linear. Why is your AI?",
-    "Stop thinking in tabs. Start thinking in systems.",
-    "Complex problems deserve more than a single prompt.",
-    "The advantage isn’t smarter AI. It’s how you use it.",
-    "Multiple models. One canvas. Zero limits.",
-    "This isn’t a chat app. It’s a control surface.",
-    "Where simple chats go to die.",
-    "You weren’t meant to think this small.",
-  ];
+  // const quotes = [
+  //   "Your ideas were never linear. Why is your AI?",
+  //   "Stop thinking in tabs. Start thinking in systems.",
+  //   "Complex problems deserve more than a single prompt.",
+  //   "The advantage isn’t smarter AI. It’s how you use it.",
+  //   "Multiple models. One canvas. Zero limits.",
+  //   "This isn’t a chat app. It’s a control surface.",
+  //   "Where simple chats go to die.",
+  //   "You weren’t meant to think this small.",
+  // ];
   return (
     <div className="inset-0 grid grid-cols-1 lg:grid-cols-2 items-center min-h-screen relative">
       <div className="bg-zinc-900 h-full hidden lg:block relative">

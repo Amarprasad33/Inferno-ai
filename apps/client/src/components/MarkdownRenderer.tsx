@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import { memo, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -25,7 +25,7 @@ const MarkdownRenderer = memo(({ content }: { content: string }) => {
       rehypePlugins={[rehypeKatex]}
       components={
         {
-          code({ inline, className, children, ...props }) {
+          code({ inline, className, children, ...props }: React.ComponentProps<"code"> & { inline?: boolean }) {
             const match = /language-(\w+)/.exec(className || "");
             const codeId = `code-${Math.random().toString(36).substr(2, 9)}`;
             const codeString = String(children).replace(/\n$/, "");

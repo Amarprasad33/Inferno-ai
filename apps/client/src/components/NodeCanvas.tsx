@@ -6,8 +6,6 @@ import ChatNode, { type ChatNodeData } from "./ChatNode";
 import { toast } from "sonner";
 import { SidebarTrigger } from "./ui/sidebar";
 import { createCanvas, createNode, type CanvasDetail } from "@/lib/canvas-api";
-// import { appendMessage } from "@/lib/nodes-api";
-// import { createConversation } from "@/lib/conversations-api";
 import { useCanvasStore } from "@/stores/canvas-store";
 import CustomEdge from "./custom/CustomEdge";
 
@@ -37,10 +35,10 @@ const NodeCanvas = () => {
     selectedCanvasId,
     currentCanvas,
     nodes: structuralNodes,
-    nodesById,
     addNode,
-    setNodes: setStructuralNodes,
-    resetNodes,
+    // nodesById,
+    // setNodes: setStructuralNodes,
+    // resetNodes,
   } = useCanvasStore();
 
   // server ids
@@ -114,6 +112,7 @@ const NodeCanvas = () => {
     };
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
+    console.log("windowDimentions--", windowDimensions);
 
     // Cleanup
     return () => window.removeEventListener("resize", updateDimensions);

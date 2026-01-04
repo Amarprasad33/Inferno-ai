@@ -1,8 +1,7 @@
-
-import React, { useEffect, useRef, useState } from 'react';
-import { Stage, Layer, Rect, Text } from 'react-konva';
-import Konva from 'konva';
-import "../routes/exp/infini.css"
+import { useEffect, useRef, useState } from "react";
+import { Stage, Layer, Rect, Text } from "react-konva";
+import Konva from "konva";
+import "../routes/exp/infini.css";
 
 const KonvaCanvas = () => {
   // State for stage position and scale
@@ -29,8 +28,8 @@ const KonvaCanvas = () => {
       }
     }
     updateSize();
-    window.addEventListener('resize', updateSize);
-    return () => window.removeEventListener('resize', updateSize);
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
   }, []);
 
   const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
@@ -68,10 +67,7 @@ const KonvaCanvas = () => {
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="border border-red-600 cursor-grab active:cursor-grabbing h-full w-full"
-    >
+    <div ref={containerRef} className="border border-red-600 cursor-grab active:cursor-grabbing h-full w-full">
       <Stage
         width={dimensions.width}
         height={dimensions.height}
@@ -83,16 +79,16 @@ const KonvaCanvas = () => {
         y={stage.y}
         scaleX={stage.scale.x}
         scaleY={stage.scale.y}
-        id='stage'
-        onDragMove={e => {
-          setStage(prev => ({
+        id="stage"
+        onDragMove={(e) => {
+          setStage((prev) => ({
             ...prev,
             x: e.target.x(),
             y: e.target.y(),
           }));
         }}
-        onDragEnd={e => {
-          setStage(prev => ({
+        onDragEnd={(e) => {
+          setStage((prev) => ({
             ...prev,
             x: e.target.x(),
             y: e.target.y(),
@@ -102,31 +98,11 @@ const KonvaCanvas = () => {
         {/* A Layer is like a transparent canvas sheet for drawing on */}
         <Layer>
           {/* A simple rectangle shape */}
-          <Rect
-            x={20}
-            y={50}
-            width={100}
-            height={100}
-            fill="red"
-            shadowBlur={5}
-          />
+          <Rect x={20} y={50} width={100} height={100} fill="red" shadowBlur={5} />
 
           {/* A welcome text object */}
-          <Text
-            text="Welcome to your AI Canvas!"
-            x={250}
-            y={70}
-            fontSize={24}
-            fontFamily="Calibri"
-            fill="black"
-          />
-          <Text
-            text="Scroll to Zoom, Drag to Pan"
-            x={250}
-            y={100}
-            fontSize={18}
-            fill="grey"
-          />
+          <Text text="Welcome to your AI Canvas!" x={250} y={70} fontSize={24} fontFamily="Calibri" fill="black" />
+          <Text text="Scroll to Zoom, Drag to Pan" x={250} y={100} fontSize={18} fill="grey" />
         </Layer>
       </Stage>
     </div>

@@ -1,6 +1,5 @@
 import { InfernoLogoSmall } from "@/icons";
 import { useNavigate } from "@tanstack/react-router";
-import { Flame } from "lucide-react";
 
 export default function Footer() {
   const navigate = useNavigate();

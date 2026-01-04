@@ -16,7 +16,7 @@ import { ChevronDown } from "lucide-react";
 import { ERROR_CODE, responseToError, standardizeApiError } from "@/lib/error";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover-custom";
-import { getAllProviders, getModelsByProvider, type AIModel, type AIProvider } from "@/lib/config/ai-models";
+import { getModelsByProvider, type AIProvider } from "@/lib/config/ai-models";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { useProvidersQuery } from "@/lib/keys-hooks";
 
