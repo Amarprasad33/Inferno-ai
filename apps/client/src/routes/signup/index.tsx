@@ -24,7 +24,7 @@ function RouteComponent() {
           scale={4}
         />
       </div>
-      <div className="form-container mx-auto my-auto border border-zinc-800  w-[80%] sm:w-[60%] md:w-[40%] lg:w-[30%] max-w-100 px-6 py-8 rounded-xl z-40 bg-zinc-950 flex flex-col">
+      <div className="form-container mx-auto my-auto border border-[#1a1a1a] w-[80%] sm:w-[60%] md:w-[40%] lg:w-[30%] max-w-100 px-6 py-8 z-40 bg-zinc-950 flex flex-col">
         <div className="cursor-pointer block mx-auto mb-2" onClick={() => navigate({ to: "/" })}>
           <InfernoLogoSmall className="text-white" />
         </div>
