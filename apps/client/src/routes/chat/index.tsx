@@ -38,7 +38,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className=" min-h-screen p-1 flex flex-col">
+    <div className=" h-screen p-1 flex flex-col">
       {/* <KonvaCanvas /> */}
       {/* <KonvaCanvasChatGroup /> */}
       <Suspense fallback={<CanvasLoader />}>

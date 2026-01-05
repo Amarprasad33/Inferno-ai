@@ -8,6 +8,7 @@ import { SidebarTrigger } from "./ui/sidebar";
 import { createCanvas, createNode, type CanvasDetail } from "@/lib/canvas-api";
 import { useCanvasStore } from "@/stores/canvas-store";
 import CustomEdge from "./custom/CustomEdge";
+import { PlusIcon } from "lucide-react";
 
 // The options to hide the attribution watermark.
 const proOptions = {
@@ -517,22 +518,25 @@ const NodeCanvas = () => {
   return (
     // --- FIX IS HERE ---
     // The height is now 200% of the viewport height, creating a large scrollable area.
-    <div style={{ height: "100vh", width: "100%", position: "relative", overflow: "hidden" }}>
-      <SidebarTrigger className="absolute top-20 left-5 p-1 rounded-md z-30 bg-zinc-900 hover:bg-zinc-700/30 border border-zinc-800" />
-      <button
-        onClick={addChatNode}
-        className="bg-[rgb(99 99 99 / 5%)] hover:bg-zinc-700/30 rounded-lg border border-zinc-800 backdrop-blur-[1px]"
-        style={{
-          position: "absolute",
-          top: "20px",
-          left: "20px",
-          zIndex: 10,
-          padding: "8px 12px",
-          cursor: "pointer",
-        }}
-      >
-        Add Node
-      </button>
+    <div className="h-screen" style={{ width: "100%", position: "relative", overflow: "hidden" }}>
+      <div className="absolute top-3 left-3 rounded-lg flex items-center gap-3 px-3 py-3 bg-zinc-900 z-5">
+        <SidebarTrigger className="p-3! rounded-md z-30 bg-zinc-900 hover:bg-zinc-700/30 border border-zinc-800" />
+        <button
+          onClick={addChatNode}
+          className="bg-zinc-900 hover:bg-zinc-700/30 rounded-md border border-zinc-800 backdrop-blur-[1px] flex items-center gap-[6px] group"
+          style={{
+            zIndex: 10,
+            padding: "4px 12px",
+            cursor: "pointer",
+          }}
+        >
+          <span className="group-hover:rotate-90 duration-300 ease-out">
+            <PlusIcon className="text-zinc-200 size-5" />
+          </span>
+          Add Node
+        </button>
+      </div>
+
       <ReactFlow
         // onNodeDragStop={(_, node) => {
         //   console.log("node drag stopped", node);
