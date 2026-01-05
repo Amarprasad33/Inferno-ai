@@ -77,7 +77,7 @@ export const HtmlChatWindow: React.FC<HtmlChatWindowProps> = ({
       <div
         ref={nodeRef} // Ref for Draggable
         className={`
-                    absolute flex flex-col w-[320px] bg-white rounded-xl shadow-2xl border border-slate-200
+                    absolute flex flex-col w-[320px] bg-zinc-900 rounded-xl shadow-2xl border border-slate-200
                     transition-all duration-300 ease-in-out
                     ${minimized ? "h-[48px]" : "h-[400px]"}
                 `}
