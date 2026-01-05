@@ -138,8 +138,8 @@ const KonvaCanvasChat = () => {
                 transformOrigin: "top left",
                 width: "300px",
                 padding: "10px",
-                background: "white",
-                border: "1px solid #ccc",
+                background: "#232323",
+                border: "1px solid #3f3f3f",
                 borderRadius: "8px",
                 boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
                 overflow: "auto",
@@ -212,7 +212,7 @@ const KonvaCanvasChat = () => {
               <div style={{ padding: "10px" }}>
                 <textarea
                   placeholder="Type here..."
-                  className="text-zinc-900"
+                  className="text-zinc-300"
                   style={{
                     width: "100%",
                     height: "100px",
