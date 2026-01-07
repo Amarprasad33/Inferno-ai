@@ -30,7 +30,7 @@ function RouteComponent() {
   }, []);
   return (
     <div className="inset-0 grid grid-cols-1 lg:grid-cols-2 items-center min-h-screen relative">
-      <div className="bg-zinc-900 h-full flex lg:block relative items-center justify-center">
+      <div className="bg-zinc-900 h-full hidden lg:flex relative items-center justify-center">
         <GrainGradient
           className="w-full h-full"
           colors={["#297BE6", "#ababab", "#000000"]}
@@ -45,7 +45,7 @@ function RouteComponent() {
         <div className="absolute top-4 left-4 cursor-pointer" onClick={() => navigate({ to: "/" })}>
           <InfernoLogoSmall className="text-white" />
         </div>
-        <div className="absolute top-1/2 left-1/4">{activeQuote}</div>
+        <div className="absolute font-instrument-serif-italic text-4xl">{activeQuote}</div>
       </div>
       <div className="absolute top-4 left-4 cursor-pointer block lg:hidden" onClick={() => navigate({ to: "/" })}>
         <InfernoLogoSmall className="text-white" />

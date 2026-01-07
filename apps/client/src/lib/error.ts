@@ -1,9 +1,10 @@
 import { ZodError } from "zod";
-import { generateErrorMessage } from 'zod-error';
+import { generateErrorMessage } from "zod-error";
 
 export const ERROR_CODE = {
   UNAUTHORIZED: 401,
   BAD_REQUEST: 400,
+  NOT_FOUND: 404,
   UNPROCESSABLE_ENTITY: 422,
   INTERNAL_SERVER_ERROR: 500,
   UNKNOWN: 520,
@@ -12,6 +13,7 @@ export const ERROR_CODE = {
 export const ERROR_NAME = {
   UNAUTHORIZED: "UNAUTHORIZED",
   BAD_REQUEST: "BAD_REQUEST",
+  NOT_FOUND: "NOT_FOUND",
   UNPROCESSABLE_ENTITY: "UNPROCESSABLE_ENTITY",
   INTERNAL_SERVER_ERROR: "INTERNAL_SERVER_ERROR",
   UNKNOWN: "UNKNOWN",
@@ -23,7 +25,7 @@ export type ErrorResponseType = {
   code: number;
   status: false;
   error?: unknown;
-}
+};
 
 export class ErrorHandler extends Error {
   status: false;
@@ -41,18 +43,21 @@ export class ErrorHandler extends Error {
 const mapStatusToCode = (status: number): keyof typeof ERROR_CODE => {
   if (status === 401) return "UNAUTHORIZED";
   if (status === 400) return "BAD_REQUEST";
+  if (status === 404) return "NOT_FOUND";
   if (status === 422) return "UNPROCESSABLE_ENTITY";
   if (status >= 500) return "INTERNAL_SERVER_ERROR";
   return "UNKNOWN";
-}
+};
 
 export async function responseToError(res: Response): Promise<ErrorHandler> {
   const statusCode = mapStatusToCode(res.status);
   let message = "Request failed";
   const bodyText = await res.text();
+  console.log("bodyText", bodyText);
   if (bodyText) {
     try {
       const data = JSON.parse(bodyText);
+      console.log("resToError", data);
       message = (data?.message ?? data?.error ?? data?.detail) || message;
       return new ErrorHandler(message, statusCode, data);
     } catch {
@@ -63,6 +68,7 @@ export async function responseToError(res: Response): Promise<ErrorHandler> {
 }
 
 export function standardizeApiError(error: unknown): ErrorResponseType {
+  console.log("eror", error);
   if (error instanceof ErrorHandler) {
     return { name: error.name, message: error.message, code: error.code, status: false, error: error.error };
   }
@@ -89,7 +95,6 @@ export function standardizeApiError(error: unknown): ErrorResponseType {
     error,
   };
 }
-
 
 /*
  ******** USAGE in conversation-api.ts ********

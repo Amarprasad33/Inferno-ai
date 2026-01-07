@@ -35,7 +35,7 @@ export async function listCanvases() {
 
 export async function getCanvas(id: string) {
   const res = await fetch(`${API_BASE}/api/canvas/${encodeURIComponent(id)}`, { credentials: "include" });
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) throw await responseToError(res);
   return (await res.json()) as CanvasDetail;
 }
 
