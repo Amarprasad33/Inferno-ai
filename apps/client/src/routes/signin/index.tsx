@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import SigninForm from "@/components/forms/signin-form";
 import { GrainGradient } from "@paper-design/shaders-react";
 import { InfernoLogoSmall } from "@/icons";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/signin/")({
   component: RouteComponent,
@@ -9,19 +10,27 @@ export const Route = createFileRoute("/signin/")({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  // const quotes = [
-  //   "Your ideas were never linear. Why is your AI?",
-  //   "Stop thinking in tabs. Start thinking in systems.",
-  //   "Complex problems deserve more than a single prompt.",
-  //   "The advantage isn’t smarter AI. It’s how you use it.",
-  //   "Multiple models. One canvas. Zero limits.",
-  //   "This isn’t a chat app. It’s a control surface.",
-  //   "Where simple chats go to die.",
-  //   "You weren’t meant to think this small.",
-  // ];
+  const quotes = [
+    "Your ideas were never linear. Why is your AI?",
+    "Stop thinking in tabs. Start thinking in systems.",
+    "Complex problems deserve more than a single prompt.",
+    "The advantage isn’t smarter AI. It’s how you use it.",
+    "Multiple models. One canvas. Zero limits.",
+    "This isn’t a chat app. It’s a control surface.",
+    "Where simple chats go to die.",
+    "You weren’t meant to think this small.",
+  ];
+  const [activeQuote, setActiveQuote] = useState(quotes[0]);
+  useEffect(() => {
+    let n = 0;
+    setInterval(() => {
+      setActiveQuote(quotes[n % quotes.length]);
+      n++;
+    }, 2000);
+  }, []);
   return (
     <div className="inset-0 grid grid-cols-1 lg:grid-cols-2 items-center min-h-screen relative">
-      <div className="bg-zinc-900 h-full hidden lg:block relative">
+      <div className="bg-zinc-900 h-full flex lg:block relative items-center justify-center">
         <GrainGradient
           className="w-full h-full"
           colors={["#297BE6", "#ababab", "#000000"]}
@@ -36,6 +45,7 @@ function RouteComponent() {
         <div className="absolute top-4 left-4 cursor-pointer" onClick={() => navigate({ to: "/" })}>
           <InfernoLogoSmall className="text-white" />
         </div>
+        <div className="absolute top-1/2 left-1/4">{activeQuote}</div>
       </div>
       <div className="absolute top-4 left-4 cursor-pointer block lg:hidden" onClick={() => navigate({ to: "/" })}>
         <InfernoLogoSmall className="text-white" />
