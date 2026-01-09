@@ -1,5 +1,13 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import ReactFlow, { Controls, Background, applyNodeChanges, applyEdgeChanges, addEdge, MiniMap } from "reactflow";
+import ReactFlow, {
+  Controls,
+  Background,
+  applyNodeChanges,
+  applyEdgeChanges,
+  addEdge,
+  MiniMap,
+  useReactFlow,
+} from "reactflow";
 import type { Node, Edge, NodeChange, EdgeChange, Connection } from "reactflow";
 import "reactflow/dist/style.css";
 import ChatNode, { type ChatNodeData } from "./ChatNode";
@@ -25,7 +33,26 @@ const edgeTypes = {
 
 let nodeId = 1;
 
-const NodeCanvas = () => {
+const FitViewOnLoad = ({ nodes, shouldFit }: { nodes: Node[]; shouldFit: boolean }) => {
+  const { fitView } = useReactFlow();
+
+  useEffect(() => {
+    if (shouldFit && nodes.length > 0) {
+      console.log("FITTTTTTTT----------------------------------");
+      // Small delay to ensure nodes are rendered in the DOM
+      fitView({
+        padding: 0.2, // 20% padding around nodes
+        minZoom: 0.2,
+        maxZoom: 1.5,
+        duration: 300,
+      });
+    }
+  }, [nodes, shouldFit, fitView]);
+
+  return null; // This component doesn't render anything
+};
+
+const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
   const [edges, setEdges] = useState<Edge[]>([]);
   const [isPaneInteractive, setIsPaneInteractive] = useState(true);
   const [windowDimensions, setWindowDimensions] = useState({
@@ -37,10 +64,13 @@ const NodeCanvas = () => {
     currentCanvas,
     nodes: structuralNodes,
     addNode,
+    setSelectedCanvasId,
+    loadCanvas,
     // nodesById,
     // setNodes: setStructuralNodes,
     // resetNodes,
   } = useCanvasStore();
+  const [shouldFitView, setShouldFitView] = useState(false);
 
   // server ids
   const [canvasId, setCanvasId] = useState<string | null>(null);
@@ -503,6 +533,7 @@ const NodeCanvas = () => {
     nodeId = currentCanvas.nodes?.length + 1 || 1;
     // const hydra = hydrateNodes(detail.nodes);
     // console.log("hydra--", currentCanvas, "struct-nodes", structuralNodes);
+    setShouldFitView(true);
     const hydratedNodes = hydrateNodes(currentCanvas.nodes);
     nodesRef.current = hydratedNodes;
     setNodes(hydratedNodes);
@@ -510,8 +541,49 @@ const NodeCanvas = () => {
 
     return () => {
       setCanvasId(null);
+      setNodes([]);
+      setEdges([]);
+      setShouldFitView(false);
     };
   }, [selectedCanvasId, currentCanvas, hydrateNodes]);
+
+  useEffect(() => {
+    if (!canvasIdFromRoute) return;
+    if (canvasIdFromRoute !== selectedCanvasId && canvasIdFromRoute !== currentCanvas?.canvas?.id) {
+      // Load canvas from route param
+      setSelectedCanvasId(canvasIdFromRoute);
+
+      loadCanvas(canvasIdFromRoute)
+        .then((res) => {
+          console.log("res--", res);
+          if (!res.status) {
+            toast("Canvas not found", {
+              description: "The canvas you're trying to view doesn't exist.",
+            });
+            setSelectedCanvasId(null);
+          }
+        })
+        .catch((err) => {
+          console.log("err - load-Nox canvas", err);
+        });
+    }
+    setShouldFitView(true);
+
+    return () => {
+      setCanvasId(null);
+      setShouldFitView(false);
+    };
+  }, [canvasIdFromRoute]);
+
+  useEffect(() => {
+    if (shouldFitView) {
+      // Reset after a delay so fitView can execute
+      const timer = setTimeout(() => {
+        setShouldFitView(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldFitView]);
 
   // const nodeClassName = (node: typeof ChatNode) => node.type;
 
@@ -578,6 +650,7 @@ const NodeCanvas = () => {
           nodeColor={() => "#7dd3fc"}
           nodeStrokeColor={() => "#1f9cf0"}
         />
+        <FitViewOnLoad nodes={nodes} shouldFit={shouldFitView} />
       </ReactFlow>
     </div>
   );

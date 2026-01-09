@@ -94,6 +94,10 @@ export function AppSidebar() {
     //   console.log("sel--", selectedConversationId, "---", id);
     //   return;
     // }
+    navigate({
+      to: "/chat/$canvasId",
+      params: { canvasId: id },
+    });
     setSelectedCanvasId(id);
     try {
       console.log("detailLoading--", loading);

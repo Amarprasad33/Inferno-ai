@@ -16,6 +16,7 @@ import { Route as SigninIndexRouteImport } from './routes/signin/index'
 import { Route as PricingIndexRouteImport } from './routes/pricing/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as ExpInfiniRouteImport } from './routes/exp/infini'
+import { Route as ChatCanvasIdRouteImport } from './routes/chat/$canvasId'
 import { Route as AccountYour_keysIndexRouteImport } from './routes/account/your_keys/index'
 
 const AboutRoute = AboutRouteImport.update({
@@ -53,6 +54,11 @@ const ExpInfiniRoute = ExpInfiniRouteImport.update({
   path: '/exp/infini',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatCanvasIdRoute = ChatCanvasIdRouteImport.update({
+  id: '/chat/$canvasId',
+  path: '/chat/$canvasId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountYour_keysIndexRoute = AccountYour_keysIndexRouteImport.update({
   id: '/account/your_keys/',
   path: '/account/your_keys/',
@@ -62,6 +68,7 @@ const AccountYour_keysIndexRoute = AccountYour_keysIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/chat/$canvasId': typeof ChatCanvasIdRoute
   '/exp/infini': typeof ExpInfiniRoute
   '/chat': typeof ChatIndexRoute
   '/pricing': typeof PricingIndexRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/chat/$canvasId': typeof ChatCanvasIdRoute
   '/exp/infini': typeof ExpInfiniRoute
   '/chat': typeof ChatIndexRoute
   '/pricing': typeof PricingIndexRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/chat/$canvasId': typeof ChatCanvasIdRoute
   '/exp/infini': typeof ExpInfiniRoute
   '/chat/': typeof ChatIndexRoute
   '/pricing/': typeof PricingIndexRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/chat/$canvasId'
     | '/exp/infini'
     | '/chat'
     | '/pricing'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/chat/$canvasId'
     | '/exp/infini'
     | '/chat'
     | '/pricing'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/chat/$canvasId'
     | '/exp/infini'
     | '/chat/'
     | '/pricing/'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  ChatCanvasIdRoute: typeof ChatCanvasIdRoute
   ExpInfiniRoute: typeof ExpInfiniRoute
   ChatIndexRoute: typeof ChatIndexRoute
   PricingIndexRoute: typeof PricingIndexRoute
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExpInfiniRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/$canvasId': {
+      id: '/chat/$canvasId'
+      path: '/chat/$canvasId'
+      fullPath: '/chat/$canvasId'
+      preLoaderRoute: typeof ChatCanvasIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/account/your_keys/': {
       id: '/account/your_keys/'
       path: '/account/your_keys'
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  ChatCanvasIdRoute: ChatCanvasIdRoute,
   ExpInfiniRoute: ExpInfiniRoute,
   ChatIndexRoute: ChatIndexRoute,
   PricingIndexRoute: PricingIndexRoute,

@@ -21,7 +21,7 @@ type CanvasState = {
   selectedCanvasId: string | null;
   setSelectedCanvasId: (id: string | null) => void;
   loadCanvases: () => Promise<void>;
-  loadCanvas: (id: string) => Promise<void>;
+  loadCanvas: (id: string) => Promise<{ status: boolean; message?: string }>;
   createCanvas: (title?: string) => Promise<Canvas>;
   deleteCanvas: (id: string) => Promise<void>;
   updateTitle: (id: string, title: string) => Promise<void>;
@@ -40,7 +40,6 @@ export const useCanvasStore = create<CanvasState>()(
   devtools(
     persist(
       (set) => {
-
         const handleError = (err: unknown, action: string): ErrorResponseType => {
           console.log("err--[CANVAS]->", err, "action->", action);
           const apiErr = standardizeApiError(err);
@@ -54,8 +53,6 @@ export const useCanvasStore = create<CanvasState>()(
         };
 
         return {
-
-
           canvases: [],
           currentCanvas: null,
           loading: false,
@@ -73,7 +70,7 @@ export const useCanvasStore = create<CanvasState>()(
               const res = await listCanvases();
               set({ canvases: res.canvases });
             } catch (err) {
-              handleError(err, "load your canvases")
+              handleError(err, "load your canvases");
               // console.error("Failed to load canvases:", err);
             } finally {
               set({ loading: false });
@@ -100,8 +97,11 @@ export const useCanvasStore = create<CanvasState>()(
                   messages: n.messages ? n.messages.map((m) => ({ ...m })) : [],
                 })),
               });
+              return { status: true, message: "Chat successfully loaded" };
             } catch (err) {
-              handleError(err, "load this canvas")
+              const errObj = handleError(err, "load this canvas");
+              set({ error: "Failed to load canvas" });
+              return errObj;
               // console.error("Failed to load canvas:", err);
               // set({ error: "Failed to load canvas" });
             } finally {
@@ -118,7 +118,7 @@ export const useCanvasStore = create<CanvasState>()(
               }));
               return newCanvas;
             } catch (err) {
-              handleError(err, "create a canvas")
+              handleError(err, "create a canvas");
               // set({ error: "Failed to create canvas" });
               throw err;
             } finally {
@@ -187,7 +187,7 @@ export const useCanvasStore = create<CanvasState>()(
             });
           },
           resetNodes: () => set({ nodes: [], nodesById: new Map() }),
-        }
+        };
       },
       {
         name: "inferno/canvas-store",
