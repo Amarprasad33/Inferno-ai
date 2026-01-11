@@ -220,6 +220,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
 
       setEdges((eds) => {
         const updated = addEdge(params, eds);
+        // console.log("edges-", updated);
         edgesRef.current = updated;
         // Update all nodes with new edges (edge was added)
         setNodes((nds) =>
@@ -227,25 +228,14 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
             ...node,
             data: {
               ...(node.data as ChatNodeData),
-              edges: updated,
-              getNodeIdMap,
+              edges: [...updated],
+              getNodeIdMap: (node.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
             },
           }))
         );
         return updated;
       });
       console.log(":edges:::", edgesRef.current);
-      setNodes((nds) => {
-        return nds.map((node: Node) => ({
-          ...node,
-          data: {
-            ...(node.data as ChatNodeData),
-            // Only update edges/getNodeIdMap if they're missing
-            edges: edgesRef.current,
-            getNodeIdMap: (node.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
-          },
-        }));
-      });
     },
     [nodes, structuralNodes, getNodeIdMap]
   );

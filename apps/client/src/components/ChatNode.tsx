@@ -78,7 +78,16 @@ const ChatNode = memo(
     }, [availableProviders, selectedProvider]);
 
     const handleSend = async () => {
-      if (input.trim() === "" || loading) return;
+      if (input.trim() === "" || loading) {
+        toast("Your message is empty", {
+          description: "Please type a message before sending!",
+          action: {
+            label: "Ok",
+            onClick: () => {},
+          },
+        });
+        return;
+      }
 
       const messageText = input;
       const userMsg: Message = { text: messageText, userType: "user" };
@@ -540,9 +549,14 @@ const ChatNode = memo(
     const prev = prevProps.data;
     const next = nextProps.data;
 
+    const edgesChanged = prev.edges !== next.edges;
+
     return (
-      prev.label === next.label && prev.dbNodeId === next.dbNodeId && prev.initialMessages === next.initialMessages
-      // Functions are compared by reference, skipping them since they're stable
+      prev.label === next.label &&
+      prev.dbNodeId === next.dbNodeId &&
+      prev.initialMessages === next.initialMessages &&
+      !edgesChanged &&
+      prev.getNodeIdMap === next.getNodeIdMap
     );
   }
 );
