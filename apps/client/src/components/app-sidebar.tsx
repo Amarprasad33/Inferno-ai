@@ -44,14 +44,14 @@ export function AppSidebar() {
   const {
     canvases,
     loading,
-    error,
+    // error,
     // selectedCanvasId,
     setSelectedCanvasId,
     loadCanvases,
     loadCanvas,
     deleteCanvas,
     updateTitle,
-    createCanvas,
+    // createCanvas,
   } = useCanvasStore();
 
   // State for rename dialog
