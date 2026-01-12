@@ -50,8 +50,8 @@ function RootComponent() {
   ]);
 
   useEffect(() => {
-    router.preloadRoute({ to: "/signin" }).catch(() => {});
-    router.preloadRoute({ to: "/signup" }).catch(() => {});
+    router.preloadRoute({ to: "/signin" }).catch(() => { });
+    router.preloadRoute({ to: "/signup" }).catch(() => { });
   }, [router]);
 
   return (

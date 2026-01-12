@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { listProviders, upsertKey, deleteKey } from "./keys-api";
 import { useEffect } from "react";
+import { standardizeApiError } from "./error";
+import { toast } from "sonner";
 
 export const keysQueryKey = ["keys", "providers"];
 
@@ -34,6 +36,10 @@ export function useAddKeyMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: upsertKey,
+    onError: (err) => {
+      const apiErr = standardizeApiError(err);
+      toast("Unable to load providers", { description: apiErr.message });
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: keysQueryKey }),
   });
 }
@@ -42,6 +48,10 @@ export function useDeleteKeyMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: deleteKey,
+    onError: (err) => {
+      const apiErr = standardizeApiError(err);
+      toast("Unable to load providers", { description: apiErr.message });
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: keysQueryKey }),
   });
 }

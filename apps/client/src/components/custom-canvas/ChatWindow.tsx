@@ -30,26 +30,21 @@ export const HtmlChatWindow: React.FC<HtmlChatWindowProps> = ({
   const [minimized, setMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Create a ref for the draggable node to fix findDOMNode error
   const nodeRef = useRef(null);
 
-  // Function to handle sending a message
   const handleSend = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    // Add user's message
     const newMessages = [...messages, { sender: "user", text: input }];
     setMessages(newMessages);
     setInput("");
 
-    // Simulate a bot response after a short delay
     setTimeout(() => {
       setMessages((prev) => [...prev, { sender: "bot", text: "This is a placeholder response." }]);
     }, 1000);
   };
 
-  // Effect to auto-scroll to the latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -62,7 +57,7 @@ export const HtmlChatWindow: React.FC<HtmlChatWindowProps> = ({
   return (
     <Draggable
       handle=".chat-header" // Only allow dragging from the header
-      position={{ x: finalX, y: finalY }} // Controlled position from parent state
+      position={{ x: finalX, y: finalY }}
       onStop={(e, data) => {
         console.log("e", e);
         // When dragging stops, calculate and update the "world" coordinates in the parent
@@ -71,17 +66,17 @@ export const HtmlChatWindow: React.FC<HtmlChatWindowProps> = ({
           y: (data.y - stageY) / stageScale,
         });
       }}
-      scale={finalScale} // Apply the combined scale
-      nodeRef={nodeRef} // Add ref for strict mode compatibility with react-draggable
+      scale={finalScale}
+      nodeRef={nodeRef}
     >
       <div
-        ref={nodeRef} // Ref for Draggable
+        ref={nodeRef}
         className={`
                     absolute flex flex-col w-[320px] bg-zinc-900 rounded-xl shadow-2xl border border-slate-200
                     transition-all duration-300 ease-in-out
                     ${minimized ? "h-[48px]" : "h-[400px]"}
                 `}
-        style={{ transformOrigin: "top left" }} // Ensure scaling happens from the top-left corner
+        style={{ transformOrigin: "top left" }}
       >
         {/* --- Chat Header --- */}
         <div className="chat-header flex items-center justify-between px-4 py-3 bg-slate-800 text-white font-bold rounded-t-xl cursor-grab active:cursor-grabbing">

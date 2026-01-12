@@ -44,7 +44,7 @@ export async function deleteCanvas(id: string) {
     method: "DELETE",
     credentials: "include",
   });
-  if (!res.ok && res.status !== 204) throw new Error(await res.text());
+  if (!res.ok && res.status !== 204) throw await responseToError(res);
 }
 
 export async function updateCanvasTitle(id: string, title: string) {
@@ -54,7 +54,7 @@ export async function updateCanvasTitle(id: string, title: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title }),
   });
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) throw await responseToError(res);
   return (await res.json()) as Canvas;
 }
 
@@ -65,6 +65,6 @@ export async function createNode(canvasId: string, input: { label?: string; prov
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) throw await responseToError(res);
   return (await res.json()) as { id: string; label: string; provider: string; model: string; createdAt: string };
 }
