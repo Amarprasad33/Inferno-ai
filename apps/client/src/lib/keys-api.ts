@@ -1,3 +1,5 @@
+import { responseToError } from "./error";
+
 export const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 export const KEYS_BASE = `${API_BASE}/api/keys`; // or `${API_BASE}/api/keys`
 
@@ -8,7 +10,7 @@ export async function listProviders() {
     method: "GET",
     credentials: "include",
   });
-  if (!res.ok) throw new Error("Failed to fetch providers");
+  if (!res.ok) throw await responseToError(res)
   return (await res.json()) as ProvidersResponse;
 }
 
@@ -19,7 +21,7 @@ export async function upsertKey(input: { provider: string; apiKey: string }) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
-  if (!res.ok) throw new Error("Failed to save key");
+  if (!res.ok) throw await responseToError(res);
 }
 
 export async function deleteKey(provider: string) {
@@ -27,5 +29,5 @@ export async function deleteKey(provider: string) {
     method: "DELETE",
     credentials: "include",
   });
-  if (!res.ok) throw new Error("Failed to delete key");
+  if (!res.ok) throw await responseToError(res);
 }

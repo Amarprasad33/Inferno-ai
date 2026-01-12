@@ -158,10 +158,13 @@ export function AppSidebar() {
             variant="outline"
             onClick={async () => {
               try {
-                const newCanvas = await createCanvas("New Conversation");
-                await loadCanvases();
-                setSelectedCanvasId(newCanvas.id);
-                await loadCanvas(newCanvas.id);
+                // const newCanvas = await createCanvas("New Conversation");
+                // await loadCanvases();
+                setSelectedCanvasId(null);
+                await loadCanvas("");
+                navigate({
+                  to: "/chat",
+                });
               } catch (err) {
                 console.error("Failed to create new conversation:", err);
               }
@@ -197,7 +200,7 @@ export function AppSidebar() {
             </SidebarMenu> */}
             {loading && <SidebarMenuSkeleton />}
             {!loading && canvases.length === 0 && <div>No canvases yet.</div>}
-            {error && <div className="text-red-400 text-xs px-2 py-2">{error}</div>}
+            {/* {error && <div className="text-red-400 text-xs px-2 py-2">{error}</div>} */}
             {canvases.map((canvas) => (
               <SidebarMenuItem key={canvas.id}>
                 <SidebarMenuButton
@@ -245,6 +248,11 @@ export function AppSidebar() {
                             try {
                               e.stopPropagation();
                               await deleteCanvas(canvas.id);
+                              setSelectedCanvasId(null);
+                              await loadCanvas("");
+                              navigate({
+                                to: "/chat",
+                              });
                               // clearIfDeleted(conversation.id);
                             } catch (err) {
                               console.error(err);

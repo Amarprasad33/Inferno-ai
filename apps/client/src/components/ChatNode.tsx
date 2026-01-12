@@ -289,9 +289,9 @@ const ChatNode = memo(
     const normalizeMessages = (messages?: ChatNodeData["initialMessages"]) =>
       messages && messages.length > 0
         ? messages.map((msg: { role: "user" | "assistant" | "system"; content: string }) => ({
-            text: msg.content,
-            userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
-          }))
+          text: msg.content,
+          userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
+        }))
         : [];
 
     useEffect(() => {
@@ -372,11 +372,10 @@ const ChatNode = memo(
               <div
                 key={idx}
                 className={`rounded-lg break-words select-text cursor-text selection:bg-white selection:text-black
-                                ${
-                                  msg.userType === "user"
-                                    ? "bg-zinc-700 text-zinc-100 self-end max-w-[70%] mx-[2px] p-2"
-                                    : "bg-inherit text-zinc-300 self-start flex-1 max-w-[99%] mx-[2px]"
-                                }`}
+                                ${msg.userType === "user"
+                    ? "bg-zinc-700 text-zinc-100 self-end max-w-[70%] mx-[2px] p-2"
+                    : "bg-inherit text-zinc-300 self-start flex-1 max-w-[99%] mx-[2px]"
+                  }`}
               >
                 {/* <div
                   className={msg.userType === "assistant" ? "assistant" : "user"}

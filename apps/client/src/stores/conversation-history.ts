@@ -8,6 +8,7 @@ import {
   type Conversation,
 } from "@/lib/conversations-api";
 import { toast } from "sonner";
+import { ErrorHandler } from "@/lib/error";
 
 type ConversationHistoryState = {
   conversations: Conversation[];
@@ -74,9 +75,11 @@ export const useConversationHistoryStore = create<ConversationHistoryState>()(
               conversations: state.conversations.map((c) => (c.id === id ? updated : c)),
               loading: false,
             }));
-          } catch (err: any) {
-            set({ error: err.message ?? "Failed to rename", loading: false });
-            throw err;
+          } catch (err: unknown) {
+            if (err instanceof ErrorHandler) {
+              set({ error: err.message ?? "Failed to rename", loading: false });
+              throw err;
+            }
           }
         },
         removeConversation: async (id: string) => {
@@ -88,9 +91,11 @@ export const useConversationHistoryStore = create<ConversationHistoryState>()(
               selectedConversationId: state.selectedConversationId === id ? null : state.selectedConversationId,
               loading: false,
             }));
-          } catch (err: any) {
-            set({ error: err.message ?? "Failed to delete", loading: false });
-            throw err;
+          } catch (err: unknown) {
+            if (err instanceof ErrorHandler) {
+              set({ error: err.message ?? "Failed to delete", loading: false });
+              throw err;
+            }
           }
         },
       }),

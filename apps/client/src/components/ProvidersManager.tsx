@@ -25,6 +25,9 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { standardizeApiError } from "@/lib/error";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 const PROVIDERS = ["openai", "groq"]; // keep in sync with server allowlist
 
@@ -47,7 +50,9 @@ export function ProvidersManager() {
       apiKey: "",
     },
   });
-  console.log("prvrs--", providers);
+  useEffect(() => {
+    console.log("prvrs--", providers);
+  }, [providers])
 
   async function onSubmit(data: AddKeySchemaType) {
     try {
@@ -57,6 +62,8 @@ export function ProvidersManager() {
       form.reset();
     } catch (error) {
       console.error("Failed to add API key:", error);
+      const apiErr = standardizeApiError(error);
+      toast("Unable to load providers", { description: apiErr.message });
     }
   }
 

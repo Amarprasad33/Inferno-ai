@@ -17,6 +17,7 @@ import { createCanvas, createNode, type CanvasDetail } from "@/lib/canvas-api";
 import { useCanvasStore } from "@/stores/canvas-store";
 import CustomEdge from "./custom/CustomEdge";
 import { PlusIcon } from "lucide-react";
+import { standardizeApiError } from "@/lib/error";
 
 // The options to hide the attribution watermark.
 const proOptions = {
@@ -246,7 +247,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         description: "Max node limit reached!!",
         action: {
           label: "OK!",
-          onClick: () => {},
+          onClick: () => { },
         },
       });
       return;
@@ -352,18 +353,18 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           prev.map((n) =>
             n.id === nodeId
               ? {
-                  ...n,
-                  data: {
-                    ...(n.data as ChatNodeData),
-                    dbNodeId: nodeData.id,
-                    // conversationId: currentConversationId,
-                    // Remove the callback after initialization
-                    onInitializeNode: undefined,
-                    // Ensure edges and getNodeIdMap are still present (use existing or current)
-                    edges: (n.data as ChatNodeData).edges ?? edgesRef.current,
-                    getNodeIdMap: (n.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
-                  },
-                }
+                ...n,
+                data: {
+                  ...(n.data as ChatNodeData),
+                  dbNodeId: nodeData.id,
+                  // conversationId: currentConversationId,
+                  // Remove the callback after initialization
+                  onInitializeNode: undefined,
+                  // Ensure edges and getNodeIdMap are still present (use existing or current)
+                  edges: (n.data as ChatNodeData).edges ?? edgesRef.current,
+                  getNodeIdMap: (n.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
+                },
+              }
               : n
           )
         );
@@ -390,7 +391,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           description: "Max node limit reached!!",
           action: {
             label: "OK!",
-            onClick: () => {},
+            onClick: () => { },
           },
         });
         console.log("IFFFFF");
@@ -472,9 +473,10 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         });
 
         nodeId++;
-      } catch (e) {
-        console.log("err-", e);
-        toast("Failed to create node");
+      } catch (error) {
+        const apiErr = standardizeApiError(error);
+        toast("Failed to initialize node", { description: apiErr.message });
+        console.log("err-", error);
       }
     },
     [setIsPanelInteractiveStable, initializeNodeInDb, structuralNodes, getNodeIdMap]
