@@ -242,12 +242,12 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
   );
 
   const addChatNode = async () => {
-    if (nodes.length > 5) {
+    if (nodes.length > 9) {
       toast("Cannot create more nodes", {
         description: "Max node limit reached!!",
         action: {
           label: "OK!",
-          onClick: () => { },
+          onClick: () => {},
         },
       });
       return;
@@ -353,18 +353,18 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           prev.map((n) =>
             n.id === nodeId
               ? {
-                ...n,
-                data: {
-                  ...(n.data as ChatNodeData),
-                  dbNodeId: nodeData.id,
-                  // conversationId: currentConversationId,
-                  // Remove the callback after initialization
-                  onInitializeNode: undefined,
-                  // Ensure edges and getNodeIdMap are still present (use existing or current)
-                  edges: (n.data as ChatNodeData).edges ?? edgesRef.current,
-                  getNodeIdMap: (n.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
-                },
-              }
+                  ...n,
+                  data: {
+                    ...(n.data as ChatNodeData),
+                    dbNodeId: nodeData.id,
+                    // conversationId: currentConversationId,
+                    // Remove the callback after initialization
+                    onInitializeNode: undefined,
+                    // Ensure edges and getNodeIdMap are still present (use existing or current)
+                    edges: (n.data as ChatNodeData).edges ?? edgesRef.current,
+                    getNodeIdMap: (n.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
+                  },
+                }
               : n
           )
         );
@@ -386,12 +386,12 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
       // use structural Nodes and nodes combined for the desired result
       console.log("addNode-onHandleClick", sourceNodeId, "nodesssss", nodes);
       console.log("structNodes", structuralNodes);
-      if (nodes.length > 5) {
+      if (nodes.length > 9) {
         toast("Cannot create more nodes!", {
           description: "Max node limit reached!!",
           action: {
             label: "OK!",
-            onClick: () => { },
+            onClick: () => {},
           },
         });
         console.log("IFFFFF");
@@ -632,7 +632,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         ]}
       >
         <Background />
-        <Controls className="absolute top-[50%] left-1" />
+        <Controls className="absolute top-[45%] left-1" />
         <MiniMap
           zoomable
           pannable

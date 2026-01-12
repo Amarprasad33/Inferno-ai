@@ -31,14 +31,14 @@ function RouteComponent() {
 
   if (session.isPending) {
     return (
-      <div className="min-h-screen p-1 flex flex-col border border-rose-400">
+      <div className="min-h-screen flex flex-col">
         <div className="p-4 border bg-zinc-800 h-full flex justify-center items-center">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className=" h-screen p-1 flex flex-col">
+    <div className=" h-screen  flex flex-col">
       {/* <KonvaCanvas /> */}
       {/* <KonvaCanvasChatGroup /> */}
       <Suspense fallback={<CanvasLoader />}>
