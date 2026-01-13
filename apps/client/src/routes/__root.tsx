@@ -50,14 +50,14 @@ function RootComponent() {
   ]);
 
   useEffect(() => {
-    router.preloadRoute({ to: "/signin" }).catch(() => { });
-    router.preloadRoute({ to: "/signup" }).catch(() => { });
+    router.preloadRoute({ to: "/signin", search: { isGuestModePreview: undefined } }).catch(() => {});
+    router.preloadRoute({ to: "/signup" }).catch(() => {});
   }, [router]);
 
   return (
     <>
       <SidebarProvider>
-        <div className="min-h-screen w-full">
+        <div className="min-h-screen w-full selection:bg-white selection:text-black">
           {!hideTopBar && (
             <div className="app-bar sticky top-0 px-2 py-3 flex justify-center border-b border-[#222224] bg-zinc-950 z-40">
               <div className="flex gap-2 justify-between items-center min-w-md max-w-[1140px] w-3/4">
@@ -119,7 +119,11 @@ function RootComponent() {
                       Sign Out
                     </Button>
                   ) : (
-                    <Link to="/signin" className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold">
+                    <Link
+                      to="/signin"
+                      search={{ isGuestModePreview: undefined }}
+                      className="text-[#7b7b7b] [&.active]:text-white [&.active]:font-bold"
+                    >
                       <Button variant="ghost" className="px-4 py-[4px]">
                         Sign in
                       </Button>

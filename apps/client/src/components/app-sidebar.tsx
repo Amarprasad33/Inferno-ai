@@ -106,7 +106,6 @@ export function AppSidebar() {
       await loadCanvas(id);
     } catch (err) {
       console.log("error--", err);
-
     }
     // const convoDetail = await getConversationDetail(id);
     // console.log("conv-Details-----0--", convoDetail);
@@ -138,7 +137,7 @@ export function AppSidebar() {
           description: "Cannot rename this history now! try after sometime.",
           action: {
             label: "Ok",
-            onClick: () => { },
+            onClick: () => {},
           },
         });
       }
@@ -279,26 +278,6 @@ export function AppSidebar() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </SidebarMenuButton>
-                {/* <div className="flex gap-2 px-2 py-1">
-                  <Button size="sm" variant="outline" onClick={async () => handleRenameClick(canvas)}>
-                    Rename
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={async () => {
-                      if (!confirm("Delete this canvas?")) return;
-                      try {
-                        await deleteCanvas(canvas.id);
-                        // clearIfDeleted(conversation.id);
-                      } catch (err) {
-                        console.error(err);
-                      }
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </div> */}
               </SidebarMenuItem>
             ))}
           </SidebarGroupContent>
