@@ -1,6 +1,4 @@
 // components/forms/signin-form.tsx
-"use client";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -12,15 +10,9 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 import { GoogleIcon } from "@/icons";
-// import axios from 'axios';
-// import { useRouter } from 'next/navigation';
-// import { MultiSelect } from '../ui/multi-select';
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-// import { login } from '@/actions/auth.actions';
 
 export default function SigninForm() {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  //   const { toast } = useToast();;
 
   const form = useForm<SigninSchemaType>({
     resolver: zodResolver(signinFormSchema),
@@ -56,12 +48,6 @@ export default function SigninForm() {
           },
         });
       }
-      // if (response.status === 200) {
-      //     toast("Signin successful. Welcome!")
-      //     router.push('/');
-      // } else {
-      //     throw new Error('Signup failed');
-      // }
     } catch (error: unknown) {
       console.log("error", error);
       toast("Signin failed", {

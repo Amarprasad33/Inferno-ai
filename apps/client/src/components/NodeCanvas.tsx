@@ -18,6 +18,8 @@ import { useCanvasStore } from "@/stores/canvas-store";
 import CustomEdge from "./custom/CustomEdge";
 import { PlusIcon } from "lucide-react";
 import { standardizeApiError } from "@/lib/error";
+import { useProvidersQuery } from "@/lib/keys-hooks";
+import { useNavigate } from "@tanstack/react-router";
 
 // The options to hide the attribution watermark.
 const proOptions = {
@@ -106,6 +108,10 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
   const [nodes, setNodes] = useState<Node<{ label: string }>[]>(initialNodes);
   const nodesRef = useRef(nodes);
   const edgesRef = useRef(edges);
+  const { data: availableProviders = [], isLoading } = useProvidersQuery();
+  const navigate = useNavigate();
+  const [hasNoProviderSetup, setHasNoProviderSetup] = useState(true);
+  const hasInitializedRef = useRef(false);
 
   // Update refs when state changes
   useEffect(() => {
@@ -149,6 +155,31 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
     // Cleanup
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
+
+  useEffect(() => {
+    if (!isLoading && availableProviders.length === 0) {
+      setHasNoProviderSetup(true);
+      toast("You have to add keys to chat", {
+        description: "Please configure provider and api-key to chat.",
+        action: {
+          label: "Add",
+          onClick: () => navigate({ to: "/account/your_keys" }),
+        },
+      });
+    } else {
+      setHasNoProviderSetup(false);
+    }
+  }, [availableProviders, navigate, isLoading]);
+  useEffect(() => {
+    console.log("canvasId", canvasIdFromRoute);
+    if (!canvasIdFromRoute && !hasInitializedRef.current && nodes.length === 0) {
+      hasInitializedRef.current = true;
+      addChatNode().catch((error: unknown) => {
+        console.error("Failed to create initial node:", error);
+        hasInitializedRef.current = false;
+      });
+    }
+  }, [canvasIdFromRoute]);
 
   // Update initial node position when window dimensions change
   // useEffect(() => {
@@ -247,7 +278,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         description: "Max node limit reached!!",
         action: {
           label: "OK!",
-          onClick: () => { },
+          onClick: () => {},
         },
       });
       return;
@@ -353,18 +384,18 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           prev.map((n) =>
             n.id === nodeId
               ? {
-                ...n,
-                data: {
-                  ...(n.data as ChatNodeData),
-                  dbNodeId: nodeData.id,
-                  // conversationId: currentConversationId,
-                  // Remove the callback after initialization
-                  onInitializeNode: undefined,
-                  // Ensure edges and getNodeIdMap are still present (use existing or current)
-                  edges: (n.data as ChatNodeData).edges ?? edgesRef.current,
-                  getNodeIdMap: (n.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
-                },
-              }
+                  ...n,
+                  data: {
+                    ...(n.data as ChatNodeData),
+                    dbNodeId: nodeData.id,
+                    // conversationId: currentConversationId,
+                    // Remove the callback after initialization
+                    onInitializeNode: undefined,
+                    // Ensure edges and getNodeIdMap are still present (use existing or current)
+                    edges: (n.data as ChatNodeData).edges ?? edgesRef.current,
+                    getNodeIdMap: (n.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
+                  },
+                }
               : n
           )
         );
@@ -391,7 +422,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           description: "Max node limit reached!!",
           action: {
             label: "OK!",
-            onClick: () => { },
+            onClick: () => {},
           },
         });
         console.log("IFFFFF");
@@ -599,6 +630,14 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           </span>
           Add Node
         </button>
+        {hasNoProviderSetup && (
+          <button
+            className="bg-zinc-900 hover:bg-zinc-700/30 rounded-md border border-zinc-800 flex items-center gap-[6px] z-10 px-3 py-1 cursor-pointer animate-pulse"
+            onClick={() => navigate({ to: "/account/your_keys" })}
+          >
+            Configure keys
+          </button>
+        )}
       </div>
 
       <ReactFlow

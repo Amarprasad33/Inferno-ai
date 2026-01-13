@@ -10,10 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
-import { signUp } from "@/lib/auth-client";
+import { signIn, signUp } from "@/lib/auth-client";
+import { useNavigate } from "@tanstack/react-router";
+import { GoogleIcon } from "@/icons";
 
 export default function SignupForm() {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const navigate = useNavigate();
   //   const { toast } = useToast();
   // const router = useRouter();
 
@@ -33,8 +36,9 @@ export default function SignupForm() {
       console.log("submit-data", data);
       const res = await signUp.email(data);
       console.log("res", res);
+      toast("Signup successful. Welcome!");
+      navigate({ to: "/" });
       //   if (response.status === 200) {
-      //     toast("Signup successful. Welcome!")
       //     router.push('/');
       //   } else {
       //     throw new Error('Signup failed');
@@ -128,6 +132,49 @@ export default function SignupForm() {
 
         <Button type="submit" className="w-full text-zinc-950">
           Sign Up
+        </Button>
+
+        <div className="w-full relative bg-zinc-800 h-px flex justify-center">
+          <span className="absolute -top-[24px] px-[14px] py-[10px] rounded-full font-semibold text-base bg-zinc-950">
+            or
+          </span>
+        </div>
+
+        <Button
+          type="button"
+          className="bg-inherit border border-[#2F2F31] hover:bg-zinc-900 w-full text-zinc-300"
+          onClick={async () => {
+            try {
+              const result = await signIn.social({
+                provider: "google",
+                callbackURL: import.meta.env.VITE_HOME_URL || window.location.origin,
+              });
+
+              // Check if there's an error in the response
+              if (result?.error) {
+                toast("Sign in failed", {
+                  description: result.error.message || "Something went wrong!",
+                  action: {
+                    label: "OK!",
+                    onClick: () => {},
+                  },
+                });
+                return;
+              }
+            } catch (e) {
+              console.error("Sign in error:", e);
+              toast("Something went wrong!", {
+                description: "Please try again after some time.",
+                action: {
+                  label: "OK!",
+                  onClick: () => {},
+                },
+              });
+            }
+          }}
+        >
+          <GoogleIcon className="w-5! h-5!" />
+          <span>Continue with Google</span>
         </Button>
       </form>
     </Form>
