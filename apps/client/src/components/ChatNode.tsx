@@ -58,7 +58,7 @@ const ChatNode = memo(
     const { user } = useSessionStore();
 
     const [selectedProvider, setSelectedProvider] = useState<AIProvider | null>(null);
-    const [selectedModel, setSelectedModel] = useState<string | null>(null);
+    const [selectedModel, setSelectedModel] = useState<string>("");
 
     const availableModels = selectedProvider ? getModelsByProvider(selectedProvider) : [];
     const selectedModelData =
@@ -68,6 +68,7 @@ const ChatNode = memo(
     useEffect(() => {
       console.log("Providers--", availableProviders);
       if (availableProviders.length > 0 && !selectedProvider) {
+        console.log("iff")
         const firstProvider = availableProviders[0] as AIProvider;
         setSelectedProvider(firstProvider);
         const models = getModelsByProvider(firstProvider);
@@ -83,7 +84,16 @@ const ChatNode = memo(
           description: "Please type a message before sending!",
           action: {
             label: "Ok",
-            onClick: () => {},
+            onClick: () => { },
+          },
+        });
+        return;
+      }
+      if (!selectedModel || !selectedProvider) {
+        toast("You have to select a provider and a model", {
+          action: {
+            label: "Ok",
+            onClick: () => { },
           },
         });
         return;
@@ -158,8 +168,8 @@ const ChatNode = memo(
           contextChainIds?: string[];
           userMessage?: string;
         } = {
-          provider: "groq",
-          model: "llama-3.3-70b-versatile",
+          provider: selectedProvider,
+          model: selectedModel,
         };
 
         if (contextChainIds && contextChainIds.length > 0) {
@@ -306,7 +316,7 @@ const ChatNode = memo(
     }, [messages]);
 
     return (
-      <div className="chat-node flex flex-col bg-[#121212] border border-zinc-800 rounded-2xl min-w-[42vw] min-h-[50vh] max-w-[600px]">
+      <div className="chat-node flex flex-col bg-[#121212] border border-zinc-800 rounded-2xl min-w-[42vw] min-h-[50vh] max-w-[740px]">
         <Handle
           id="left-handle"
           type="target"
@@ -356,7 +366,7 @@ const ChatNode = memo(
         <div className="p-2 grow flex flex-col">
           {/* Messages */}
           <div
-            className="nodrag px-20 flex-grow overflow-y-auto space-y-2 w-full flex flex-col gap-3 pb-14 h-[clamp(30vh,40vh,80vh)] cursor-default custom-scrollbar"
+            className="nodrag px-16 flex-grow overflow-y-auto space-y-2 w-full flex flex-col gap-3 pb-14 h-[clamp(30vh,40vh,80vh)] cursor-default custom-scrollbar"
             onMouseEnter={() => data.setIsPaneInteractive(false)}
             onMouseLeave={() => data.setIsPaneInteractive(true)}
           >
@@ -422,7 +432,7 @@ const ChatNode = memo(
           <div className="nodrag absolute bottom-4 left-4">
             <Popover>
               <PopoverTrigger asChild>
-                <Button className="rounded-sm p-[0px_7px] bg-inherit hover:bg-[#292A2D]" onClick={handleSend}>
+                <Button className="rounded-sm p-[0px_7px] bg-inherit hover:bg-[#292A2D]">
                   <svg
                     className="w-[22px]! h-[22px]!"
                     width="18"
@@ -468,8 +478,6 @@ const ChatNode = memo(
                       const models = getModelsByProvider(provider);
                       if (models.length > 0) {
                         setSelectedModel(models[0].id);
-                      } else {
-                        setSelectedModel(null);
                       }
                     }}
                   >
