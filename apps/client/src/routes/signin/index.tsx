@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import SigninForm from "@/components/forms/signin-form";
 import { GrainGradient } from "@paper-design/shaders-react";
 import { InfernoLogoSmall } from "@/icons";
@@ -7,10 +7,15 @@ import { AnimatePresence, motion } from "motion/react";
 
 export const Route = createFileRoute("/signin/")({
   component: RouteComponent,
+  validateSearch: (search: Record<string, unknown>) => ({
+    isGuestModePreview: (search.isGuestModePreview as boolean) || undefined
+  })
 });
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const search = useSearch({ from: '/signin/' });
+  const isGuestModePreview = search?.isGuestModePreview;
   const quotes = useMemo(
     () => [
       "Your ideas were never linear. Why is your AI?",

@@ -39,6 +39,8 @@ import {
 import { InfernoLogoSmall } from "@/icons";
 import { useNavigate } from "@tanstack/react-router";
 import { useSessionStore } from "@/stores/session-store";
+import { standardizeApiError } from "@/lib/error";
+import { toast } from "sonner";
 
 export function AppSidebar() {
   const {
@@ -104,6 +106,7 @@ export function AppSidebar() {
       await loadCanvas(id);
     } catch (err) {
       console.log("error--", err);
+
     }
     // const convoDetail = await getConversationDetail(id);
     // console.log("conv-Details-----0--", convoDetail);
@@ -129,6 +132,17 @@ export function AppSidebar() {
       setNewTitle("");
     } catch (err) {
       console.error(err);
+      const error = standardizeApiError(err);
+      if (!error.status) {
+        toast("Something wrong happened!!", {
+          description: "Cannot rename this history now! try after sometime.",
+          action: {
+            label: "Ok",
+            onClick: () => { },
+          },
+        });
+      }
+      console.log("err-parsed---", error);
     }
   };
 
