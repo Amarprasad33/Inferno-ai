@@ -247,7 +247,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         description: "Max node limit reached!!",
         action: {
           label: "OK!",
-          onClick: () => {},
+          onClick: () => { },
         },
       });
       return;
@@ -353,18 +353,18 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           prev.map((n) =>
             n.id === nodeId
               ? {
-                  ...n,
-                  data: {
-                    ...(n.data as ChatNodeData),
-                    dbNodeId: nodeData.id,
-                    // conversationId: currentConversationId,
-                    // Remove the callback after initialization
-                    onInitializeNode: undefined,
-                    // Ensure edges and getNodeIdMap are still present (use existing or current)
-                    edges: (n.data as ChatNodeData).edges ?? edgesRef.current,
-                    getNodeIdMap: (n.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
-                  },
-                }
+                ...n,
+                data: {
+                  ...(n.data as ChatNodeData),
+                  dbNodeId: nodeData.id,
+                  // conversationId: currentConversationId,
+                  // Remove the callback after initialization
+                  onInitializeNode: undefined,
+                  // Ensure edges and getNodeIdMap are still present (use existing or current)
+                  edges: (n.data as ChatNodeData).edges ?? edgesRef.current,
+                  getNodeIdMap: (n.data as ChatNodeData).getNodeIdMap ?? getNodeIdMap,
+                },
+              }
               : n
           )
         );
@@ -391,7 +391,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           description: "Max node limit reached!!",
           action: {
             label: "OK!",
-            onClick: () => {},
+            onClick: () => { },
           },
         });
         console.log("IFFFFF");
@@ -405,7 +405,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
 
         // Calculate pos for new node based on handle position
         let position: { x: number; y: number };
-        const offSetX = 600;
+        const offSetX = 760;
         const offsetY = 0;
 
         if (handlePosition === "right") {
@@ -492,7 +492,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         position: {
           // x: node?.position?.x ?? getCenterPosition().x + idx * 40,
           // y: node?.position?.y ?? getCenterPosition().y + idx * 40,
-          x: 500 + idx * 600,
+          x: 500 + idx * 760,
           y: 500 + 0,
         },
         data: {
@@ -541,24 +541,24 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
 
   useEffect(() => {
     if (!canvasIdFromRoute) return;
-    if (canvasIdFromRoute !== selectedCanvasId && canvasIdFromRoute !== currentCanvas?.canvas?.id) {
-      // Load canvas from route param
-      setSelectedCanvasId(canvasIdFromRoute);
+    // if (canvasIdFromRoute !== selectedCanvasId && canvasIdFromRoute !== currentCanvas?.canvas?.id) {
+    // Load canvas from route param
+    setSelectedCanvasId(canvasIdFromRoute);
 
-      loadCanvas(canvasIdFromRoute)
-        .then((res) => {
-          console.log("res--", res);
-          if (!res.status) {
-            toast("Canvas not found", {
-              description: "The canvas you're trying to view doesn't exist.",
-            });
-            setSelectedCanvasId(null);
-          }
-        })
-        .catch((err) => {
-          console.log("err - load-Nox canvas", err);
-        });
-    }
+    loadCanvas(canvasIdFromRoute)
+      .then((res) => {
+        console.log("res--", res);
+        if (!res.status) {
+          toast("Canvas not found", {
+            description: "The canvas you're trying to view doesn't exist.",
+          });
+          setSelectedCanvasId(null);
+        }
+      })
+      .catch((err) => {
+        console.log("err - load-Nox canvas", err);
+      });
+    // }
     setShouldFitView(true);
 
     return () => {
