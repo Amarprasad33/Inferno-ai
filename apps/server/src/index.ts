@@ -39,6 +39,7 @@ app.use(
   })
 );
 app.use("/chat/*", authMiddleware);
+
 // auth-session middlware
 app.use("*", async (c, next) => {
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
@@ -77,9 +78,6 @@ app.route("/api/nodes", nodes);
 app.get("/test", async (c) => {
   return c.json({ success: true, message: "Test response" });
 });
-
-// app.route('/auth', auth);
-// app.route('/chat', chat);
 
 const port = Number(process.env.PORT || 3000);
 serve({ fetch: app.fetch, port });

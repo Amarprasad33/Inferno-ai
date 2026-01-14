@@ -74,7 +74,6 @@ keys.get("/", requireAuth, async (c) => {
     where: { userId: user.id },
     select: { provider: true },
   });
-  console.log("rows", rows);
 
   return c.json({ providers: rows.map((r) => r.provider) });
 });

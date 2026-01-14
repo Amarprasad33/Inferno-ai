@@ -71,7 +71,6 @@ chat.post("/", requireAuth, async (c) => {
 
   const provider = body.provider ?? "openai";
 
-  // Determine the messages to send to AI
   let messagesToSend: ChatMessage[];
 
   if (body.contextChainIds && body.userMessage) {
@@ -104,7 +103,7 @@ chat.post("/", requireAuth, async (c) => {
   const keyRow = await prisma.apiKey.findUnique({
     where: { userId_provider: { userId: user.id, provider } },
   });
-  //   console.log("keyRow", keyRow);
+  // console.log("keyRow", keyRow);
 
   let apiKey: string | undefined;
 
@@ -139,8 +138,8 @@ chat.post("/", requireAuth, async (c) => {
   //     );
   //   }
   // }
-  console.log("provider----->>   ", provider);
-  // Build provider client
+  // console.log("provider----->>   ", provider);
+
   let modelFactory: (id: string) => any;
   switch (provider) {
     case "openai":
@@ -158,7 +157,6 @@ chat.post("/", requireAuth, async (c) => {
     messages: messagesToSend,
     temperature: body.temperature,
     // maxTokens: body.maxTokens   // not supported in this version
-    // maxTokens: body.maxTokens
     providerOptions: body.providerOptions,
   });
 
