@@ -46,7 +46,11 @@ type ChatBody = {
 
 chat.post("/", requireAuth, async (c) => {
   const user = c.get("user")!;
-  const body = (await c.req.json().catch(() => null)) as ChatBody | null;
+  const body = (await c.req
+    .json()
+    .catch(() =>
+      c.json({ error: "Invalid JSON body" }, 400)
+    )) as ChatBody | null;
   console.log("body--", body);
 
   if (!body?.model) {

@@ -37,7 +37,9 @@ keys.delete("/:provider", requireAuth, async (c) => {
 
 // Upserting an API key for a provider
 keys.post("/", requireAuth, async (c) => {
-  const body = (await c.req.json().catch(() => null)) as {
+  const body = (await c.req
+    .json()
+    .catch(() => c.json({ error: "Invalid JSON body" }, 400))) as {
     provider?: string;
     apiKey?: string;
   } | null;

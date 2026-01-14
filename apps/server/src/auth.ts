@@ -5,6 +5,9 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
+if (!JWT_SECRET) {
+  throw new Error("Missing env JWT_SECRET, Need jwt secret to auth to work");
+}
 export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:5173",
