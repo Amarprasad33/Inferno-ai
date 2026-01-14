@@ -88,10 +88,9 @@ const KonvaCanvasChat = () => {
   };
 
   const screenPos = transformCanvasToScreen(chatPos);
-  console.log("Group rendering", chatPos); // <== you should see this update during drag
 
   return (
-    <div ref={containerRef} className="border border-red-600 cursor-grab active:cursor-grabbing h-full w-full relative">
+    <div ref={containerRef} className="cursor-grab active:cursor-grabbing h-full w-full relative">
       <Stage
         width={dimensions.width}
         height={dimensions.height}
@@ -160,8 +159,6 @@ const KonvaCanvasChat = () => {
                 }}
                 onMouseDown={(e) => {
                   e.preventDefault();
-                  console.log("mouse-down");
-
                   const initialChatPos = { ...chatPos };
 
                   const stageElement = stageRef.current?.getStage();

@@ -139,7 +139,7 @@ export default function Hero() {
               <motion.div
                 animate={{ y: [0, -4, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-10 left-10 w-48 bg-black border border-zinc-700 p-3 shadow-lg z-10"
+                className="absolute top-10 left-10 w-48 bg-black border border-zinc-800 p-3 shadow-lg z-10"
               >
                 <div className="flex items-center justify-between mb-2 border-b border-zinc-800 pb-1">
                   <span className="text-[10px] font-bold text-zinc-300">INPUT</span>
@@ -153,7 +153,7 @@ export default function Hero() {
               <motion.div
                 animate={{ y: [0, 4, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute top-32 left-32 w-56 bg-black border border-zinc-600 p-3 shadow-lg z-20"
+                className="absolute top-32 left-32 w-56 bg-black border border-zinc-800 p-3 shadow-lg z-20"
               >
                 <div className="flex items-center justify-between mb-2 border-b border-zinc-800 pb-1">
                   <span className="text-[10px] font-bold text-zinc-300">ANALYSIS (CLAUDE-3)</span>
@@ -166,8 +166,45 @@ export default function Hero() {
                 </div>
               </motion.div>
 
+              <motion.div
+                animate={{ y: [0, 4, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                className="absolute top-44 right-48 w-56 bg-black border border-zinc-800 p-3 shadow-lg z-20"
+              >
+                <div className="flex items-center justify-between mb-2 border-b border-zinc-800 pb-1">
+                  <span className="text-[10px] font-bold text-zinc-300">THINKING (GPT-5.2)</span>
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="h-2 w-full bg-zinc-800 rounded-sm" />
+                  <div className="h-2 w-full bg-zinc-800 rounded-sm" />
+                  <div className="h-2 w-5/6 bg-zinc-800 rounded-sm" />
+                </div>
+              </motion.div>
+              <motion.div
+                animate={{ y: [0, -4, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-20 right-10 w-48 bg-black border border-zinc-800 p-3 shadow-lg z-10"
+              >
+                <div className="flex items-center justify-between mb-2 border-b border-zinc-800 pb-1">
+                  <span className="text-[10px] font-bold text-zinc-300">RESULT V2 (GEMINI-3-PRO)</span>
+                  <div className="w-1.5 h-1.5 bg-violet-500 rounded-full" />
+                </div>
+                <div className="h-2 w-full bg-zinc-800 rounded-sm mb-1" />
+                <div className="h-2 w-3/4 bg-zinc-800 rounded-sm" />
+              </motion.div>
+
               {/* Connection Line */}
               <svg className="absolute inset-0 pointer-events-none w-full h-full">
+                <path
+                  d="M 150 70 C 150 120, 200 100, 200 130"
+                  stroke="#52525b"
+                  strokeWidth="1"
+                  fill="none"
+                  strokeDasharray="4 4"
+                />
+              </svg>
+              <svg className="absolute top-20 right-5 pointer-events-none rotate-y-180">
                 <path
                   d="M 150 70 C 150 120, 200 100, 200 130"
                   stroke="#52525b"

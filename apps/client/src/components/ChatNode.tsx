@@ -47,10 +47,7 @@ type Message = {
 
 const ChatNode = memo(
   ({ data, id }: ChatNodeProps) => {
-    // console.log("id-rec", id);
-    const [messages, setMessages] = useState<Message[]>([
-      // { text: "Hello! How can I help you today?", userType: "assistant" },
-    ]);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false); // <-- loading state
     const { loadCanvases } = useCanvasStore();
@@ -66,9 +63,7 @@ const ChatNode = memo(
     const { data: availableProviders = [] } = useProvidersQuery();
 
     useEffect(() => {
-      console.log("Providers--", availableProviders);
       if (availableProviders.length > 0 && !selectedProvider) {
-        console.log("iff")
         const firstProvider = availableProviders[0] as AIProvider;
         setSelectedProvider(firstProvider);
         const models = getModelsByProvider(firstProvider);
@@ -84,7 +79,7 @@ const ChatNode = memo(
           description: "Please type a message before sending!",
           action: {
             label: "Ok",
-            onClick: () => { },
+            onClick: () => {},
           },
         });
         return;
@@ -93,7 +88,7 @@ const ChatNode = memo(
         toast("You have to select a provider and a model", {
           action: {
             label: "Ok",
-            onClick: () => { },
+            onClick: () => {},
           },
         });
         return;
@@ -139,22 +134,18 @@ const ChatNode = memo(
         let contextChainIds: string[] | undefined;
         const edges = data.edges || [];
         const getNodeIdMap = data.getNodeIdMap;
-        console.log("edges-->", edges);
 
         if (edges.length > 0 && getNodeIdMap && currentDbNodeId) {
           try {
             const nodeIdMap = getNodeIdMap();
-            console.log("nodeIdmap", nodeIdMap);
             // Build context chain: includes upstream nodes + current node
             contextChainIds = buildContextChainFromReactFlowId(id, edges, nodeIdMap);
-            console.log("contextChainIds", contextChainIds);
             // If chain only has current node, we can use the simpler approach
             if (contextChainIds.length === 1 && contextChainIds[0] === currentDbNodeId) {
               contextChainIds = undefined; // Fall back to messages array for isolated nodes
             }
           } catch (error) {
             console.error("Failed to compute context chain:", error);
-            // Fall back to messages array on error
             contextChainIds = undefined;
           }
         }
@@ -193,7 +184,6 @@ const ChatNode = memo(
         });
 
         if (!res.ok || !res.body) {
-          // throw new Error(await res.text().catch(() => `HTTP ${res.status}`));
           throw await responseToError(res);
         }
 
@@ -244,7 +234,6 @@ const ChatNode = memo(
         // Remove thinking message on error
         setMessages((prev) => prev.filter((m) => !m.isThinking));
         const apiErr = standardizeApiError(er);
-        console.log("apiErr--", apiErr);
         if (apiErr.code === ERROR_CODE.BAD_REQUEST && apiErr.message.includes("No API key stored for provider")) {
           toast("API key required", {
             description: "Add an API key for your AI provider to start chatting.",
@@ -273,7 +262,8 @@ const ChatNode = memo(
       } finally {
         setLoading(false);
       }
-    }; // Show "thinking" message
+    };
+    // Show "thinking" message
     // setMessages(prev => [
     //     ...prev,
     //     { text: "Bot is thinking...", userType: 'assistant' }
@@ -299,18 +289,18 @@ const ChatNode = memo(
     const normalizeMessages = (messages?: ChatNodeData["initialMessages"]) =>
       messages && messages.length > 0
         ? messages.map((msg: { role: "user" | "assistant" | "system"; content: string }) => ({
-          text: msg.content,
-          userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
-        }))
+            text: msg.content,
+            userType: msg.role === "user" ? ("user" as const) : ("assistant" as const),
+          }))
         : [];
 
     useEffect(() => {
       setMessages(normalizeMessages(data.initialMessages));
     }, [data.initialMessages]);
 
-    useEffect(() => {
-      console.log("chatNode-data", data);
-    }, [data]);
+    // useEffect(() => {
+    //   console.log("chatNode-data", data);
+    // }, [data]);
     useEffect(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
@@ -382,10 +372,11 @@ const ChatNode = memo(
               <div
                 key={idx}
                 className={`rounded-lg break-words select-text cursor-text selection:bg-white selection:text-black
-                                ${msg.userType === "user"
-                    ? "bg-zinc-700 text-zinc-100 self-end max-w-[70%] mx-[2px] p-2"
-                    : "bg-inherit text-zinc-300 self-start flex-1 max-w-[99%] mx-[2px]"
-                  }`}
+                                ${
+                                  msg.userType === "user"
+                                    ? "bg-zinc-700 text-zinc-100 self-end max-w-[70%] mx-[2px] p-2"
+                                    : "bg-inherit text-zinc-300 self-start flex-1 max-w-[99%] mx-[2px]"
+                                }`}
               >
                 {/* <div
                   className={msg.userType === "assistant" ? "assistant" : "user"}

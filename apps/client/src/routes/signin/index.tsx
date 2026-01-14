@@ -4,17 +4,22 @@ import { GrainGradient } from "@paper-design/shaders-react";
 import { InfernoLogoSmall } from "@/icons";
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { toast } from "sonner";
+import type { SigninSchemaType } from "@/lib/auth-schema";
+import { signIn } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
+import { UserStar } from "lucide-react";
 
 export const Route = createFileRoute("/signin/")({
   component: RouteComponent,
   validateSearch: (search: Record<string, unknown>) => ({
-    isGuestModePreview: (search.isGuestModePreview as boolean) || undefined
-  })
+    isGuestModePreview: (search.isGuestModePreview as boolean) || undefined,
+  }),
 });
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const search = useSearch({ from: '/signin/' });
+  const search = useSearch({ from: "/signin/" });
   const isGuestModePreview = search?.isGuestModePreview;
   const quotes = useMemo(
     () => [
@@ -38,6 +43,51 @@ function RouteComponent() {
 
     return () => clearInterval(interval);
   }, [quotes]);
+
+  async function guestSignIn(data: SigninSchemaType) {
+    try {
+      // console.log("submit-data", data);
+
+      const res = await signIn.email(data);
+      if (!res.data) {
+        toast("Signin failed", {
+          description: res.error?.message || "Something went wrong!",
+          action: {
+            label: "OK!",
+            onClick: () => {},
+          },
+        });
+      }
+      if (res.data) {
+        toast("Signin Successful", {
+          description: "Experience the truly infinite chat!!",
+          action: {
+            label: "OK!",
+            onClick: () => navigate({ to: "/chat" }),
+          },
+        });
+        navigate({ to: "/chat" });
+      }
+    } catch (error: unknown) {
+      console.log("error", error);
+      toast("Signin failed", {
+        description: "Something went wrong!",
+        action: {
+          label: "OK!",
+          onClick: () => {},
+        },
+      });
+    }
+  }
+
+  async function signinAsGuest() {
+    const data = {
+      email: import.meta.env.VITE_GUEST_EMAIL,
+      password: import.meta.env.VITE_GUEST_PASSWORD,
+    };
+    await guestSignIn(data);
+  }
+
   return (
     <div className="inset-0 grid grid-cols-1 lg:grid-cols-2 items-center min-h-screen relative">
       <div className="bg-zinc-900 h-full hidden lg:flex relative items-center justify-center">
@@ -84,6 +134,14 @@ function RouteComponent() {
         </div>
         <div className="flex flex-col items-center">
           <SigninForm />
+          {isGuestModePreview && (
+            <div className="w-full flex justify-center mt-3">
+              <Button variant="ghost" className="px-12!" onClick={signinAsGuest}>
+                <UserStar />
+                <span>Sign in as a guest</span>
+              </Button>
+            </div>
+          )}
           <div className="flex gap-2 mt-6">
             <span>Don&apos;t have an account?</span>
             <span

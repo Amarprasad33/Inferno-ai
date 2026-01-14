@@ -22,7 +22,9 @@ export const canvas = new Hono<AppVars>();
 // Create a canvas for the current user
 canvas.post("/", requireAuth, async (c) => {
   const user = c.get("user")!;
-  const { title } = await c.req.json().catch(() => ({}) as any);
+  const { title } = await c.req
+    .json()
+    .catch(() => c.json({ error: "Invalid JSON body" }, 400) as any);
   const rec = await prisma.canvas.create({
     data: {
       ownerId: user.id,
@@ -93,7 +95,9 @@ canvas.delete("/:id", requireAuth, async (c) => {
 canvas.patch("/:id", requireAuth, async (c) => {
   const user = c.get("user")!;
   const id = c.req.param("id");
-  const { title } = await c.req.json().catch(() => ({}) as any);
+  const { title } = await c.req
+    .json()
+    .catch(() => c.json({ error: "Invalid JSON body" }, 400) as any);
 
   if (!title) return c.json({ error: "Title is required" }, 400);
 
@@ -116,7 +120,9 @@ canvas.patch("/:id", requireAuth, async (c) => {
 canvas.post("/:id/nodes", requireAuth, async (c) => {
   const user = c.get("user")!;
   const canvasId = c.req.param("id");
-  const body = (await c.req.json().catch(() => null)) as {
+  const body = (await c.req
+    .json()
+    .catch(() => c.json({ error: "Invalid JSON body" }, 400))) as {
     label?: string;
     provider?: string;
     model?: string;

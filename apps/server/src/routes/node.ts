@@ -21,7 +21,9 @@ export const nodes = new Hono<AppVars>();
 // Create a conversation
 nodes.post("/", requireAuth, async (c) => {
   const user = c.get("user")!;
-  const { label, canvasId, provider, model } = await c.req.json().catch(() => ({}) as any);
+  const { label, canvasId, provider, model } = await c.req
+    .json()
+    .catch(() => c.json({ error: "Invalid JSON body" }, 400) as any);
   console.log("label", label);
   console.log("canvasId", canvasId);
 
@@ -46,7 +48,7 @@ nodes.post("/", requireAuth, async (c) => {
       userId: true,
       label: true,
       canvasId: true,
-      createdAt: true
+      createdAt: true,
     },
   });
   return c.json(conv, 201);
@@ -88,9 +90,9 @@ nodes.get("/:id", requireAuth, async (c) => {
 
   const canvas = node.canvasId
     ? await prisma.canvas.findFirst({
-      where: { id: node.canvasId, ownerId: user.id },
-      select: { id: true, title: true, createdAt: true },
-    })
+        where: { id: node.canvasId, ownerId: user.id },
+        select: { id: true, title: true, createdAt: true },
+      })
     : null;
   if (node.canvasId && !canvas) return c.body(null, 404);
 
@@ -111,16 +113,16 @@ nodes.get("/:id", requireAuth, async (c) => {
   // fetching nodes to send node-wise-messages
   const nodes = node.canvasId
     ? await prisma.node.findMany({
-      where: { canvasId: node.canvasId },
-      orderBy: { createdAt: "asc" },
-      select: {
-        id: true,
-        label: true,
-        provider: true,
-        model: true,
-        createdAt: true,
-      },
-    })
+        where: { canvasId: node.canvasId },
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          label: true,
+          provider: true,
+          model: true,
+          createdAt: true,
+        },
+      })
     : [];
 
   const nodesWithMessages = nodes.map((node) => ({
@@ -150,7 +152,9 @@ nodes.get("/:id", requireAuth, async (c) => {
 nodes.post("/:id/messages", requireAuth, async (c) => {
   const user = c.get("user")!;
   const nodeId = c.req.param("id");
-  const body = (await c.req.json().catch(() => null)) as {
+  const body = (await c.req
+    .json()
+    .catch(() => c.json({ error: "Invalid JSON body" }, 400))) as {
     role?: "user" | "assistant" | "system";
     content?: string;
   } | null;
@@ -219,7 +223,7 @@ nodes.post("/:id/messages", requireAuth, async (c) => {
 // nodes.patch("/:id", requireAuth, async (c) => {
 //   const user = c.get("user");
 //   const id = c.req.param("id");
-//   const body = (await c.req.json().catch(() => null)) as {
+//   const body = (await c.req.json().catch(() => c.json({ error: "Invalid JSON body" }, 400))) as {
 //     title?: string;
 //   } | null;
 //   const title = body?.title?.trim();

@@ -5,10 +5,13 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
+if (!JWT_SECRET) {
+  throw new Error("Missing env JWT_SECRET, Need jwt secret to auth to work");
+}
 export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:5173",
-    "https://xyz-frontend.com", // example Prod frontend
+    "https://xyzwq-frontend.com", // example Prod frontend
   ],
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -21,24 +24,21 @@ export const auth = betterAuth({
     },
     onPasswordReset: async ({ user }, request) => {
       console.log("--------- on-password-reset -------");
-      // e.g., log or notify
+      // log or notify
     },
   },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      prompt: "select_account",
       // optional:
       // accessType: "offline",
-      prompt: "select_account",
     },
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }, request) => {
       // implement email function
-      console.log("---------send-verification----");
-      console.log("user---", user, "url--", url);
-      console.log("request--", request);
     },
   },
   session: {
@@ -66,15 +66,5 @@ export function signJwt(payload: object) {
 }
 
 export async function authMiddleware(c: Context, next: Next) {
-  //   const token = c.req.header('authorization')?.replace('Bearer ', '')
-  //     ?? c.req.cookie('auth');
-  //   if (!token) return c.json({ error: 'unauthorized' }, 401);
-  //   try {
-  //     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-  //     c.set('userId', decoded.userId);
-  //     await next();
-  //   } catch {
-  //     return c.json({ error: 'unauthorized' }, 401);
-  //   }
   await next();
 }

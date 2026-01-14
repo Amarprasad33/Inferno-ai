@@ -41,7 +41,6 @@ export const useCanvasStore = create<CanvasState>()(
     persist(
       (set) => {
         const handleError = (err: unknown, action: string): ErrorResponseType => {
-          console.log("err--[CANVAS]->", err, "action->", action);
           const apiErr = standardizeApiError(err);
           if (apiErr.code === ERROR_CODE.UNAUTHORIZED) {
             set({ error: `Please sign in to ${action}.` });
@@ -71,7 +70,6 @@ export const useCanvasStore = create<CanvasState>()(
               set({ canvases: res.canvases });
             } catch (err) {
               handleError(err, "load your canvases");
-              // console.error("Failed to load canvases:", err);
             } finally {
               set({ loading: false });
             }
@@ -88,7 +86,6 @@ export const useCanvasStore = create<CanvasState>()(
                   messages: n.messages ? n.messages.map((m) => ({ ...m })) : [],
                 })),
               };
-              console.log("detail", detail);
               set({ currentCanvas: clonedDetail });
               // set({ nodes: detail.nodes });
               set({
@@ -102,8 +99,6 @@ export const useCanvasStore = create<CanvasState>()(
               const errObj = handleError(err, "load this canvas");
               set({ error: "Failed to load canvas" });
               return errObj;
-              // console.error("Failed to load canvas:", err);
-              // set({ error: "Failed to load canvas" });
             } finally {
               set({ loading: false });
             }
@@ -119,7 +114,6 @@ export const useCanvasStore = create<CanvasState>()(
               return newCanvas;
             } catch (err) {
               handleError(err, "create a canvas");
-              // set({ error: "Failed to create canvas" });
               throw err;
             } finally {
               set({ loading: false });
@@ -136,7 +130,6 @@ export const useCanvasStore = create<CanvasState>()(
               }));
             } catch (err) {
               handleError(err, "delete this canvas");
-              // set({ error: "Failed to delete canvas" });
               throw err;
             } finally {
               set({ loading: false });

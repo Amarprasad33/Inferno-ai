@@ -53,11 +53,9 @@ export async function responseToError(res: Response): Promise<ErrorHandler> {
   const statusCode = mapStatusToCode(res.status);
   let message = "Request failed";
   const bodyText = await res.text();
-  console.log("bodyText", bodyText);
   if (bodyText) {
     try {
       const data = JSON.parse(bodyText);
-      console.log("resToError", data);
       message = (data?.message ?? data?.error ?? data?.detail) || message;
       return new ErrorHandler(message, statusCode, data);
     } catch {
@@ -68,7 +66,6 @@ export async function responseToError(res: Response): Promise<ErrorHandler> {
 }
 
 export function standardizeApiError(error: unknown): ErrorResponseType {
-  console.log("eror", error);
   if (error instanceof ErrorHandler) {
     return { name: error.name, message: error.message, code: error.code, status: false, error: error.error };
   }

@@ -59,8 +59,6 @@ export const HtmlChatWindow: React.FC<HtmlChatWindowProps> = ({
       handle=".chat-header" // Only allow dragging from the header
       position={{ x: finalX, y: finalY }}
       onStop={(e, data) => {
-        console.log("e", e);
-        // When dragging stops, calculate and update the "world" coordinates in the parent
         onDrag({
           x: (data.x - stageX) / stageScale,
           y: (data.y - stageY) / stageScale,

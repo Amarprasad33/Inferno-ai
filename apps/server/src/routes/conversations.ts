@@ -21,7 +21,9 @@ export const conversations = new Hono<AppVars>();
 // Create a conversation
 conversations.post("/", requireAuth, async (c) => {
   const user = c.get("user")!;
-  const { title, canvasId } = await c.req.json().catch(() => ({}) as any);
+  const { title, canvasId } = await c.req
+    .json()
+    .catch(() => c.json({ error: "Invalid JSON body" }, 400) as any);
   console.log("title", title);
   console.log("canvasId", canvasId);
 
@@ -149,7 +151,7 @@ conversations.post("/", requireAuth, async (c) => {
 // conversations.post("/:id/messages", requireAuth, async (c) => {
 //   const user = c.get("user")!;
 //   const id = c.req.param("id");
-//   const body = (await c.req.json().catch(() => null)) as {
+//   const body = (await c.req.json().catch(() => c.json({ error: "Invalid JSON body" }, 400))) as {
 //     nodeId?: string;
 //     role?: "user" | "assistant" | "system";
 //     content?: string;
@@ -209,7 +211,7 @@ conversations.post("/", requireAuth, async (c) => {
 // conversations.patch("/:id", requireAuth, async (c) => {
 //   const user = c.get("user");
 //   const id = c.req.param("id");
-//   const body = (await c.req.json().catch(() => null)) as {
+//   const body = (await c.req.json().catch(() => c.json({ error: "Invalid JSON body" }, 400))) as {
 //     title?: string;
 //   } | null;
 //   const title = body?.title?.trim();

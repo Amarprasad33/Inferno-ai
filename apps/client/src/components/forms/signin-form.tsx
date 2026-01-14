@@ -1,6 +1,3 @@
-// components/forms/signin-form.tsx
-"use client";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -12,15 +9,9 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 import { GoogleIcon } from "@/icons";
-// import axios from 'axios';
-// import { useRouter } from 'next/navigation';
-// import { MultiSelect } from '../ui/multi-select';
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-// import { login } from '@/actions/auth.actions';
 
 export default function SigninForm() {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  //   const { toast } = useToast();;
 
   const form = useForm<SigninSchemaType>({
     resolver: zodResolver(signinFormSchema),
@@ -34,16 +25,13 @@ export default function SigninForm() {
 
   async function onSubmit(data: SigninSchemaType) {
     try {
-      // console.log("submit-data", data);
-
       const res = await signIn.email(data);
-      console.log("res", res);
       if (!res.data) {
         toast("Signin failed", {
           description: res.error?.message || "Something went wrong!",
           action: {
             label: "OK!",
-            onClick: () => console.log("ok"),
+            onClick: () => {},
           },
         });
       }
@@ -52,23 +40,17 @@ export default function SigninForm() {
           description: "Experience the truly infinite chat!!",
           action: {
             label: "OK!",
-            onClick: () => console.log("ok"),
+            onClick: () => {},
           },
         });
       }
-      // if (response.status === 200) {
-      //     toast("Signin successful. Welcome!")
-      //     router.push('/');
-      // } else {
-      //     throw new Error('Signup failed');
-      // }
     } catch (error: unknown) {
       console.log("error", error);
       toast("Signin failed", {
         description: "Something went wrong!",
         action: {
           label: "OK!",
-          onClick: () => console.log("Undo"),
+          onClick: () => {},
         },
       });
     }

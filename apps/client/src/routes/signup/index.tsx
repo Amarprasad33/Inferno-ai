@@ -38,7 +38,7 @@ function RouteComponent() {
             <span>Already have an account?</span>
             <span
               className="font-medium text-[#297BE6] hover:text-[#6a97dc] hover:underline cursor-pointer"
-              onClick={() => navigate({ to: "/signin" })}
+              onClick={() => navigate({ to: "/signin", search: { isGuestModePreview: undefined } })}
             >
               Sign In
             </span>

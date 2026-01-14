@@ -1,33 +1,13 @@
-// import { useState } from "react";
-import {
-  useProvidersQuery,
-  useAddKeyMutation,
-  useDeleteKeyMutation,
-} from "@/lib/keys-hooks";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
+import { useProvidersQuery, useAddKeyMutation, useDeleteKeyMutation } from "@/lib/keys-hooks";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { standardizeApiError } from "@/lib/error";
 import { toast } from "sonner";
-import { useEffect } from "react";
 
 const PROVIDERS = ["openai", "groq"]; // keep in sync with server allowlist
 
@@ -50,14 +30,11 @@ export function ProvidersManager() {
       apiKey: "",
     },
   });
-  useEffect(() => {
-    console.log("prvrs--", providers);
-  }, [providers])
 
   async function onSubmit(data: AddKeySchemaType) {
     try {
       const res = await addKey.mutateAsync(data);
-      console.log("res-- -add key", res);
+      console.log("added key", res);
 
       form.reset();
     } catch (error) {
@@ -67,8 +44,7 @@ export function ProvidersManager() {
     }
   }
 
-  if (isLoading)
-    return <div className="flex justify-center items-center p-8">Loading…</div>;
+  if (isLoading) return <div className="flex justify-center items-center p-8">Loading…</div>;
 
   return (
     <div className="space-y-8 w-full max-w-md mx-auto">
@@ -76,9 +52,7 @@ export function ProvidersManager() {
       <div className="space-y-6">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-zinc-200">Add API Key</h2>
-          <p className="text-sm text-muted-foreground mt-2">
-            Add your API keys to enable AI providers
-          </p>
+          <p className="text-sm text-muted-foreground mt-2">Add your API keys to enable AI providers</p>
         </div>
 
         <Form {...form}>
@@ -115,25 +89,15 @@ export function ProvidersManager() {
                 <FormItem>
                   <FormLabel>API Key</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your API key"
-                      {...field}
-                    />
+                    <Input type="password" placeholder="Enter your API key" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Your API key will be encrypted and stored securely
-                  </FormDescription>
+                  <FormDescription>Your API key will be encrypted and stored securely</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <Button
-              type="submit"
-              className="w-full text-zinc-950"
-              disabled={addKey.isPending}
-            >
+            <Button type="submit" className="w-full text-zinc-950" disabled={addKey.isPending}>
               {addKey.isPending ? "Adding..." : "Add API Key"}
             </Button>
           </form>
@@ -143,9 +107,7 @@ export function ProvidersManager() {
       {/* Manage API Keys Section */}
       <div className="space-y-6">
         <div className="text-center">
-          <h3 className="text-xl font-semibold text-zinc-700">
-            Manage API Keys
-          </h3>
+          <h3 className="text-xl font-semibold text-zinc-700">Manage API Keys</h3>
           <p className="text-sm text-muted-foreground mt-2">
             {/* {JSON.stringify(providers)} */}
             {providers.length === 0
@@ -157,15 +119,10 @@ export function ProvidersManager() {
         {providers.length > 0 && (
           <div className="space-y-3">
             {providers.map((provider) => (
-              <div
-                key={provider}
-                className="flex items-center justify-between p-4 rounded-lg border"
-              >
+              <div key={provider} className="flex items-center justify-between p-4 rounded-lg border">
                 <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="font-medium capitalize text-zinc-300">
-                    {provider}
-                  </span>
+                  <span className="font-medium capitalize text-zinc-300">{provider}</span>
                 </div>
                 <Button
                   variant="outline"
