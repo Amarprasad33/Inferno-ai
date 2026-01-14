@@ -33,11 +33,18 @@ export default function SignupForm() {
 
   async function onSubmit(data: SignupSchemaType) {
     try {
-      console.log("submit-data", data);
       const res = await signUp.email(data);
-      console.log("res", res);
       toast("Signup successful. Welcome!");
       navigate({ to: "/" });
+      if (!res.data) {
+        toast("Signup failed", {
+          description: res.error?.message || "Something went wrong!",
+          action: {
+            label: "OK!",
+            onClick: () => {},
+          },
+        });
+      }
       //   if (response.status === 200) {
       //     router.push('/');
       //   } else {
@@ -45,7 +52,7 @@ export default function SignupForm() {
       //   }
     } catch (error: unknown) {
       console.log("error", error);
-      toast("Signin failed", {
+      toast("Signup failed", {
         description: "Something went wrong!",
         action: {
           label: "OK!",

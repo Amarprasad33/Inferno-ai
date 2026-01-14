@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { listProviders, upsertKey, deleteKey } from "./keys-api";
-import { useEffect } from "react";
 import { standardizeApiError } from "./error";
 import { toast } from "sonner";
 
@@ -11,8 +10,6 @@ export function useProvidersQuery() {
     queryKey: keysQueryKey,
     queryFn: listProviders,
     select: (d) => {
-      //   console.log("Raw response data:", d);
-      //   console.log("Extracted providers:", d.providers);
       return d.providers;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh for 5 min
@@ -22,12 +19,6 @@ export function useProvidersQuery() {
     refetchOnReconnect: false, // Don't refetch on network reconnect
     enabled: true,
   });
-  // Log only when data actually changes
-  useEffect(() => {
-    if (query.data) {
-      console.log("Available providers:", query.data);
-    }
-  }, [query.data]);
 
   return query;
 }

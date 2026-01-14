@@ -26,13 +26,13 @@ function RouteComponent() {
           onClick: () => {},
         },
       });
-      navigate({ to: "/signin" });
+      navigate({ to: "/signin", search: { isGuestModePreview: undefined } });
     }
   }, [navigate, session]);
 
   if (session.isPending) {
     return (
-      <div className="min-h-screen p-1 flex flex-col border border-rose-400">
+      <div className="min-h-screen p-1 flex flex-col">
         <div className="p-4 border bg-zinc-800 h-full flex justify-center items-center">Loading...</div>
       </div>
     );

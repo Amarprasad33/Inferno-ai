@@ -11,9 +11,6 @@ import {
   SidebarMenuButton,
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
-// import { getConversationDetail } from "@/lib/conversations-api";
-// import { useConversationHistoryStore } from "@/stores/conversation-history";
-// import { useConversationDetailStore } from "@/stores/conversation-detail";
 import { useCanvasStore } from "@/stores/canvas-store";
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
@@ -43,18 +40,8 @@ import { standardizeApiError } from "@/lib/error";
 import { toast } from "sonner";
 
 export function AppSidebar() {
-  const {
-    canvases,
-    loading,
-    // error,
-    // selectedCanvasId,
-    setSelectedCanvasId,
-    loadCanvases,
-    loadCanvas,
-    deleteCanvas,
-    updateTitle,
-    // createCanvas,
-  } = useCanvasStore();
+  const { canvases, loading, setSelectedCanvasId, loadCanvases, loadCanvas, deleteCanvas, updateTitle } =
+    useCanvasStore();
 
   // State for rename dialog
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
@@ -71,15 +58,9 @@ export function AppSidebar() {
 
   useEffect(() => {
     // if (!loading && conversations.length === 0) {
-    console.log("user--", user);
-  }, [user]);
-
-  useEffect(() => {
-    // if (!loading && conversations.length === 0) {
-    console.log("effect-sidebar");
     void loadCanvases();
     // }
-  }, []);
+  }, [loadCanvases]);
   useEffect(() => {
     if (loading && isInitialLoadRef.current) {
       setSidebarLoading(true);
@@ -92,25 +73,16 @@ export function AppSidebar() {
   }, [loading]);
 
   const handleSelect = async (id: string) => {
-    // if (selectedConversationId === id) {
-    //   console.log("sel--", selectedConversationId, "---", id);
-    //   return;
-    // }
     navigate({
       to: "/chat/$canvasId",
       params: { canvasId: id },
     });
     setSelectedCanvasId(id);
     try {
-      console.log("detailLoading--", loading);
       await loadCanvas(id);
     } catch (err) {
       console.log("error--", err);
     }
-    // const convoDetail = await getConversationDetail(id);
-    // console.log("conv-Details-----0--", convoDetail);
-    // if (isMobile) setOpenMobile(false);
-    // else setOpen(false);
   };
 
   const handleRenameClick = (canvas: { id: string; title: string }) => {

@@ -41,7 +41,6 @@ const FitViewOnLoad = ({ nodes, shouldFit }: { nodes: Node[]; shouldFit: boolean
 
   useEffect(() => {
     if (shouldFit && nodes.length > 0) {
-      console.log("FITTTTTTTT----------------------------------");
       // Small delay to ensure nodes are rendered in the DOM
       fitView({
         padding: 0.2, // 20% padding around nodes
@@ -148,9 +147,9 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         height: window.innerHeight,
       });
     };
+    console.log("window-size", windowDimensions);
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
-    console.log("windowDimentions--", windowDimensions);
 
     // Cleanup
     return () => window.removeEventListener("resize", updateDimensions);
@@ -171,7 +170,6 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
     }
   }, [availableProviders, navigate, isLoading]);
   useEffect(() => {
-    console.log("canvasId", canvasIdFromRoute);
     if (!canvasIdFromRoute && !hasInitializedRef.current && nodes.length === 0) {
       hasInitializedRef.current = true;
       addChatNode().catch((error: unknown) => {
@@ -206,14 +204,12 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           },
         }));
       });
-      console.log("nodes are set");
     },
     [getNodeIdMap]
   );
 
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
-      console.log("changes--", changes);
       setEdges((eds) => {
         const updated = applyEdgeChanges(changes, eds);
         edgesRef.current = updated;
@@ -243,16 +239,11 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
 
   const onConnect = useCallback(
     (params: Connection | Edge) => {
-      console.log("params", params, nodes);
-      const sourceNode = structuralNodes.find((n) => n.id === params.source);
-      const targetNode = structuralNodes.find((n) => n.id === params.target);
-
-      console.log("sourceNode", sourceNode);
-      console.log("targetNode", targetNode);
+      // const sourceNode = structuralNodes.find((n) => n.id === params.source);
+      // const targetNode = structuralNodes.find((n) => n.id === params.target);
 
       setEdges((eds) => {
         const updated = addEdge(params, eds);
-        // console.log("edges-", updated);
         edgesRef.current = updated;
         // Update all nodes with new edges (edge was added)
         setNodes((nds) =>
@@ -267,9 +258,8 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         );
         return updated;
       });
-      console.log(":edges:::", edgesRef.current);
     },
-    [nodes, structuralNodes, getNodeIdMap]
+    [nodes, getNodeIdMap]
   );
 
   const addChatNode = async () => {
@@ -346,7 +336,6 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         if (!currentCanvasId) {
           const ownCanvas = await createCanvas({});
           currentCanvasId = ownCanvas.id;
-          console.log("oCanvas--", ownCanvas);
           setCanvasId(ownCanvas.id);
         }
 
@@ -415,8 +404,6 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
     async (sourceNodeId: string, handleType: "source" | "target", handlePosition: "left" | "right") => {
       const nodes = nodesRef.current;
       // use structural Nodes and nodes combined for the desired result
-      console.log("addNode-onHandleClick", sourceNodeId, "nodesssss", nodes);
-      console.log("structNodes", structuralNodes);
       if (nodes.length > 9) {
         toast("Cannot create more nodes!", {
           description: "Max node limit reached!!",
@@ -425,13 +412,10 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
             onClick: () => {},
           },
         });
-        console.log("IFFFFF");
         return;
       }
-      console.log("af----eff", nodes);
       try {
         const sourceNode = nodes.find((n) => n.id === sourceNodeId);
-        console.log("source-node", sourceNode);
         if (!sourceNode) return;
 
         // Calculate pos for new node based on handle position
@@ -466,7 +450,6 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
             getNodeIdMap,
           },
         };
-        console.log("nwe--nn---", newNode, "pos", handlePosition);
         // Add the new node
         setNodes((nds) => [...nds, newNode]);
 
@@ -497,17 +480,17 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           return updated;
         });
 
-        console.log("🔗 Created new node and edge:", {
-          sourceNodeId,
-          newNodeId: `${nodeId}`,
-          edge: newEdge,
-        });
+        // console.log("🔗 Created new node and edge:", {
+        //   sourceNodeId,
+        //   newNodeId: `${nodeId}`,
+        //   edge: newEdge,
+        // });
 
         nodeId++;
       } catch (error) {
         const apiErr = standardizeApiError(error);
         toast("Failed to initialize node", { description: apiErr.message });
-        console.log("err-", error);
+        console.error("err-", apiErr);
       }
     },
     [setIsPanelInteractiveStable, initializeNodeInDb, structuralNodes, getNodeIdMap]
@@ -539,28 +522,22 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           getNodeIdMap,
         },
       })),
-    // [detail, setIsPanelInteractiveStable]
-    // [windowDimensions, setIsPanelInteractiveStable]
     [setIsPanelInteractiveStable, getNodeIdMap]
   );
 
   useEffect(() => {
     if (!selectedCanvasId || !currentCanvas || currentCanvas.canvas.id !== selectedCanvasId) {
-      console.log("detail---missing--", currentCanvas);
       return;
     }
     // setConversationId(detail.conversation.id);
-    console.log("adDNodeHandleReffff------", addNodeOnHandleClickRef);
     setCanvasId(currentCanvas.canvas?.id ?? null);
     setEdges([]);
     nodeId = currentCanvas.nodes?.length + 1 || 1;
-    // const hydra = hydrateNodes(detail.nodes);
-    // console.log("hydra--", currentCanvas, "struct-nodes", structuralNodes);
+    // const hydrated = hydrateNodes(detail.nodes);
     setShouldFitView(true);
     const hydratedNodes = hydrateNodes(currentCanvas.nodes);
     nodesRef.current = hydratedNodes;
     setNodes(hydratedNodes);
-    // console.log("");
 
     return () => {
       setCanvasId(null);
@@ -578,7 +555,6 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
 
     loadCanvas(canvasIdFromRoute)
       .then((res) => {
-        console.log("res--", res);
         if (!res.status) {
           toast("Canvas not found", {
             description: "The canvas you're trying to view doesn't exist.",
@@ -587,7 +563,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         }
       })
       .catch((err) => {
-        console.log("err - load-Nox canvas", err);
+        console.log("err - while loading canvas from id", err);
       });
     // }
     setShouldFitView(true);
@@ -611,8 +587,6 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
   // const nodeClassName = (node: typeof ChatNode) => node.type;
 
   return (
-    // --- FIX IS HERE ---
-    // The height is now 200% of the viewport height, creating a large scrollable area.
     <div className="h-screen" style={{ width: "100%", position: "relative", overflow: "hidden" }}>
       <div className="absolute top-3 left-3 rounded-lg flex items-center gap-3 px-3 py-3 bg-zinc-900 z-5">
         <SidebarTrigger className="p-3! rounded-md z-30 bg-zinc-900 hover:bg-zinc-700/30 border border-zinc-800" />
@@ -656,7 +630,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         defaultEdgeOptions={{ type: "custom" }}
         edgesFocusable={true}
         edgesUpdatable={true}
-        // 3. CONTROL REACT FLOW'S PROPS with our state.
+        // CONTROLLING REACT FLOW'S PROPS with our state.
         zoomOnScroll={isPaneInteractive}
         panOnScroll={isPaneInteractive}
         preventScrolling={isPaneInteractive} // Important for some trackpads

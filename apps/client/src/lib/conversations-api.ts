@@ -48,16 +48,14 @@ export async function createConversation(input: { title?: string; canvasId?: str
 
 export async function listConversations() {
   const res = await fetch(`${API_BASE}/api/conversations`, { credentials: "include" });
-  console.log("res", res);
   if (!res.ok) {
     let message = "Failed to load conversations";
     const bodytext = await res.text();
     try {
       const data = JSON.parse(bodytext);
-      console.log('data', data)
       message = (data?.message ?? data?.error ?? data?.detail) || message;
     } catch {
-      console.log('boxy-text', bodytext);
+      console.log("ERROR -- boxy-text", bodytext);
       message = bodytext;
     }
     throw new ApiError(message, res.status);
@@ -75,10 +73,7 @@ export async function getConversation(id: string, opts?: { nodeId?: string }) {
   return (await res.json()) as { conversation: Conversation; messages: Message[] };
 }
 
-export async function appendMessage(
-  nodeId: string,
-  input: { role: "user" | "assistant" | "system"; content: string }
-) {
+export async function appendMessage(nodeId: string, input: { role: "user" | "assistant" | "system"; content: string }) {
   const res = await fetch(`${API_BASE}/api/nodes/${encodeURIComponent(nodeId)}/messages`, {
     method: "POST",
     credentials: "include",

@@ -12,8 +12,6 @@ import { InfernoLogoSmall } from "@/icons";
 
 function RootComponent() {
   // const { data, isLoading } = useSession();
-  // console.log("data", data);
-  // console.log("data--load", isLoading);
   const navigate = useNavigate();
   const session = useSession();
   const router = useRouter();
@@ -22,11 +20,9 @@ function RootComponent() {
   const location = useLocation();
   const showSidebar = ["/chat"].some((p) => location.pathname.startsWith(p));
   const hideTopBar = ["/signin", "/signup", "/chat"].some((p) => location.pathname.startsWith(p));
-  // console.log("session", session);
 
   useEffect(() => {
     const user = session?.data?.user;
-    console.log("user--ROOT", user);
     if (user) {
       setSession({
         user: {

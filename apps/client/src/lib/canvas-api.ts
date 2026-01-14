@@ -28,7 +28,6 @@ export async function createCanvas(input?: { title?: string }) {
 
 export async function listCanvases() {
   const res = await fetch(`${API_BASE}/api/canvas`, { credentials: "include" });
-  console.log("res", res);
   if (!res.ok) throw await responseToError(res);
   return (await res.json()) as { canvases: Canvas[] };
 }

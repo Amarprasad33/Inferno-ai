@@ -54,7 +54,7 @@ function RouteComponent() {
           description: res.error?.message || "Something went wrong!",
           action: {
             label: "OK!",
-            onClick: () => console.log("ok"),
+            onClick: () => {},
           },
         });
       }
@@ -74,7 +74,7 @@ function RouteComponent() {
         description: "Something went wrong!",
         action: {
           label: "OK!",
-          onClick: () => console.log("Undo"),
+          onClick: () => {},
         },
       });
     }

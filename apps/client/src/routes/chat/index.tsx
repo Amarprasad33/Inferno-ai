@@ -25,7 +25,7 @@ function RouteComponent() {
           onClick: () => {},
         },
       });
-      navigate({ to: "/signin" });
+      navigate({ to: "/signin", search: { isGuestModePreview: undefined } });
     }
   }, [navigate, session]);
 

@@ -1,4 +1,3 @@
-// components/forms/signin-form.tsx
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -26,16 +25,13 @@ export default function SigninForm() {
 
   async function onSubmit(data: SigninSchemaType) {
     try {
-      // console.log("submit-data", data);
-
       const res = await signIn.email(data);
-      console.log("res", res);
       if (!res.data) {
         toast("Signin failed", {
           description: res.error?.message || "Something went wrong!",
           action: {
             label: "OK!",
-            onClick: () => console.log("ok"),
+            onClick: () => {},
           },
         });
       }
@@ -44,7 +40,7 @@ export default function SigninForm() {
           description: "Experience the truly infinite chat!!",
           action: {
             label: "OK!",
-            onClick: () => console.log("ok"),
+            onClick: () => {},
           },
         });
       }
@@ -54,7 +50,7 @@ export default function SigninForm() {
         description: "Something went wrong!",
         action: {
           label: "OK!",
-          onClick: () => console.log("Undo"),
+          onClick: () => {},
         },
       });
     }
