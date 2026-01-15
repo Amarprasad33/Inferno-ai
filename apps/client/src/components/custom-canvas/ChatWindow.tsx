@@ -58,7 +58,7 @@ export const HtmlChatWindow: React.FC<HtmlChatWindowProps> = ({
     <Draggable
       handle=".chat-header" // Only allow dragging from the header
       position={{ x: finalX, y: finalY }}
-      onStop={(e, data) => {
+      onStop={(_e, data) => {
         onDrag({
           x: (data.x - stageX) / stageScale,
           y: (data.y - stageY) / stageScale,
