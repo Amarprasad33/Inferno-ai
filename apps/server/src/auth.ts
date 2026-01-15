@@ -8,7 +8,16 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 if (!JWT_SECRET) {
   throw new Error("Missing env JWT_SECRET, Need jwt secret to auth to work");
 }
+
+const getBaseURL = () => {
+  if (process.env.NODE_ENV === "production") {
+    return process.env.PROD_BACKEND_URL || process.env.BACKEND_URL;
+  }
+  return "http://localhost:3000";
+};
+
 export const auth = betterAuth({
+  baseURL: getBaseURL(),
   trustedOrigins: [
     "http://localhost:5173",
     // "https://xyzwq-frontend.com", //  Prod frontend
