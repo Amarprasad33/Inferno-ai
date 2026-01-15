@@ -19,7 +19,7 @@ const app = new Hono<{
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://xyz-frontend.com", // example Prod frontend
+  process.env.PROD_FRONTEND_URL || "",
 ];
 
 // *** Middlewares ***
