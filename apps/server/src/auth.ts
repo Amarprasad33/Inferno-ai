@@ -23,6 +23,12 @@ export const auth = betterAuth({
     // "https://xyzwq-frontend.com", //  Prod frontend
     process.env.PROD_FRONTEND_URL || "",
   ],
+  redirect: {
+    onNewUser: process.env.PROD_FRONTEND_URL || "http://localhost:5173",
+    onSignIn: process.env.PROD_FRONTEND_URL || "http://localhost:5173",
+    onSignOut: process.env.PROD_FRONTEND_URL || "http://localhost:5173",
+    onError: process.env.PROD_FRONTEND_URL || "http://localhost:5173",
+  },
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
