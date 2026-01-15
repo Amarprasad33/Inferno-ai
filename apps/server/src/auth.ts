@@ -11,7 +11,8 @@ if (!JWT_SECRET) {
 export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:5173",
-    "https://xyzwq-frontend.com", // example Prod frontend
+    // "https://xyzwq-frontend.com", //  Prod frontend
+    process.env.PROD_FRONTEND_URL || "",
   ],
   database: prismaAdapter(prisma, {
     provider: "postgresql",
