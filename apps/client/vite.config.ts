@@ -1,19 +1,19 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { tanstackRouter } from '@tanstack/router-plugin/vite';
-import tailwindcss from '@tailwindcss/vite';
-import path from 'path';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    // Please make sure that '@tanstack/router-plugin' is passed before '@vitejs/plugin-react'
+    // make sure that '@tanstack/router-plugin' is passed before '@vitejs/plugin-react'
     tanstackRouter({
-      target: 'react',
+      target: "react",
       autoCodeSplitting: true,
     }),
     tailwindcss(),
-    react()
+    react(),
   ],
   resolve: {
     alias: {
@@ -22,8 +22,8 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api": { target: "http://localhost:3000", changeOrigin: true },
-      "/session": { target: "http://localhost:3000", changeOrigin: true }
-    }
-  }
-})
+      "/api": { target: process.env.VITE_API_URL || "http://localhost:3000", changeOrigin: true },
+      "/session": { target: process.env.VITE_API_URL || "http://localhost:3000", changeOrigin: true },
+    },
+  },
+});
