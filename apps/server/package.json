@@ -31,10 +31,10 @@
     "dotenv": "^17.2.1",
     "hono": "^4.9.0",
     "jsonwebtoken": "^9.0.2",
-    "zod": "^4.0.17"
+    "zod": "^4.0.17",
+    "@types/jsonwebtoken": "^9.0.10"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.2.1",
     "prisma": "^6.13.0",
     "tsx": "^4.20.3",
