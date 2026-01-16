@@ -5,6 +5,9 @@ import { API_BASE } from "./keys-api";
 // const BASE_URL = typeof window !== "undefined" ? window.location.origin : "http://localhost:5173";
 export const authClient = createAuthClient({
   baseURL: API_BASE,
+  fetchOptions: {
+    credentials: "include",
+  },
   // fetch: (url: RequestInfo | URL, options?: RequestInit) => fetch(url, { ...options, credentials: "include" }),
 });
 

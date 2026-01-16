@@ -81,7 +81,7 @@ export const auth = betterAuth({
       /* For Deploying on Render */
       sameSite: "none",
       secure: true,
-      partitioned: true,
+      // partitioned: true,
     },
     useSecureCookies: true,
   },
