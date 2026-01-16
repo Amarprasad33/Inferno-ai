@@ -79,7 +79,7 @@ export const auth = betterAuth({
       /* For Deploying on PROD */
       sameSite: isProd ? "none" : "Lax",
       secure: isProd,
-      partitioned: isProd,
+      // partitioned: isProd,
     },
     useSecureCookies: isProd,
   },
