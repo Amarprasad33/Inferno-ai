@@ -11,9 +11,10 @@ if (!JWT_SECRET) {
 
 const getBaseURL = () => {
   if (process.env.NODE_ENV === "production") {
-    return process.env.PROD_BACKEND_URL || process.env.BACKEND_URL;
+    const url = process.env.PROD_BACKEND_URL || process.env.BACKEND_URL;
+    return `${url}/api/auth`;
   }
-  return "http://localhost:3000";
+  return "http://localhost:3000/api/auth";
 };
 
 console.log("<---- Base-url ------>", getBaseURL());
