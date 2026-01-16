@@ -17,9 +17,7 @@ const getBaseURL = () => {
   return "http://localhost:3000";
 };
 
-console.log("<---- Base-url ------>", getBaseURL());
-console.log("<---- PROD FE--x-url ------>", process.env.PROD_FRONTEND_URL);
-console.log("<---- PROD BE--x-url ------>", process.env.PROD_BACKEND_URL);
+const isProd = process.env.NODE_ENV === "production";
 
 export const auth = betterAuth({
   baseURL: getBaseURL(),
@@ -78,12 +76,12 @@ export const auth = betterAuth({
       // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       // secure: process.env.NODE_ENV === "production", // true only in prod
       // partitioned: process.env.NODE_ENV === "production",
-      /* For Deploying on Render */
-      sameSite: "none",
-      secure: true,
-      // partitioned: true,
+      /* For Deploying on PROD */
+      sameSite: isProd ? "none" : "Lax",
+      secure: isProd,
+      partitioned: isProd,
     },
-    useSecureCookies: true,
+    useSecureCookies: isProd,
   },
 });
 
