@@ -50,23 +50,23 @@ app.use(
 );
 // app.use("/chat/*", authMiddleware);
 // DEBUG MIDDLEWARE - Place in index.ts
-app.use("*", async (c, next) => {
-  console.log(`\n[${c.req.method}] ${c.req.url}`);
+// app.use("*", async (c, next) => {
+//   console.log(`\n[${c.req.method}] ${c.req.url}`);
 
-  // Log incoming cookies from the browser
-  const cookies = c.req.header("cookie");
-  console.log(">> Incoming Cookies:", cookies || "NONE");
+//   // Log incoming cookies from the browser
+//   const cookies = c.req.header("cookie");
+//   console.log(">> Incoming Cookies:", cookies || "NONE");
 
-  await next();
+//   await next();
 
-  // Log outgoing cookies being set by Better Auth
-  const setCookie = c.res.headers.get("Set-Cookie");
-  if (setCookie) {
-    console.log("<< Outgoing Set-Cookie:", setCookie);
-  } else {
-    console.log("<< No Set-Cookie header found in response");
-  }
-});
+//   // Log outgoing cookies being set by Better Auth
+//   const setCookie = c.res.headers.get("Set-Cookie");
+//   if (setCookie) {
+//     console.log("<< Outgoing Set-Cookie:", setCookie);
+//   } else {
+//     console.log("<< No Set-Cookie header found in response");
+//   }
+// });
 
 // auth-session middlware
 app.use("*", async (c, next) => {
