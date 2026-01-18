@@ -13,13 +13,15 @@ import "reactflow/dist/style.css";
 import ChatNode, { type ChatNodeData } from "./ChatNode";
 import { toast } from "sonner";
 import { SidebarTrigger } from "./ui/sidebar";
-import { createCanvas, createNode, type CanvasDetail } from "@/lib/canvas-api";
+import { createNode, type CanvasDetail } from "@/lib/canvas-api";
 import { useCanvasStore } from "@/stores/canvas-store";
 import CustomEdge from "./custom/CustomEdge";
 import { PlusIcon } from "lucide-react";
 import { standardizeApiError } from "@/lib/error";
 import { useProvidersQuery } from "@/lib/keys-hooks";
 import { useNavigate } from "@tanstack/react-router";
+import { useSessionStore } from "@/stores/session-store";
+import { logger } from "@/lib/logger";
 
 // The options to hide the attribution watermark.
 const proOptions = {
@@ -68,14 +70,15 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
     addNode,
     setSelectedCanvasId,
     loadCanvas,
+    createCanvas: createCanvasInStore,
     // nodesById,
     // setNodes: setStructuralNodes,
     // resetNodes,
   } = useCanvasStore();
+  const { activeSessionCanvas, setActiveSessionCanvas } = useSessionStore();
   const [shouldFitView, setShouldFitView] = useState(false);
 
-  // server ids
-  const [canvasId, setCanvasId] = useState<string | null>(null);
+  const isInitializingNodeRef = useRef(false);
   const addNodeOnHandleClickRef =
     useRef<(sourceNodeId: string, handleType: "source" | "target", handlePosition: "left" | "right") => Promise<void>>(
       undefined
@@ -311,6 +314,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           // ...(conversationId && { conversationId }),
           // dbNodeId: nodeData.id,
           // No conversationId or dbNodeId yet - will be created on first message
+          initialMessages: [],
           onInitializeNode: initializeNodeInDb, // Pass callback to create DB resources
           onTopHandleClick: addNodeOnHandleClick,
           edges: edgesRef.current,
@@ -331,14 +335,39 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
   const initializeNodeInDb = useCallback(
     async (nodeId: string, label: string) => {
       try {
-        let currentCanvasId = canvasId;
+        isInitializingNodeRef.current = true;
+        // if(!canvasIdFromRoute || !selectedCanvasId) return;
+        const currentActiveCanvas =  useSessionStore.getState().activeSessionCanvas;
+        logger.log("canvasIdfrRoute--->", canvasIdFromRoute)
+        logger.log("selectedCavId", selectedCanvasId);
+        logger.log("activeCanvs",currentActiveCanvas);
+
+
+        // let currentCanvasId = canvasIdFromRoute || selectedCanvasId || activeSessionCanvas || "";
+        let currentCanvasId =  selectedCanvasId || currentActiveCanvas || "";
+
+        logger.log("curr-canvas-id", currentCanvasId);
 
         if (!currentCanvasId) {
-          const ownCanvas = await createCanvas({});
-          currentCanvasId = ownCanvas.id;
-          setCanvasId(ownCanvas.id);
+          if (currentCanvas?.canvas?.id) {
+            currentCanvasId = currentCanvas.canvas.id;
+            setSelectedCanvasId(currentCanvasId);
+          } else {
+            const existingInitializedNode = nodesRef.current.find((n) => (n.data as ChatNodeData).dbNodeId);
+
+            if (!existingInitializedNode) {
+              // No existing canvas or nodes - then - create a new canvas
+              const ownCanvas = await createCanvasInStore(`New chat`);
+              currentCanvasId = ownCanvas.id;
+              setActiveSessionCanvas(currentCanvasId);
+            }
+          }
+          // const ownCanvas = await createCanvas({});
+          // currentCanvasId = ownCanvas.id;
+          // setCanvasId(ownCanvas.id);
         }
 
+        // Future Ref: for multi-user colaborative canvas
         // let currentConversationId = conversationId;
         // if (!currentConversationId) {
         //   const convo = await createConversation({
@@ -349,6 +378,17 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         //   console.log("convo--", convo);
         //   setConversationId(convo.id);
         // }
+
+        if (!currentCanvasId) {
+          toast("Cannot initialize this node, canvasId is missing!!", {
+            description: "Please contact the developer here",
+            action: {
+              label: "OK!",
+              onClick: () => {},
+            },
+          });
+          return;
+        }
 
         // Create node in DB
         const nodeData = await createNode(currentCanvasId, {
@@ -389,6 +429,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
           )
         );
 
+        isInitializingNodeRef.current = false;
         return {
           dbNodeId: nodeData.id,
           // conversationId: currentConversationId,
@@ -397,7 +438,16 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         console.error("Failed to initialize node in DB:", error);
       }
     },
-    [canvasId, addNode, getNodeIdMap]
+    [
+      canvasIdFromRoute,
+      selectedCanvasId,
+      currentCanvas,
+      addNode,
+      getNodeIdMap,
+      setSelectedCanvasId,
+      createCanvasInStore,
+      setActiveSessionCanvas
+    ]
   );
 
   const addNodeOnHandleClick = useCallback(
@@ -414,6 +464,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         });
         return;
       }
+      logger.log("aciveCanvas", activeSessionCanvas);
       try {
         const sourceNode = nodes.find((n) => n.id === sourceNodeId);
         if (!sourceNode) return;
@@ -493,7 +544,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         console.error("err-", apiErr);
       }
     },
-    [setIsPanelInteractiveStable, initializeNodeInDb, structuralNodes, getNodeIdMap]
+    [setIsPanelInteractiveStable, initializeNodeInDb, structuralNodes, getNodeIdMap, activeSessionCanvas, setActiveSessionCanvas]
   );
 
   addNodeOnHandleClickRef.current = addNodeOnHandleClick;
@@ -530,7 +581,12 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
       return;
     }
     // setConversationId(detail.conversation.id);
-    setCanvasId(currentCanvas.canvas?.id ?? null);
+    // setCanvasId(currentCanvas.canvas?.id ?? null);
+    if (isInitializingNodeRef.current && currentCanvas.nodes.length === 0) {
+      logger.log("init node-- return.")
+      return;
+    }
+    logger.log("Loading------- canvas")
     setEdges([]);
     nodeId = currentCanvas.nodes?.length + 1 || 1;
     // const hydrated = hydrateNodes(detail.nodes);
@@ -540,12 +596,30 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
     setNodes(hydratedNodes);
 
     return () => {
-      setCanvasId(null);
+      // setCanvasId(null);
+      logger.log("----resettting----")
       setNodes([]);
       setEdges([]);
       setShouldFitView(false);
     };
   }, [selectedCanvasId, currentCanvas, hydrateNodes]);
+
+  useEffect(() => {
+    // Clear nodes when canvas is deleted (selectedCanvasId becomes null
+    if (!selectedCanvasId && !canvasIdFromRoute && !isInitializingNodeRef.current && !activeSessionCanvas) {
+      logger.log("Clearing nodes - canvas deleted or deselected");
+      setNodes([]);
+      setEdges([]);
+      nodesRef.current = [];
+      edgesRef.current = [];
+      nodeId = 1;
+      hasInitializedRef.current = true;
+      addChatNode().catch((error: unknown) => {
+        logger.error("Failed to create initial node:", error);
+        hasInitializedRef.current = false;
+      });
+    }
+  }, [selectedCanvasId, canvasIdFromRoute, activeSessionCanvas]);
 
   useEffect(() => {
     if (!canvasIdFromRoute) return;
@@ -569,7 +643,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
     setShouldFitView(true);
 
     return () => {
-      setCanvasId(null);
+      // setCanvasId(null);
       setShouldFitView(false);
     };
   }, [canvasIdFromRoute]);

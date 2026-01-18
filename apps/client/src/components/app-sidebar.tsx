@@ -40,7 +40,7 @@ import { standardizeApiError } from "@/lib/error";
 import { toast } from "sonner";
 
 export function AppSidebar() {
-  const { canvases, loading, setSelectedCanvasId, loadCanvases, loadCanvas, deleteCanvas, updateTitle } =
+  const { canvases, loading, setSelectedCanvasId, loadCanvases, loadCanvas, deleteCanvas, updateTitle, resetCurrentCanvas } =
     useCanvasStore();
 
   // State for rename dialog
@@ -54,7 +54,7 @@ export function AppSidebar() {
   // Use ref to track if it's the first load
   const isInitialLoadRef = useRef(true);
   const navigate = useNavigate();
-  const { user } = useSessionStore();
+  const { user, setActiveSessionCanvas } = useSessionStore();
 
   useEffect(() => {
     // if (!loading && conversations.length === 0) {
@@ -146,7 +146,8 @@ export function AppSidebar() {
                 // const newCanvas = await createCanvas("New Conversation");
                 // await loadCanvases();
                 setSelectedCanvasId(null);
-                await loadCanvas("");
+                resetCurrentCanvas();
+                setActiveSessionCanvas(null);
                 navigate({
                   to: "/chat",
                 });
@@ -234,7 +235,11 @@ export function AppSidebar() {
                               e.stopPropagation();
                               await deleteCanvas(canvas.id);
                               setSelectedCanvasId(null);
-                              await loadCanvas("");
+                              resetCurrentCanvas();
+                              const currentActiveCanvas = useSessionStore.getState().activeSessionCanvas;
+                              if(currentActiveCanvas === canvas.id){
+                                setActiveSessionCanvas(null);
+                              }
                               navigate({
                                 to: "/chat",
                               });

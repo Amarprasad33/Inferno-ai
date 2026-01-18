@@ -295,8 +295,12 @@ const ChatNode = memo(
         : [];
 
     useEffect(() => {
-      setMessages(normalizeMessages(data.initialMessages));
-    }, [data.initialMessages]);
+      if (!data.initialMessages || data.initialMessages.length === 0) {
+        setMessages([]);
+      } else {
+        setMessages(normalizeMessages(data.initialMessages));
+      }
+    }, [data.initialMessages, id]);
 
     // useEffect(() => {
     //   console.log("chatNode-data", data);

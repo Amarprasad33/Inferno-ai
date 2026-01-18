@@ -5,9 +5,11 @@ import { createJSONStorage, devtools, persist, subscribeWithSelector } from "zus
 type SessionState = {
   user: AppUser | null;
   isAuthenticated: boolean;
+  activeSessionCanvas: string | null;
   setUser: (user: AppUser | null) => void;
   clear: () => void;
   setSession: (session: Partial<AppSession> | null) => void;
+  setActiveSessionCanvas: (canvasId: string | null) => void;
 };
 
 export const useSessionStore = create<SessionState>()(
@@ -17,6 +19,7 @@ export const useSessionStore = create<SessionState>()(
         (set) => ({
           user: null,
           isAuthenticated: false,
+          activeSessionCanvas: null,
           setUser: (user: AppUser | null) =>
             set({
               user,
@@ -27,6 +30,9 @@ export const useSessionStore = create<SessionState>()(
               user: session?.user ?? null,
               isAuthenticated: !!session?.user,
             }),
+          setActiveSessionCanvas: (canvasId: string | null) =>{
+            set({ activeSessionCanvas: canvasId })
+          },
           clear: () => {
             set({ user: null, isAuthenticated: false });
           },
@@ -36,7 +42,11 @@ export const useSessionStore = create<SessionState>()(
           version: 1,
           storage: createJSONStorage(() => sessionStorage),
           // Only persist minimal, non-sensitive info
-          partialize: (state: SessionState) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+          partialize: (state: SessionState) => ({ 
+            user: state.user, 
+            isAuthenticated: state.isAuthenticated,
+            activeSessionCanvas: state.activeSessionCanvas
+          }),
         }
       )
     ),

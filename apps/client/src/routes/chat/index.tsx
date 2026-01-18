@@ -1,6 +1,7 @@
 import { useSession } from "@/lib/auth-client";
+import { useSessionStore } from "@/stores/session-store";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import { toast } from "sonner";
 // import NodeCanvas from "../../components/NodeCanvas";
 const NodeCanvas = lazy(() => import("@/components/NodeCanvas"));
@@ -12,6 +13,8 @@ export const Route = createFileRoute("/chat/")({
 function RouteComponent() {
   const session = useSession();
   const navigate = useNavigate();
+  const { setActiveSessionCanvas } = useSessionStore();
+  const canvasEmptyRef = useRef(false);
 
   useEffect(() => {
     const isLoading = session?.isPending ?? true;
@@ -28,6 +31,13 @@ function RouteComponent() {
       navigate({ to: "/signin", search: { isGuestModePreview: undefined } });
     }
   }, [navigate, session]);
+
+  useEffect(() => {
+    if(!canvasEmptyRef.current){
+      setActiveSessionCanvas(null);
+      canvasEmptyRef.current = true;
+    }
+  }, [setActiveSessionCanvas])
 
   if (session.isPending) {
     return (
