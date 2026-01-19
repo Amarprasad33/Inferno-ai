@@ -9,6 +9,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { signOut } from "@/lib/auth-client";
 import { InfernoLogoSmall } from "@/icons";
+import MobileMenu from "@/components/custom/MobileMenu";
 
 function RootComponent() {
   // const { data, isLoading } = useSession();
@@ -56,7 +57,7 @@ function RootComponent() {
         <div className="min-h-screen w-full selection:bg-white selection:text-black">
           {!hideTopBar && (
             <div className="app-bar sticky top-0 px-2 py-3 flex justify-center border-b border-[#222224] bg-zinc-950 z-40">
-              <div className="flex gap-2 justify-between items-center min-w-md max-w-[1140px] w-3/4">
+              <div className="flex gap-2 justify-between items-center min-w-full md:min-w-md md:max-w-[1140px] w-3/4">
                 <div className="flex gap-2 items-center cursor-pointer" onClick={() => navigate({ to: "/" })}>
                   <span className="bg-white p-[6px] rounded-[8px]">
                     <InfernoLogoSmall className="w-6 h-6 text-black " />
@@ -66,7 +67,7 @@ function RootComponent() {
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="gap-2 hidden md:flex">
                   <Link
                     to="/"
                     className="text-[#7b7b7b] px-3 py-1 rounded-sm hover:bg-zinc-800 font-medium [&.active]:text-white [&.active]:font-semibold "
@@ -95,7 +96,7 @@ function RootComponent() {
                     Chat
                   </Link>
                 </div>
-                <div className="flex gap-1 items-center">
+                <div className="gap-1 items-center hidden md:flex">
                   {session && session.data?.user?.image ? (
                     <img
                       src={session.data.user.image}
@@ -125,6 +126,22 @@ function RootComponent() {
                       </Button>
                     </Link>
                   )}
+                </div>
+                <div className="flex gap-2 items-center md:hidden">
+                  {session && session.data?.user?.image ? (
+                    <img
+                      src={session.data.user.image}
+                      alt={session.data.user.name ? `${session.data.user.name}'s avatar` : "User avatar"}
+                      className="w-7 h-7 rounded-full object-cover"
+                    />
+                  ) : (
+                    session.data?.user && (
+                      <div className="w-7 h-7 flex items-center justify-center rounded-full bg-zinc-500">
+                        {session?.data?.user?.name?.substring(0, 1)}
+                      </div>
+                    )
+                  )}
+                  <MobileMenu /> 
                 </div>
               </div>
             </div>
