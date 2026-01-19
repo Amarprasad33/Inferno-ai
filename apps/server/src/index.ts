@@ -106,6 +106,10 @@ app.route("/api/nodes", nodes);
 app.get("/test", async (c) => {
   return c.json({ success: true, message: "Test response" });
 });
+app.get("/health-check", async (c) => {
+  console.log("<<--- Health active  --->>")
+  return c.json({ status: 'active', timestamp: new Date() });
+});
 
 const port = Number(process.env.PORT || 3000);
 serve({ fetch: app.fetch, port });
