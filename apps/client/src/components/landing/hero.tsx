@@ -40,7 +40,7 @@ export default function Hero() {
             <motion.button
               whileTap={{ scale: 0.98 }}
               className="w-full sm:w-auto px-8 py-4 bg-white text-black font-semibold text-sm rounded-none hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 group"
-              onClick={() => navigate({ to: "/account/your_keys" })}
+              onClick={() => navigate({ to: "/chat" })}
             >
               Start for Free
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

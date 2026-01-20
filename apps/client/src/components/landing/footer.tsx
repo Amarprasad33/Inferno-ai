@@ -36,7 +36,7 @@ export default function Footer() {
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-zinc-300 transition-colors">
+              <a href="/pricing" className="hover:text-zinc-300 transition-colors">
                 Pricing
               </a>
             </li>
@@ -52,7 +52,7 @@ export default function Footer() {
           <h4 className="font-bold text-white mb-6">Company</h4>
           <ul className="space-y-4 text-sm text-zinc-500">
             <li>
-              <a href="#" className="hover:text-zinc-300 transition-colors">
+              <a href="/about" className="hover:text-zinc-300 transition-colors">
                 About
               </a>
             </li>

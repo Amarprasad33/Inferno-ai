@@ -15,7 +15,7 @@ const allowedProviders = new Set(["openai", "groq"]);
 
 const requireAuth: MiddlewareHandler<AppVars> = async (c, next) => {
   const user = c.get("user");
-  console.log("auth--req=--", user);
+  // console.log("auth--req=--", user);
   if (!user) return c.body(null, 401);
   return next();
 };
