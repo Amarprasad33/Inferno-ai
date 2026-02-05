@@ -23,7 +23,6 @@ export const auth = betterAuth({
   baseURL: getBaseURL(),
   trustedOrigins: [
     "http://localhost:5173",
-    // "https://xyzwq-frontend.com", //  Prod frontend
     process.env.PROD_FRONTEND_URL || "",
   ],
   redirect: {
