@@ -142,3 +142,65 @@ This is just the foundation. The roadmap focuses on scaling the reasoning capabi
 
 - **Context-Aware Summarization:** Automatically collapsing distant upstream nodes into semantic summaries to save token context window.
 - **Hybrid Retrieval:** A RAG system that uses _spatial proximity_ as a weighting factor—nodes visually close to the active node are prioritized in context retrieval, mimicking human associative memory.
+
+---
+
+## 7. Local Development Setup
+
+Follow these steps to get the project running locally.
+
+### 1. Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/Amarprasad33/Inferno-ai.git
+
+# Install dependencies (from root)
+npm install
+```
+
+### 2. Environment Setup
+
+You need to set up environment variables for both the client and server.
+
+**Server:**
+
+1. Navigate to `apps/server`.
+2. Create a `.env` file from the example:
+   ```bash
+   cp .env.example .env
+   ```
+3. Open `.env` and fill in the variables, especially:
+   - `DATABASE_URL`: Your PostgreSQL connection string (e.g., from Neon or local Postgres).
+   - `JWT_SECRET`, `GOOGLE_CLIENT_ID`, etc.
+
+**Client:**
+
+1. Navigate to `apps/client`.
+2. Create a `.env` file from the example:
+   ```bash
+   cp .env.example .env
+   ```
+3. Update variables if your server port differs from default (`3000`).
+
+### 3. Database Setup (Server)
+
+After configuring your `DATABASE_URL` in `apps/server/.env`:
+
+```bash
+cd apps/server
+
+# Run migrations to set up the schema
+npx prisma migrate dev
+
+# Generate the Prisma client
+npm run prisma:generate
+```
+
+### 4. Running the Project
+
+From the root directory, start the development server:
+
+```bash
+npm run dev
+```
