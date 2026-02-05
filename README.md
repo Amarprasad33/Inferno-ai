@@ -38,11 +38,11 @@ graph TD
 
     subgraph Client [Client: Vite + React]
         direction TB
-        Store[Zustand Store \n(Transient Global State)]
+        Store["Zustand Store<br/>(Transient Global State)"]
 
         subgraph Canvas [Spatial Canvas Layer]
             RF[React Flow Instance]
-            Coord[Visual State \n(Coordinates, Zoom, Pan)]
+            Coord["Visual State<br/>(Coordinates, Zoom, Pan)"]
         end
 
         subgraph Nodes [Content Layer]
