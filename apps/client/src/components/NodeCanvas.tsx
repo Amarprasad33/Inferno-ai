@@ -125,7 +125,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
   }, [edges]);
 
   // Function to build nodeIdMap (ReactFlow ID -> DB ID)
-  // Use ref to avoid circular dependency - this function doesn't need to change
+  // Using ref to avoid circular dependency - this function doesn't need to change
   const getNodeIdMap = useCallback((): Map<string, string> => {
     const map = new Map<string, string>();
     nodesRef.current.forEach((node) => {
@@ -337,14 +337,13 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
       try {
         isInitializingNodeRef.current = true;
         // if(!canvasIdFromRoute || !selectedCanvasId) return;
-        const currentActiveCanvas =  useSessionStore.getState().activeSessionCanvas;
-        logger.log("canvasIdfrRoute--->", canvasIdFromRoute)
+        const currentActiveCanvas = useSessionStore.getState().activeSessionCanvas;
+        logger.log("canvasIdfrRoute--->", canvasIdFromRoute);
         logger.log("selectedCavId", selectedCanvasId);
-        logger.log("activeCanvs",currentActiveCanvas);
-
+        logger.log("activeCanvs", currentActiveCanvas);
 
         // let currentCanvasId = canvasIdFromRoute || selectedCanvasId || activeSessionCanvas || "";
-        let currentCanvasId =  selectedCanvasId || currentActiveCanvas || "";
+        let currentCanvasId = selectedCanvasId || currentActiveCanvas || "";
 
         logger.log("curr-canvas-id", currentCanvasId);
 
@@ -446,7 +445,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
       getNodeIdMap,
       setSelectedCanvasId,
       createCanvasInStore,
-      setActiveSessionCanvas
+      setActiveSessionCanvas,
     ]
   );
 
@@ -544,7 +543,14 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
         console.error("err-", apiErr);
       }
     },
-    [setIsPanelInteractiveStable, initializeNodeInDb, structuralNodes, getNodeIdMap, activeSessionCanvas, setActiveSessionCanvas]
+    [
+      setIsPanelInteractiveStable,
+      initializeNodeInDb,
+      structuralNodes,
+      getNodeIdMap,
+      activeSessionCanvas,
+      setActiveSessionCanvas,
+    ]
   );
 
   addNodeOnHandleClickRef.current = addNodeOnHandleClick;
@@ -583,10 +589,10 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
     // setConversationId(detail.conversation.id);
     // setCanvasId(currentCanvas.canvas?.id ?? null);
     if (isInitializingNodeRef.current && currentCanvas.nodes.length === 0) {
-      logger.log("init node-- return.")
+      logger.log("init node-- return.");
       return;
     }
-    logger.log("Loading------- canvas")
+    logger.log("Loading------- canvas");
     setEdges([]);
     nodeId = currentCanvas.nodes?.length + 1 || 1;
     // const hydrated = hydrateNodes(detail.nodes);
@@ -597,7 +603,7 @@ const NodeCanvas = ({ canvasIdFromRoute }: { canvasIdFromRoute?: string }) => {
 
     return () => {
       // setCanvasId(null);
-      logger.log("----resettting----")
+      logger.log("----resettting----");
       setNodes([]);
       setEdges([]);
       setShouldFitView(false);
