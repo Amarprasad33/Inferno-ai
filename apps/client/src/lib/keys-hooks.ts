@@ -29,7 +29,7 @@ export function useAddKeyMutation() {
     mutationFn: upsertKey,
     onError: (err) => {
       const apiErr = standardizeApiError(err);
-      toast("Unable to load providers", { description: apiErr.message });
+      toast("Unable to add key", { description: apiErr.message });
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: keysQueryKey }),
   });
@@ -41,7 +41,7 @@ export function useDeleteKeyMutation() {
     mutationFn: deleteKey,
     onError: (err) => {
       const apiErr = standardizeApiError(err);
-      toast("Unable to load providers", { description: apiErr.message });
+      toast("Unable to delete key", { description: apiErr.message });
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: keysQueryKey }),
   });
