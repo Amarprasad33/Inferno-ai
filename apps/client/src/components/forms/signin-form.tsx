@@ -7,11 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
-import { signIn } from "@/lib/auth-client";
+import { signIn, useSession } from "@/lib/auth-client";
 import { GoogleIcon } from "@/icons";
+import { SpinnerCustom } from "@/components/ui/spinner";
 
 export default function SigninForm() {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const { data: session } = useSession();
 
   const form = useForm<SigninSchemaType>({
     resolver: zodResolver(signinFormSchema),
@@ -96,7 +99,8 @@ export default function SigninForm() {
           )}
         />
 
-        <Button type="submit" className="w-full text-zinc-950">
+        <Button type="submit" className="w-full text-zinc-950" disabled={form.formState.isSubmitting || !!session}>
+          {(form.formState.isSubmitting && !session) && <SpinnerCustom />}
           Sign In
         </Button>
 
@@ -109,7 +113,9 @@ export default function SigninForm() {
         <Button
           type="button"
           className="bg-inherit border border-[#2F2F31] hover:bg-zinc-900 w-full text-zinc-300"
+          disabled={isGoogleLoading || !!session}
           onClick={async () => {
+            setIsGoogleLoading(true);
             try {
               const result = await signIn.social({
                 provider: "google",
@@ -136,10 +142,12 @@ export default function SigninForm() {
                   onClick: () => {},
                 },
               });
+            } finally {
+              setIsGoogleLoading(false);
             }
           }}
         >
-          <GoogleIcon className="w-5! h-5!" />
+          {(isGoogleLoading && !session) ? <SpinnerCustom /> : <GoogleIcon className="w-5! h-5!" />}
           <span>Continue with Google</span>
         </Button>
       </form>

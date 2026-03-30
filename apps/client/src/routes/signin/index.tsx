@@ -6,9 +6,10 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import type { SigninSchemaType } from "@/lib/auth-schema";
-import { signIn } from "@/lib/auth-client";
+import { signIn, useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { UserStar } from "lucide-react";
+import { SpinnerCustom } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/signin/")({
   component: RouteComponent,
@@ -35,6 +36,14 @@ function RouteComponent() {
     []
   );
   const [activeQuoteIndex, setActiveQuoteIndex] = useState(0);
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session) {
+      navigate({ to: "/chat" });
+    }
+  }, [session, navigate]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -59,6 +68,7 @@ function RouteComponent() {
         });
       }
       if (res.data) {
+        setIsGuestLoading(false);
         toast("Signin Successful", {
           description: "Experience the truly infinite chat!!",
           action: {
@@ -81,11 +91,16 @@ function RouteComponent() {
   }
 
   async function signinAsGuest() {
-    const data = {
-      email: import.meta.env.VITE_GUEST_EMAIL,
-      password: import.meta.env.VITE_GUEST_PASSWORD,
-    };
-    await guestSignIn(data);
+    setIsGuestLoading(true);
+    try {
+      const data = {
+        email: import.meta.env.VITE_GUEST_EMAIL,
+        password: import.meta.env.VITE_GUEST_PASSWORD,
+      };
+      await guestSignIn(data);
+    } finally {
+      setIsGuestLoading(false);
+    }
   }
 
   return (
@@ -136,8 +151,8 @@ function RouteComponent() {
           <SigninForm />
           {isGuestModePreview && (
             <div className="w-full flex justify-center mt-3">
-              <Button variant="ghost" className="px-12!" onClick={signinAsGuest}>
-                <UserStar />
+              <Button variant="ghost" className="px-12!" onClick={signinAsGuest} disabled={isGuestLoading || !!session}>
+                {(isGuestLoading && !session) ? <SpinnerCustom /> : <UserStar />}
                 <span>Sign in as a guest</span>
               </Button>
             </div>
